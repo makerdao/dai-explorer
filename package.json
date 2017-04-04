@@ -8,6 +8,8 @@
     "web3": "^0.18.4"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sync": "^0.1.4",
     "react-scripts": "0.9.5"
   },
   "scripts": {
