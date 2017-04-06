@@ -99,7 +99,8 @@ class App extends Component {
     factory.new({data: dsvalue.bytecode, gas: 1500000}, (error, res) => {
       if (res && res.address) {
         var v = factory.at(res.address);
-        v.poke(toBytes32("44.62"), (e, r) => {
+        v.poke(toBytes32(`${44 + Math.random()}`), (e, r) => {
+          console.log(`Set value to: ${44 + Math.random()}`);
           console.log('value', r);
         });
         m.set(res.address, (e, r) => {
