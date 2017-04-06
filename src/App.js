@@ -26,6 +26,8 @@ class App extends Component {
     },
     sai: {
       tub: {
+        per: 0,
+        tag: 0,
         cups: {}
       },
       gem: {},
@@ -35,10 +37,6 @@ class App extends Component {
       pot: {}
     }
   };
-
-  constructor() {
-    super();
-  }
 
   checkNetwork = () => {
     web3.version.getNode((error) => {
@@ -172,6 +170,8 @@ class App extends Component {
     this.getBalanceOf('sin', this.state.sai.tub.address, 'tubBalance');
     this.getBalanceOf('sin', this.state.sai.pot.address, 'potBalance');
 
+    this.getPrices();
+
     this.getCups();
   }
 
@@ -194,8 +194,26 @@ class App extends Component {
       }
     })
   }
+
+  getPrices = () => {
+    this.tubObj.per((e, per) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.tub.per = per;
+        this.setState({ sai });
+      }
+    });
+
+    this.tubObj.tag((e, tag) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.tub.tag = tag;
+        this.setState({ sai });
+      }
+    });
+  }
   
-  getCups() {
+  getCups = () => {
     this.tubObj.cupi((e, cupi) => {
       if (!e) {
         for (let i = 1; i <= cupi.toNumber(); i++) {
@@ -211,9 +229,15 @@ class App extends Component {
       sai.tub.cups[id] =  {
         owner: cup[0],
         debt: cup[1],
-        locked: cup[2]
+        locked: cup[2],
+        safe: 'N/A'
       };
       this.setState({ sai });
+      this.tubObj.safe(toBytes32(id), (e, safe) => {
+        const sai = {...this.state.sai};
+        sai.tub.cups[id]['safe'] = safe;
+        this.setState({ sai });
+      });
     });
   }
 
@@ -224,16 +248,24 @@ class App extends Component {
   renderTokenRow = (token) => {
     return (
       <tr>
-        <td>{token}</td>
-        <td>{this.toNumber(this.state.sai[token].totalSupply)}</td>
-        <td>{this.toNumber(this.state.sai[token].myBalance)}</td>
-        <td>{this.toNumber(this.state.sai[token].tubBalance)}</td>
-        <td>{this.toNumber(this.state.sai[token].potBalance)}</td>
+        <td>{ token }</td>
+        <td>{ this.toNumber(this.state.sai[token].totalSupply) }</td>
+        <td>{ this.toNumber(this.state.sai[token].myBalance) }</td>
+        <td>{ this.toNumber(this.state.sai[token].tubBalance) }</td>
+        <td>{ this.toNumber(this.state.sai[token].potBalance) }</td>
       </tr>
     )
   }
 
-  renderCupActions = () => {
+  renderBiteAction = () => {
+    return (
+      <span>
+        <a href="">Bite</a>/
+      </span>
+    )
+  }
+
+  renderOwnerCupActions = () => {
     return (
       <span>
         <a href="">Join</a>/
@@ -265,10 +297,28 @@ class App extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.renderTokenRow('gem')}
-            {this.renderTokenRow('skr')}
-            {this.renderTokenRow('sai')}
-            {this.renderTokenRow('sin')}
+            { this.renderTokenRow('gem') }
+            { this.renderTokenRow('skr') }
+            { this.renderTokenRow('sai') }
+            { this.renderTokenRow('sin') }
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>USD/ETH</th>
+              <th>SKR/ETH</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+                <td>
+                  { this.toNumber(this.state.sai.tub.per) }
+                </td>
+                <td>
+                  { this.toNumber(this.state.sai.tub.tag) }
+                </td>
+            </tr>
           </tbody>
         </table>
         <table>
@@ -278,6 +328,7 @@ class App extends Component {
               <th>Owner</th>
               <th>Debt</th>
               <th>Locked</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -289,16 +340,20 @@ class App extends Component {
                     {key}
                   </td>
                   <td>
-                    {this.state.sai.tub.cups[key].owner}
+                    { this.state.sai.tub.cups[key].owner}
                   </td>
                   <td>
-                    {this.toNumber(this.state.sai.tub.cups[key].debt)}
+                    { this.toNumber(this.state.sai.tub.cups[key].debt) }
                   </td>
                   <td>
-                    {this.toNumber(this.state.sai.tub.cups[key].locked)}
+                    { this.toNumber(this.state.sai.tub.cups[key].locked) }
+                  </td>
+                  <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
+                    { (this.state.sai.tub.cups[key].safe === 'N/A') ? 'N/A' : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')  }
                   </td>
                   <td>
-                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderCupActions() : '' }
+                    { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
+                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions() : '' }
                   </td>
                 </tr>
               )
