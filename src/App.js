@@ -1,155 +1,310 @@
 import React, { Component } from 'react';
 import web3 from './web3';
-import Medianizer from './Medianizer';
-import AddMedianizerForm from './AddMedianizerForm';
 import { toBytes32 } from './helpers';
 import logo from './logo.svg';
 import './App.css';
 
-var medianizer = require('./config/medianizer');
-window.medianizer = medianizer;
+const addresses = require('./config/addresses');
 
-var dsvalue = require('./config/dsvalue');
+const tub = require('./config/tub');
+window.tub = tub;
+
+const dstoken = require('./config/dstoken');
+window.dstoken = dstoken;
+
+const dsvault = require('./config/dsvault');
+window.dsvault = dsvault;
+
+const dsvalue = require('./config/dsvalue');
 window.dsvalue = dsvalue;
+
 
 class App extends Component {
   state = {
-    account: null,
-    medianizers: {}
+    network: {
+
+    },
+    sai: {
+      tub: {
+        cups: {}
+      },
+      gem: {},
+      skr: {},
+      sai: {},
+      sin: {},
+      pot: {}
+    }
   };
 
   constructor() {
     super();
+  }
+
+  checkNetwork = () => {
+    web3.version.getNode((error) => {
+      const isConnected = !error;
+
+      // Check if we are synced
+      if (isConnected) {
+        web3.eth.getBlock('latest', (e, res) => {
+          if (typeof(res) === 'undefined') {
+            console.debug('YIKES! getBlock returned undefined!');
+          }
+          if (res.number >= this.state.network.latestBlock) {
+            const networkState = {...this.state.network};
+            networkState['latestBlock'] = res.number;
+            networkState['outOfSync'] = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
+            this.setState({ network: networkState });
+          } else {
+            // XXX MetaMask frequently returns old blocks
+            // https://github.com/MetaMask/metamask-plugin/issues/504
+            console.debug('Skipping old block');
+          }
+        });
+      }
+
+      // Check which network are we connected to
+      // https://github.com/ethereum/meteor-dapp-wallet/blob/90ad8148d042ef7c28610115e97acfa6449442e3/app/client/lib/ethereum/walletInterface.js#L32-L46
+      if (this.state.network.isConnected !== isConnected) {
+        if (isConnected === true) {
+          web3.eth.getBlock(0, (e, res) => {
+            let network = false;
+            if (!e) {
+              switch (res.hash) {
+                case '0xa3c565fc15c7478862d50ccd6561e3c06b24cc509bf388941c25ea985ce32cb9':
+                  network = 'kovan';
+                  break;
+                case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
+                  network = 'live';
+                  break;
+                default:
+                  console.log('setting network to private');
+                  console.log('res.hash:', res.hash);
+                  network = 'private';
+              }
+            }
+            if (this.state.network.network !== network) {
+              this.initNetwork(network);
+            }
+          });
+        } else {
+          const networkState = {...this.state.network};
+          networkState['isConnected'] = isConnected;
+          networkState['network'] = false;
+          networkState['latestBlock'] = 0;
+          this.setState({ network: networkState });
+        }
+      }
+    });
+  }
+
+  initNetwork = (newNetwork) => {
+    //checkAccounts();
+    const networkState = {...this.state.network};
+    networkState['network'] = newNetwork;
+    networkState['isConnected'] = true;
+    networkState['latestBlock'] = 0;
+    this.setState({ network: networkState });
+
+    this.initContracts();
+  }
+
+  checkAccounts = () => {
     web3.eth.getAccounts((error, accounts) => {
-      if (accounts) {
-        web3.eth.defaultAccount = accounts[0];
-        this.setState({
-          account: accounts[0]
-        });
-      }
-    });  }
-
-  componentWillMount() {
-    var medianizers = localStorage.getItem('medianizers');
-    if (medianizers) {
-      this.setState({
-        medianizers: JSON.parse(medianizers)
-      });
-    }
-  }
-
-  createMedianizer = () => {
-    var factory = web3.eth.contract(medianizer.abi);
-    factory.new({data: medianizer.bytecode, gas: 3000000}, (error, res) => {
-      if (res && res.address) {
-        const medianizers = {...this.state.medianizers};
-        medianizers[`m-${Date.now()}`] = {
-          address: res.address,
-          length: 0
-        };
-        this.setState({ medianizers });
-        localStorage.setItem('medianizers', JSON.stringify(medianizers));
-      }
-    });
-  };
-
-  addMedianizer = (medianizer) => {
-    // TODO: check if it's indeed a medianizer...
-    const medianizers = {...this.state.medianizers};
-    medianizers[`m-${Date.now()}`] = medianizer;
-    this.setState({ medianizers });
-    localStorage.setItem('medianizers', JSON.stringify(medianizers));
-    // var factory = web3.eth.contract(medianizer.abi);
-    // factory.new({data: medianizer.bytecode, gas: 3000000}, (error, res) => {
-    //   if (res && res.address) {
-    //     const medianizers = {...this.state.medianizers};
-    //     medianizers[`m-${Date.now()}`] = {
-    //       address: res.address,
-    //       length: 0
-    //     };
-    //     this.setState({ medianizers });
-    //     localStorage.setItem('medianizers', JSON.stringify(medianizers));
-    //   }
-    // });
-  };
-
-  readMedianizer = (address) => {
-    var m = web3.eth.contract(medianizer.abi).at(address);
-    m.read((e,r) => {
-      if (!e) {
-        console.log(r);
-        console.log(web3.fromWei(r));
-      }
-    });
-  };
-
-  next = (address) => {
-    var m = web3.eth.contract(medianizer.abi).at(address);
-    m.next((e,r) => {
-      if (!e) {
-        const next = r.valueOf();
-        console.log(next);
+      if (!error) {
+        const networkState = {...this.state.network};
+        networkState['accounts'] = accounts;
+        networkState['defaultAccount'] = accounts[0];
+        this.setState({ network: networkState });
       }
     });
   }
 
-  set = (address) => {
-    var m = web3.eth.contract(medianizer.abi).at(address);
-    var factory = web3.eth.contract(dsvalue.abi);
-    factory.new({data: dsvalue.bytecode, gas: 1500000}, (error, res) => {
-      if (res && res.address) {
-        var v = factory.at(res.address);
-        v.poke(toBytes32(`${44 + Math.random()}`), (e, r) => {
-          console.log(`Set value to: ${44 + Math.random()}`);
-          console.log('value', r);
-        });
-        m.set(res.address, (e, r) => {
-          console.log(r);
-        });
-      }
-    });
-  };
+  componentDidMount = () => {
+    this.checkNetwork();
+    this.checkAccounts();
 
-  prod = (address, expiration) => {
-    var m = web3.eth.contract(medianizer.abi).at(address);
-    const zzz = parseInt(Date.now() / 1000, 10) + parseInt(expiration, 10);
-    m.prod["uint128"](zzz, (e,r) => {
-      console.log(r);
+    this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
+    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+  }
+  
+  loadObject = (abi, address) => {
+    return web3.eth.contract(abi).at(address);;
+  }
+
+  initContracts = () => {
+    const addrs = addresses[this.state.network.network];
+
+    const sai = {...this.state.sai};
+    sai['tub'].address = addrs['tub'];
+    sai['gem'].address = addrs['gem'];
+    sai['skr'].address = addrs['skr'];
+    sai['sai'].address = addrs['sai'];
+    sai['sin'].address = addrs['sin'];
+    sai['pot'].address = addrs['pot'];
+    this.setState({ sai });
+
+    window.tubObj = this.tubObj = this.loadObject(tub.abi, addrs['tub']);
+    window.gemObj = this.gemObj = this.loadObject(dstoken.abi, addrs['gem']);
+    window.skrObj = this.skrObj = this.loadObject(dstoken.abi, addrs['skr']);
+    window.saiObj = this.saiObj = this.loadObject(dstoken.abi, addrs['sai']);
+    window.sinObj = this.sinObj = this.loadObject(dstoken.abi, addrs['sin']);
+
+    this.getDataFromBlockchain();
+    this.getDataFromBlockchainInterval = setInterval(this.getDataFromBlockchain, 10000);
+  }
+
+  getDataFromBlockchain = () => {
+    this.getTotalSupply('gem');
+    this.getTotalSupply('skr');
+    this.getTotalSupply('sai');
+    this.getTotalSupply('sin');
+    this.getBalanceOf('gem', this.state.network.defaultAccount, 'myBalance');
+    this.getBalanceOf('gem', this.state.sai.tub.address, 'tubBalance');
+    this.getBalanceOf('gem', this.state.sai.pot.address, 'potBalance');
+    this.getBalanceOf('skr', this.state.network.defaultAccount, 'myBalance');
+    this.getBalanceOf('skr', this.state.sai.tub.address, 'tubBalance');
+    this.getBalanceOf('skr', this.state.sai.pot.address, 'potBalance');
+    this.getBalanceOf('sai', this.state.network.defaultAccount, 'myBalance');
+    this.getBalanceOf('sai', this.state.sai.tub.address, 'tubBalance');
+    this.getBalanceOf('sai', this.state.sai.pot.address, 'potBalance');
+    this.getBalanceOf('sin', this.state.network.defaultAccount, 'myBalance');
+    this.getBalanceOf('sin', this.state.sai.tub.address, 'tubBalance');
+    this.getBalanceOf('sin', this.state.sai.pot.address, 'potBalance');
+
+    this.getCups();
+  }
+
+  getTotalSupply = (name) => {
+    this[`${name}Obj`].totalSupply((e, r) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai[name].totalSupply = r;
+        this.setState({ sai });
+      }
     })
-  };
+  }
 
-  remove = (address) => {
-    const medianizers = {...this.state.medianizers};
-    delete medianizers[address];
-    this.setState({ medianizers });
-    localStorage.setItem('medianizers', JSON.stringify(medianizers));
-  };
-
-  peekMedianizer = (address) => {
-    var m = web3.eth.contract(medianizer.abi).at(address);
-    m.peek((e,r) => {
-      console.log(r);
+  getBalanceOf = (name, address, field) => {
+    this[`${name}Obj`].balanceOf(address, (e, r) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai[name][field] = r;
+        this.setState({ sai });
+      }
+    })
+  }
+  
+  getCups() {
+    this.tubObj.cupi((e, cupi) => {
+      if (!e) {
+        for (let i = 1; i <= cupi.toNumber(); i++) {
+          this.getCup(i);
+        }
+      }
     });
-  };
+  }
+
+  getCup(id) {
+    this.tubObj.cups(toBytes32(id), (e, cup) => {
+      const sai = {...this.state.sai};
+      sai.tub.cups[id] =  {
+        owner: cup[0],
+        debt: cup[1],
+        locked: cup[2]
+      };
+      this.setState({ sai });
+    });
+  }
+
+  toNumber = (obj) => {
+    return (typeof obj === 'object') ? web3.fromWei(obj.toNumber()) : 0;
+  }
+
+  renderTokenRow = (token) => {
+    return (
+      <tr>
+        <td>{token}</td>
+        <td>{this.toNumber(this.state.sai[token].totalSupply)}</td>
+        <td>{this.toNumber(this.state.sai[token].myBalance)}</td>
+        <td>{this.toNumber(this.state.sai[token].tubBalance)}</td>
+        <td>{this.toNumber(this.state.sai[token].potBalance)}</td>
+      </tr>
+    )
+  }
+
+  renderCupActions = () => {
+    return (
+      <span>
+        <a href="">Join</a>/
+        <a href="">Exit</a>/
+        <a href="">Lock</a>/
+        <a href="">Wipe</a>
+      </span>
+    )
+  }
 
   render() {
     return (
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>SAI</h2>
         </div>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          Simple tool to manage SAI system
         </p>
-        <p>
-          <button onClick={this.createMedianizer}>Create Medianizer</button>
-        </p>
-        <AddMedianizerForm addMedianizer={this.addMedianizer} />
-        {Object.keys(this.state.medianizers).map(
-          (key) => <Medianizer key={key} index={key} data={this.state.medianizers[key]} read={this.readMedianizer}
-          next={this.next} set={this.set} remove={this.remove} prod={this.prod} />
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>T. Supply</th>
+              <th>Mine</th>
+              <th>Tub</th>
+              <th>Pot</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderTokenRow('gem')}
+            {this.renderTokenRow('skr')}
+            {this.renderTokenRow('sai')}
+            {this.renderTokenRow('sin')}
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>Cup</th>
+              <th>Owner</th>
+              <th>Debt</th>
+              <th>Locked</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              Object.keys(this.state.sai.tub.cups).map(key =>
+                <tr key={key}>
+                  <td>
+                    {key}
+                  </td>
+                  <td>
+                    {this.state.sai.tub.cups[key].owner}
+                  </td>
+                  <td>
+                    {this.toNumber(this.state.sai.tub.cups[key].debt)}
+                  </td>
+                  <td>
+                    {this.toNumber(this.state.sai.tub.cups[key].locked)}
+                  </td>
+                  <td>
+                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderCupActions() : '' }
+                  </td>
+                </tr>
+              )
+            }
+          </tbody>
+        </table>
       </div>
     );
   }

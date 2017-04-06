@@ -5,11 +5,11 @@ var gulp     = require('gulp');
 var gulpsync = require('gulp-sync')(gulp)
 var gutil    = require('gulp-util');
 
-var LIB_PATH = 'lib/medianizer/';
+var LIB_PATH = 'lib/sai/';
 var LIB_OUT  = LIB_PATH + 'out/';
 var OUT      = 'src/config/';
 
-var files = ['DSCache', 'DSValue', 'Medianizer'];
+var files = ['Tub', 'DSToken', 'DSVault', 'DSValue'];
 
 gulp.task('default', gulpsync.sync(['update', 'build', 'generate']));
 

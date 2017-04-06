@@ -5,7 +5,7 @@ var padLeft = function (string, chars, sign) {
 };
 
 export function toBytes32(x) {
-  let y = web3.toHex(web3.toWei(x));
+  let y = web3.toHex(x);
   y = y.replace('0x', '');
   y = padLeft(y, 64);
   y = '0x' + y;
