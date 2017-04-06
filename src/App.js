@@ -28,6 +28,9 @@ class App extends Component {
       tub: {
         per: 0,
         tag: 0,
+        axe: 0,
+        mat: 0,
+        hat: 0,
         cups: {}
       },
       gem: {},
@@ -170,7 +173,7 @@ class App extends Component {
     this.getBalanceOf('sin', this.state.sai.tub.address, 'tubBalance');
     this.getBalanceOf('sin', this.state.sai.pot.address, 'potBalance');
 
-    this.getPrices();
+    this.getParameters();
 
     this.getCups();
   }
@@ -195,7 +198,7 @@ class App extends Component {
     })
   }
 
-  getPrices = () => {
+  getParameters = () => {
     this.tubObj.per((e, per) => {
       if (!e) {
         const sai = {...this.state.sai};
@@ -208,6 +211,30 @@ class App extends Component {
       if (!e) {
         const sai = {...this.state.sai};
         sai.tub.tag = tag;
+        this.setState({ sai });
+      }
+    });
+
+    this.tubObj.axe((e, axe) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.tub.axe = axe;
+        this.setState({ sai });
+      }
+    });
+
+    this.tubObj.mat((e, mat) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.tub.mat = mat;
+        this.setState({ sai });
+      }
+    });
+
+    this.tubObj.hat((e, hat) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.tub.hat = hat;
         this.setState({ sai });
       }
     });
@@ -233,7 +260,7 @@ class App extends Component {
         safe: 'N/A'
       };
       this.setState({ sai });
-      this.tubObj.safe(toBytes32(id), (e, safe) => {
+      this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
         const sai = {...this.state.sai};
         sai.tub.cups[id]['safe'] = safe;
         this.setState({ sai });
@@ -289,6 +316,36 @@ class App extends Component {
         <table>
           <thead>
             <tr>
+              <th>SKR/ETH</th>
+              <th>USD/ETH</th>
+              <th>Liq. Ratio</th>
+              <th>Liq. Penalty</th>
+              <th>Debt Ceiling</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+                <td>
+                  { this.toNumber(this.state.sai.tub.per) }
+                </td>
+                <td>
+                  { this.toNumber(this.state.sai.tub.tag) }
+                </td>
+                <td>
+                  { this.toNumber(web3.fromWei(this.state.sai.tub.axe)) }
+                </td>
+                <td>
+                  { this.toNumber(web3.fromWei(this.state.sai.tub.mat)) }
+                </td>
+                <td>
+                  { this.toNumber(this.state.sai.tub.hat) }
+                </td>
+            </tr>
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
               <th>Token</th>
               <th>T. Supply</th>
               <th>Mine</th>
@@ -301,24 +358,6 @@ class App extends Component {
             { this.renderTokenRow('skr') }
             { this.renderTokenRow('sai') }
             { this.renderTokenRow('sin') }
-          </tbody>
-        </table>
-        <table>
-          <thead>
-            <tr>
-              <th>USD/ETH</th>
-              <th>SKR/ETH</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-                <td>
-                  { this.toNumber(this.state.sai.tub.per) }
-                </td>
-                <td>
-                  { this.toNumber(this.state.sai.tub.tag) }
-                </td>
-            </tr>
           </tbody>
         </table>
         <table>
@@ -349,7 +388,14 @@ class App extends Component {
                     { this.toNumber(this.state.sai.tub.cups[key].locked) }
                   </td>
                   <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
-                    { (this.state.sai.tub.cups[key].safe === 'N/A') ? 'N/A' : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')  }
+                    {
+                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000') 
+                      ? 'Closed'
+                      :
+                        (this.state.sai.tub.cups[key].safe === 'N/A') 
+                        ? 'N/A' 
+                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe') 
+                    }
                   </td>
                   <td>
                     { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
