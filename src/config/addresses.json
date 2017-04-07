@@ -1,11 +1,11 @@
 {
     "private": {
-        "tub": "0xdc78afe9cfde0576ff236667dc8c380615c24ca9",
-        "gem": "0xd611f1af9d056f00f49cb036759de2753efa82c2",
-        "skr": "0x25d02115bd67258a406a0f676147e6c3598a91a9",
-        "sai": "0x995629b19667ae71483dc812c1b5a35fcaaaf4b8",
-        "sin": "0x94dfeceb91678ec912ef8f14c72721c102ed2df7",
-        "pot": "0x9ce4cd6d7f5e8b14c7a3e8e6a257a86bd5a6eea0"
+        "tub": "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7",
+        "gem": "0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab",
+        "skr": "0x254dffcd3277c0b1660f6d42efbb754edababc2b",
+        "sai": "0x5b1869d9a4c187f2eaa108f3062412ecf0526b24",
+        "sin": "0xcfeb869f69431e42cdb54a4f4f105c19c080a601",
+        "pot": "0xc89ce4735882c9f0f0fe26686c53074e09b0d550"
     },
     "kovan": {
         "tub": "",

@@ -23,6 +23,25 @@
   to { transform: rotate(360deg); }
 }
 
-table tr td {
-  border: 1px solid;
+.info-box-number {
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.info-box-number >span {
+  display: block;
+  float: left;
+}
+
+.info-box-number >span:first-child {
+  clear: left;
+  width: 55px;
+}
+
+.info-box-icon {
+  text-transform: uppercase;
+}
+
+tr th, tr td {
+  padding: 5px;
 }

@@ -3,6 +3,7 @@ import web3 from './web3';
 import { toBytes32 } from './helpers';
 import logo from './logo.svg';
 import ReactModal from 'react-modal';
+import AnimatedNumber from 'react-animated-number';
 import './App.css';
 
 
@@ -254,38 +255,6 @@ class App extends Component {
     return (typeof obj === 'object') ? web3.fromWei(obj.toNumber()) : 0;
   }
 
-  renderTokenRow = (token) => {
-    return (
-      <tr>
-        <td>{ token }</td>
-        <td>{ this.toNumber(this.state.sai[token].totalSupply) }</td>
-        <td>{ this.toNumber(this.state.sai[token].myBalance) }</td>
-        <td>{ this.toNumber(this.state.sai[token].tubBalance) }</td>
-        <td>{ this.toNumber(this.state.sai[token].potBalance) }</td>
-      </tr>
-    )
-  }
-
-  renderBiteAction = () => {
-    return (
-      <span>
-        <a href="">Bite</a>/
-      </span>
-    )
-  }
-
-  renderOwnerCupActions = (cup) => {
-    return (
-      <span>
-        <a href="#" data-method="lock" data-cup={ cup } onClick={ this.handleOpenModal }>Lock</a>/
-        <a href="#" data-method="free" data-cup={ cup } onClick={ this.handleOpenModal }>Free</a>/
-        <a href="#" data-method="draw" data-cup={ cup } onClick={ this.handleOpenModal }>Draw</a>/
-        <a href="#" data-method="wipe" data-cup={ cup } onClick={ this.handleOpenModal }>Wipe</a>/
-        <a href="#" data-method="shut" data-cup={ cup } onClick={ this.handleOpenModal }>Shut</a>
-      </span>
-    )
-  }
-
   handleOpenModal = (e) => {
     e.preventDefault();
     let text = '';
@@ -344,7 +313,7 @@ class App extends Component {
     const value = typeof this.updateVal !== 'undefined' && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
 
     if (!cup && !value) {
-      this.tubObj[method]({ from: this.state.network.defaultAccount }, (e, result) => {
+      this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
         if (!e) {
           console.log(`${method} succeed`);
         } else {
@@ -353,7 +322,7 @@ class App extends Component {
       });
     }
     else if (!cup) {
-      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount }, (e, result) => {
+      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
         if (!e) {
           console.log(`${method} ${value} succeed`);
         } else {
@@ -371,7 +340,7 @@ class App extends Component {
         }
       });
     } else {
-      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount }, (e, result) => {
+      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
         if (!e) {
           console.log(`${method} ${cup} ${value} succeed`);
         } else {
@@ -385,6 +354,54 @@ class App extends Component {
     }
 
     this.setState({ modal: { show: false } });
+  }
+
+  // Start Render functions
+
+  renderToken = (token, color) => {
+    return (
+      <div className="col-md-3 col-sm-6 col-xs-12">
+        <div className="info-box">
+          <span className={`info-box-icon ${color}`}>
+            {token}
+          </span>
+          <div className="info-box-content">
+            <span className="info-box-number">
+              <span>Total</span><AnimatedNumber value={this.toNumber(this.state.sai[token].totalSupply)} stepPrecision={4}/>
+            </span>
+            <span className="info-box-number">
+              <span>Yours</span><AnimatedNumber value={this.toNumber(this.state.sai[token].myBalance)} stepPrecision={4}/>
+            </span>
+            <span className="info-box-number">
+              <span>Tub</span><AnimatedNumber value={this.toNumber(this.state.sai[token].tubBalance)} stepPrecision={4}/>
+            </span>
+            <span className="info-box-number">
+              <span>Pot</span><AnimatedNumber value={this.toNumber(this.state.sai[token].potBalance)} stepPrecision={4}/>
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderBiteAction = () => {
+    return (
+      <span>
+        <a href="">Bite</a>/
+      </span>
+    )
+  }
+
+  renderOwnerCupActions = (cup) => {
+    return (
+      <span>
+        <a href="#" data-method="lock" data-cup={ cup } onClick={ this.handleOpenModal }>Lock</a> -&nbsp;
+        <a href="#" data-method="free" data-cup={ cup } onClick={ this.handleOpenModal }>Free</a> -&nbsp;
+        <a href="#" data-method="draw" data-cup={ cup } onClick={ this.handleOpenModal }>Draw</a> -&nbsp;
+        <a href="#" data-method="wipe" data-cup={ cup } onClick={ this.handleOpenModal }>Wipe</a> -&nbsp;
+        <a href="#" data-method="shut" data-cup={ cup } onClick={ this.handleOpenModal }>Shut</a>
+      </span>
+    )
   }
 
   renderYesNoForm = () => {
@@ -422,130 +439,160 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>SAI</h2>
-        </div>
-        <p className="App-intro">
-          Simple tool to manage SAI system
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>SKR/ETH</th>
-              <th>USD/ETH</th>
-              <th>Liq. Ratio</th>
-              <th>Liq. Penalty</th>
-              <th>Debt Ceiling</th>
-              <th>Deficit</th>
-              <th>Safe</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-                <td>
-                  { this.toNumber(this.state.sai.tub.per) }
-                </td>
-                <td>
-                  { this.toNumber(this.state.sai.tub.tag) }
-                </td>
-                <td>
-                  { this.toNumber(web3.fromWei(this.state.sai.tub.axe)) }
-                </td>
-                <td>
-                  { this.toNumber(web3.fromWei(this.state.sai.tub.mat)) }
-                </td>
-                <td>
-                  { this.toNumber(this.state.sai.tub.hat) }
-                </td>
-                <td>
-                  { this.state.sai.tub.eek ? 'YES' : 'NO' }
-                </td>
-                <td>
-                  { this.state.sai.tub.safe ? 'YES' : 'NO' }
-                </td>
-            </tr>
-          </tbody>
-        </table>
-        <br />
-        <table>
-          <thead>
-            <tr>
-              <th>Token</th>
-              <th>T. Supply</th>
-              <th>Mine</th>
-              <th>Tub</th>
-              <th>Pot</th>
-            </tr>
-          </thead>
-          <tbody>
-            { this.renderTokenRow('gem') }
-            { this.renderTokenRow('skr') }
-            { this.renderTokenRow('sai') }
-            { this.renderTokenRow('sin') }
-          </tbody>
-        </table>
-        <br />
-        <table>
-          <tbody>
-            <tr>
-              <td>
-                <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a>/
-                <a href="#" data-method="exit" onClick={ this.handleOpenModal }>Exit</a>/
-                <a href="#" data-method="open" onClick={ this.handleOpenModal }>Open</a>/
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <br />
-        <table>
-          <thead>
-            <tr>
-              <th>Cup</th>
-              <th>Owner</th>
-              <th>Debt</th>
-              <th>Locked</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              Object.keys(this.state.sai.tub.cups).map(key =>
-                <tr key={key}>
-                  <td>
-                    {key}
-                  </td>
-                  <td>
-                    { this.state.sai.tub.cups[key].owner}
-                  </td>
-                  <td>
-                    { this.toNumber(this.state.sai.tub.cups[key].debt) }
-                  </td>
-                  <td>
-                    { this.toNumber(this.state.sai.tub.cups[key].locked) }
-                  </td>
-                  <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
-                    {
-                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000') 
-                      ? 'Closed'
-                      :
-                        (this.state.sai.tub.cups[key].safe === 'N/A') 
-                        ? 'N/A' 
-                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe') 
-                    }
-                  </td>
-                  <td>
-                    { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
-                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
-                  </td>
-                </tr>
-              )
-            }
-          </tbody>
-        </table>
-        { this.renderModal() }
+      <div className="content-wrapper">
+        <section className="content-header">
+          <h1>
+            Sai Explorer
+            <small>Version 1.0{/*<button onClick={this.toggle}>Toggle to connect or disconnect</button>*/}</small>
+          </h1>
+          <ol className="breadcrumb">
+            <li><a href="#"><i className="fa fa-dashboard"></i> Home</a></li>
+            <li className="active">Dashboard</li>
+          </ol>
+        </section>
+        <section className="content">
+          <div>
+            <div className="row">
+              { this.renderToken('gem', '') }
+              { this.renderToken('skr', 'bg-aqua') }
+              { this.renderToken('sai', 'bg-green') }
+              { this.renderToken('sin', 'bg-red') }
+            </div>
+            <div className="row">
+              <div className="col-md-9">
+                <div className="box">
+                  <div className="box-header with-border">
+                    <h3 className="box-title">SAI Status</h3>
+                  </div>
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>SKR/ETH</th>
+                              <th>USD/ETH</th>
+                              <th>Liq. Ratio</th>
+                              <th>Liq. Penalty</th>
+                              <th>Debt Ceiling</th>
+                              <th>Deficit</th>
+                              <th>Safe</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                                <td>
+                                  { this.toNumber(this.state.sai.tub.per) }
+                                </td>
+                                <td>
+                                  { this.toNumber(this.state.sai.tub.tag) }
+                                </td>
+                                <td>
+                                  { this.toNumber(web3.fromWei(this.state.sai.tub.axe)) }
+                                </td>
+                                <td>
+                                  { this.toNumber(web3.fromWei(this.state.sai.tub.mat)) }
+                                </td>
+                                <td>
+                                  { this.toNumber(this.state.sai.tub.hat) }
+                                </td>
+                                <td>
+                                  { this.state.sai.tub.eek ? 'YES' : 'NO' }
+                                </td>
+                                <td>
+                                  { this.state.sai.tub.safe ? 'YES' : 'NO' }
+                                </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className="box">
+                  <div className="box-header with-border">
+                    <h3 className="box-title">General Actions</h3>
+                  </div>
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a> -&nbsp; 
+                        <a href="#" data-method="exit" onClick={ this.handleOpenModal }>Exit</a> -&nbsp;
+                        <a href="#" data-method="open" onClick={ this.handleOpenModal }>Open</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-12">
+                <div className="box">
+                  <div className="box-header with-border">
+                    <h3 className="box-title">All Cups</h3>
+                  </div>
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Cup</th>
+                              <th>Owner</th>
+                              <th>Debt</th>
+                              <th>Locked</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {
+                              Object.keys(this.state.sai.tub.cups).map(key =>
+                                <tr key={key}>
+                                  <td>
+                                    {key}
+                                  </td>
+                                  <td>
+                                    { this.state.sai.tub.cups[key].owner}
+                                  </td>
+                                  <td>
+                                    { this.toNumber(this.state.sai.tub.cups[key].debt) }
+                                  </td>
+                                  <td>
+                                    { this.toNumber(this.state.sai.tub.cups[key].locked) }
+                                  </td>
+                                  <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
+                                    {
+                                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000') 
+                                      ? 'Closed'
+                                      :
+                                        (this.state.sai.tub.cups[key].safe === 'N/A') 
+                                        ? 'N/A' 
+                                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe') 
+                                    }
+                                  </td>
+                                  <td>
+                                    { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
+                                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
+                                  </td>
+                                </tr>
+                              )
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/*{this.state.connected ? <Main coinbase={this.state.defaultAccount} /> : <NoConnection />}*/}
+          
+          { this.renderModal() }
+        </section>
       </div>
     );
   }
