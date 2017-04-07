@@ -5,6 +5,7 @@
   "dependencies": {
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-modal": "^1.7.3",
     "web3": "^0.18.4"
   },
   "devDependencies": {

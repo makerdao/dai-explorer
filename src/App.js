@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import web3 from './web3';
 import { toBytes32 } from './helpers';
 import logo from './logo.svg';
+import ReactModal from 'react-modal';
 import './App.css';
+
 
 const addresses = require('./config/addresses');
 
@@ -21,9 +23,7 @@ window.dsvalue = dsvalue;
 
 class App extends Component {
   state = {
-    network: {
-
-    },
+    network: {},
     sai: {
       tub: {
         per: 0,
@@ -38,6 +38,9 @@ class App extends Component {
       sai: {},
       sin: {},
       pot: {}
+    },
+    modal: {
+      show: false
     }
   };
 
@@ -130,7 +133,7 @@ class App extends Component {
   }
   
   loadObject = (abi, address) => {
-    return web3.eth.contract(abi).at(address);;
+    return web3.eth.contract(abi).at(address);
   }
 
   initContracts = () => {
@@ -199,42 +202,20 @@ class App extends Component {
   }
 
   getParameters = () => {
-    this.tubObj.per((e, per) => {
-      if (!e) {
-        const sai = {...this.state.sai};
-        sai.tub.per = per;
-        this.setState({ sai });
-      }
-    });
+    this.getParameterFromTub('per');
+    this.getParameterFromTub('tag');
+    this.getParameterFromTub('axe');
+    this.getParameterFromTub('mat');
+    this.getParameterFromTub('hat');
+    this.getParameterFromTub('eek');
+    this.getParameterFromTub('safe');
+  }
 
-    this.tubObj.tag((e, tag) => {
+  getParameterFromTub = (field) => {
+    this.tubObj[field]((e, value) => {
       if (!e) {
         const sai = {...this.state.sai};
-        sai.tub.tag = tag;
-        this.setState({ sai });
-      }
-    });
-
-    this.tubObj.axe((e, axe) => {
-      if (!e) {
-        const sai = {...this.state.sai};
-        sai.tub.axe = axe;
-        this.setState({ sai });
-      }
-    });
-
-    this.tubObj.mat((e, mat) => {
-      if (!e) {
-        const sai = {...this.state.sai};
-        sai.tub.mat = mat;
-        this.setState({ sai });
-      }
-    });
-
-    this.tubObj.hat((e, hat) => {
-      if (!e) {
-        const sai = {...this.state.sai};
-        sai.tub.hat = hat;
+        sai.tub[field] = value;
         this.setState({ sai });
       }
     });
@@ -253,11 +234,12 @@ class App extends Component {
   getCup(id) {
     this.tubObj.cups(toBytes32(id), (e, cup) => {
       const sai = {...this.state.sai};
+      const firstLoad = typeof sai.tub.cups[id] === 'undefined';
       sai.tub.cups[id] =  {
         owner: cup[0],
         debt: cup[1],
         locked: cup[2],
-        safe: 'N/A'
+        safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
       };
       this.setState({ sai });
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
@@ -292,14 +274,149 @@ class App extends Component {
     )
   }
 
-  renderOwnerCupActions = () => {
+  renderOwnerCupActions = (cup) => {
     return (
       <span>
-        <a href="">Join</a>/
-        <a href="">Exit</a>/
-        <a href="">Lock</a>/
-        <a href="">Wipe</a>
+        <a href="#" data-method="lock" data-cup={ cup } onClick={ this.handleOpenModal }>Lock</a>/
+        <a href="#" data-method="free" data-cup={ cup } onClick={ this.handleOpenModal }>Free</a>/
+        <a href="#" data-method="draw" data-cup={ cup } onClick={ this.handleOpenModal }>Draw</a>/
+        <a href="#" data-method="wipe" data-cup={ cup } onClick={ this.handleOpenModal }>Wipe</a>/
+        <a href="#" data-method="shut" data-cup={ cup } onClick={ this.handleOpenModal }>Shut</a>
       </span>
+    )
+  }
+
+  handleOpenModal = (e) => {
+    e.preventDefault();
+    let text = '';
+    let type = '';
+    const cup = e.target.getAttribute('data-cup') ? e.target.getAttribute('data-cup') : false;
+
+    switch(e.target.getAttribute('data-method')) {
+      case 'open':
+        text = 'Are you sure you want to open a new Cup?';
+        type = 'yesno';
+        break;
+      case 'shut':
+        text = `Are you sure you want to close Cup ${cup}?`;
+        type = 'yesno';
+        break;
+      case 'join':
+        text = 'Please set amount of gem (ETH) you want to convert to collateral (SKR)';
+        type = 'inputnumber';
+        break;
+      case 'exit':
+        text = 'Please set amount of collateral (SKR) you want to convert to gem (ETH)';
+        type = 'inputnumber';
+        break;
+      case 'lock':
+        text = `Please set amount of collateral (SKR) you want to lock in CUP ${cup}`;
+        type = 'inputnumber';
+        break;
+      case 'free':
+        text = `Please set amount of collateral (SKR) you want to withdraw from CUP ${cup}`;
+        type = 'inputnumber';
+        break;
+      case 'draw':
+        text = `Please set amount of locked collateral (SKR) in CUP ${cup} that you want use to generate SAI`;
+        type = 'inputnumber';
+        break;
+      case 'wipe':
+        text = `Please set amount of collateral (SKR) you want to recover burning SAI in CUP ${cup}`;
+        type = 'inputnumber';
+        break;
+      default:
+        break;
+    }
+
+    this.setState({ modal: { show: true, method: e.target.getAttribute('data-method'), cup, text, type } });
+  }
+
+  handleCloseModal = (e) => {
+    e.preventDefault();
+    this.setState({ modal: { show: false } });
+  }
+
+  updateValue = (e) => {
+    e.preventDefault();
+    const method = this.state.modal.method;
+    const cup = this.state.modal.cup;
+    const value = typeof this.updateVal !== 'undefined' && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
+
+    if (!cup && !value) {
+      this.tubObj[method]({ from: this.state.network.defaultAccount }, (e, result) => {
+        if (!e) {
+          console.log(`${method} succeed`);
+        } else {
+          console.log(e);
+        }
+      });
+    }
+    else if (!cup) {
+      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount }, (e, result) => {
+        if (!e) {
+          console.log(`${method} ${value} succeed`);
+        } else {
+          console.log(e);
+        }
+      });
+    }
+    else if (!value) {
+      console.log(method, cup);
+      this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
+        if (!e) {
+          console.log(`${method} ${cup} succeed`);
+        } else {
+          console.log(e);
+        }
+      });
+    } else {
+      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount }, (e, result) => {
+        if (!e) {
+          console.log(`${method} ${cup} ${value} succeed`);
+        } else {
+          console.log(e);
+        }
+      });
+    }
+
+    if (typeof this.updateValueForm !== 'undefined') {
+      this.updateValueForm.reset();
+    }
+
+    this.setState({ modal: { show: false } });
+  }
+
+  renderYesNoForm = () => {
+    return (
+      <form>
+        <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
+        <button type="submit" onClick={(e) => this.handleCloseModal(e)}>No</button>
+      </form>
+    )
+  }
+
+  renderInputForm = () => {
+    return (
+      <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
+        <input ref={(input) => this.updateVal = input} type="number" required />
+        <input type="submit" />
+      </form>
+    )
+  }
+
+  renderModal = () => {
+    return (
+      <ReactModal
+          isOpen={ this.state.modal.show }
+          contentLabel="Minimal Modal Example">
+        <button onClick={ this.handleCloseModal }>Close Modal</button>
+        <br />
+        <div>
+          <p>{ this.state.modal.text }</p>
+          { this.state.modal.type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm() }
+        </div>
+      </ReactModal>
     )
   }
 
@@ -321,6 +438,8 @@ class App extends Component {
               <th>Liq. Ratio</th>
               <th>Liq. Penalty</th>
               <th>Debt Ceiling</th>
+              <th>Deficit</th>
+              <th>Safe</th>
             </tr>
           </thead>
           <tbody>
@@ -340,9 +459,16 @@ class App extends Component {
                 <td>
                   { this.toNumber(this.state.sai.tub.hat) }
                 </td>
+                <td>
+                  { this.state.sai.tub.eek ? 'YES' : 'NO' }
+                </td>
+                <td>
+                  { this.state.sai.tub.safe ? 'YES' : 'NO' }
+                </td>
             </tr>
           </tbody>
         </table>
+        <br />
         <table>
           <thead>
             <tr>
@@ -360,6 +486,19 @@ class App extends Component {
             { this.renderTokenRow('sin') }
           </tbody>
         </table>
+        <br />
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a>/
+                <a href="#" data-method="exit" onClick={ this.handleOpenModal }>Exit</a>/
+                <a href="#" data-method="open" onClick={ this.handleOpenModal }>Open</a>/
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
         <table>
           <thead>
             <tr>
@@ -399,13 +538,14 @@ class App extends Component {
                   </td>
                   <td>
                     { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
-                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions() : '' }
+                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
                   </td>
                 </tr>
               )
             }
           </tbody>
         </table>
+        { this.renderModal() }
       </div>
     );
   }
