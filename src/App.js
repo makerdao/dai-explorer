@@ -272,7 +272,7 @@ class App extends Component {
   }
 
   toNumber = (obj) => {
-    return (typeof obj === 'object') ? web3.fromWei(obj.toNumber()) : 0;
+    return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj.toNumber())) : 0;
   }
 
   handleOpenModal = (e) => {
