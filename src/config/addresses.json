@@ -8,11 +8,11 @@
         "pot": "0xc89ce4735882c9f0f0fe26686c53074e09b0d550"
     },
     "kovan": {
-        "tub": "",
-        "gem": "",
-        "skr": "",
-        "sai": "",
-        "sin": "",
-        "pot": ""
+        "tub": "0x3c57bbb0509401867dda92eff2d1ea91b2e59a00",
+        "gem": "0xc778417e063141139fce010982780140aa0cd5ab",
+        "skr": "0xf88cbc83716e852d8125b8ca0c522a1669c08ff4",
+        "sai": "0xa71a6c19f38cd9de95ac9c96dd949a5623905627",
+        "sin": "0x362b56f1c85862365709162ffdc7b72eb09dfce6",
+        "pot": "0x5b49976ea0ccbb38362f634922e571cd4d5c76c8"
     }
 }
