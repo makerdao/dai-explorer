@@ -34,10 +34,30 @@ class App extends Component {
         hat: 0,
         cups: {}
       },
-      gem: {},
-      skr: {},
-      sai: {},
-      sin: {},
+      gem: {
+        totalSupply: 0,
+        myBalance: 0,
+        tubBalance: 0,
+        potBalance: 0,
+      },
+      skr: {
+        totalSupply: 0,
+        myBalance: 0,
+        tubBalance: 0,
+        potBalance: 0,
+      },
+      sai: {
+        totalSupply: 0,
+        myBalance: 0,
+        tubBalance: 0,
+        potBalance: 0,
+      },
+      sin: {
+        totalSupply: 0,
+        myBalance: 0,
+        tubBalance: 0,
+        potBalance: 0,
+      },
       pot: {}
     },
     modal: {
@@ -132,7 +152,7 @@ class App extends Component {
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
-  
+
   loadObject = (abi, address) => {
     return web3.eth.contract(abi).at(address);
   }
@@ -221,7 +241,7 @@ class App extends Component {
       }
     });
   }
-  
+
   getCups = () => {
     this.tubObj.cupi((e, cupi) => {
       if (!e) {
@@ -518,7 +538,7 @@ class App extends Component {
                   <div className="box-body">
                     <div className="row">
                       <div className="col-md-12">
-                        <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a> -&nbsp; 
+                        <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a> -&nbsp;
                         <a href="#" data-method="exit" onClick={ this.handleOpenModal }>Exit</a> -&nbsp;
                         <a href="#" data-method="open" onClick={ this.handleOpenModal }>Open</a>
                       </div>
@@ -565,12 +585,12 @@ class App extends Component {
                                   </td>
                                   <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
                                     {
-                                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000') 
+                                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000')
                                       ? 'Closed'
                                       :
-                                        (this.state.sai.tub.cups[key].safe === 'N/A') 
-                                        ? 'N/A' 
-                                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe') 
+                                        (this.state.sai.tub.cups[key].safe === 'N/A')
+                                        ? 'N/A'
+                                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
                                     }
                                   </td>
                                   <td>
@@ -590,7 +610,7 @@ class App extends Component {
             </div>
           </div>
           {/*{this.state.connected ? <Main coinbase={this.state.defaultAccount} /> : <NoConnection />}*/}
-          
+
           { this.renderModal() }
         </section>
       </div>
