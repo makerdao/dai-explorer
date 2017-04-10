@@ -1,24 +1,28 @@
 import React, { Component } from 'react';
-import web3 from './web3';
-import { toBytes32 } from './helpers';
-import logo from './logo.svg';
-import ReactModal from 'react-modal';
-import AnimatedNumber from 'react-animated-number';
+import NoConnection from './NoConnection';
+import Modal from './Modal';
+import Token from './Token';
+import SystemStatus from './SystemStatus';
+import Cups from './Cups';
+import Transfer from './Transfer';
+import web3 from '../web3';
+import { toBytes32 } from '../helpers';
+import logo from '../logo.svg';
 import './App.css';
 
 
-const addresses = require('./config/addresses');
+const addresses = require('../config/addresses');
 
-const tub = require('./config/tub');
+const tub = require('../config/tub');
 window.tub = tub;
 
-const dstoken = require('./config/dstoken');
+const dstoken = require('../config/dstoken');
 window.dstoken = dstoken;
 
-const dsvault = require('./config/dsvault');
+const dsvault = require('../config/dsvault');
 window.dsvault = dsvault;
 
-const dsvalue = require('./config/dsvalue');
+const dsvalue = require('../config/dsvalue');
 window.dsvalue = dsvalue;
 
 
@@ -175,31 +179,33 @@ class App extends Component {
     window.saiObj = this.saiObj = this.loadObject(dstoken.abi, addrs['sai']);
     window.sinObj = this.sinObj = this.loadObject(dstoken.abi, addrs['sin']);
 
-    this.getDataFromBlockchain();
-    this.getDataFromBlockchainInterval = setInterval(this.getDataFromBlockchain, 10000);
+    this.getDataFromToken('gem');
+    this.getDataFromToken('skr');
+    this.getDataFromToken('sai');
+    this.getDataFromToken('sin');
+    this.getParameters();
+    this.getCups();
+
+    //Set up filters
+    this.gemObj.Transfer({}, {}, (e, r) => {
+      this.getDataFromToken('gem');
+    });
+    this.gemObj.Transfer({}, {}, (e, r) => {
+      this.getDataFromToken('skr');
+    });
+    this.gemObj.Transfer({}, {}, (e, r) => {
+      this.getDataFromToken('sai');
+    });
+    this.gemObj.Transfer({}, {}, (e, r) => {
+      this.getDataFromToken('sin');
+    });
   }
 
-  getDataFromBlockchain = () => {
-    this.getTotalSupply('gem');
-    this.getTotalSupply('skr');
-    this.getTotalSupply('sai');
-    this.getTotalSupply('sin');
-    this.getBalanceOf('gem', this.state.network.defaultAccount, 'myBalance');
-    this.getBalanceOf('gem', this.state.sai.tub.address, 'tubBalance');
-    this.getBalanceOf('gem', this.state.sai.pot.address, 'potBalance');
-    this.getBalanceOf('skr', this.state.network.defaultAccount, 'myBalance');
-    this.getBalanceOf('skr', this.state.sai.tub.address, 'tubBalance');
-    this.getBalanceOf('skr', this.state.sai.pot.address, 'potBalance');
-    this.getBalanceOf('sai', this.state.network.defaultAccount, 'myBalance');
-    this.getBalanceOf('sai', this.state.sai.tub.address, 'tubBalance');
-    this.getBalanceOf('sai', this.state.sai.pot.address, 'potBalance');
-    this.getBalanceOf('sin', this.state.network.defaultAccount, 'myBalance');
-    this.getBalanceOf('sin', this.state.sai.tub.address, 'tubBalance');
-    this.getBalanceOf('sin', this.state.sai.pot.address, 'potBalance');
-
-    this.getParameters();
-
-    this.getCups();
+  getDataFromToken = (token) => {
+    this.getTotalSupply(token);
+    this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
+    this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
+    this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
   }
 
   getTotalSupply = (name) => {
@@ -326,11 +332,9 @@ class App extends Component {
     this.setState({ modal: { show: false } });
   }
 
-  updateValue = (e) => {
-    e.preventDefault();
+  updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
-    const value = typeof this.updateVal !== 'undefined' && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
 
     if (!cup && !value) {
       this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
@@ -351,7 +355,6 @@ class App extends Component {
       });
     }
     else if (!value) {
-      console.log(method, cup);
       this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
         if (!e) {
           console.log(`${method} ${cup} succeed`);
@@ -369,184 +372,7 @@ class App extends Component {
       });
     }
 
-    if (typeof this.updateValueForm !== 'undefined') {
-      this.updateValueForm.reset();
-    }
-
     this.setState({ modal: { show: false } });
-  }
-
-  // Start Render functions
-
-  renderToken = (token, color) => {
-    return (
-      <div className="col-md-3 col-sm-6 col-xs-12">
-        <div className="info-box">
-          <span className={`info-box-icon ${color}`}>
-            {token}
-          </span>
-          <div className="info-box-content">
-            <span className="info-box-number">
-              <span>Total</span><AnimatedNumber value={this.toNumber(this.state.sai[token].totalSupply)} stepPrecision={4}/>
-            </span>
-            <span className="info-box-number">
-              <span>Yours</span><AnimatedNumber value={this.toNumber(this.state.sai[token].myBalance)} stepPrecision={4}/>
-            </span>
-            <span className="info-box-number">
-              <span>Tub</span><AnimatedNumber value={this.toNumber(this.state.sai[token].tubBalance)} stepPrecision={4}/>
-            </span>
-            <span className="info-box-number">
-              <span>Pot</span><AnimatedNumber value={this.toNumber(this.state.sai[token].potBalance)} stepPrecision={4}/>
-            </span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  renderBiteAction = () => {
-    return (
-      <span>
-        <a href="">Bite</a>/
-      </span>
-    )
-  }
-
-  renderOwnerCupActions = (cup) => {
-    return (
-      <span>
-        <a href="#" data-method="lock" data-cup={ cup } onClick={ this.handleOpenModal }>Lock</a> -&nbsp;
-        <a href="#" data-method="free" data-cup={ cup } onClick={ this.handleOpenModal }>Free</a> -&nbsp;
-        <a href="#" data-method="draw" data-cup={ cup } onClick={ this.handleOpenModal }>Draw</a> -&nbsp;
-        <a href="#" data-method="wipe" data-cup={ cup } onClick={ this.handleOpenModal }>Wipe</a> -&nbsp;
-        <a href="#" data-method="shut" data-cup={ cup } onClick={ this.handleOpenModal }>Shut</a>
-      </span>
-    )
-  }
-
-  renderYesNoForm = () => {
-    return (
-      <form className="yesno">
-        <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
-        <button type="submit" onClick={(e) => this.handleCloseModal(e)}>No</button>
-      </form>
-    )
-  }
-
-  renderInputForm = () => {
-    return (
-      <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <input ref={(input) => this.updateVal = input} type="number" required />
-        <input type="submit" />
-      </form>
-    )
-  }
-
-  renderModal = () => {
-    const style = {
-      content: {
-        border: 1,
-        borderStyle: 'solid',
-        borderRadius: '4px',
-        borderColor: '#d2d6de',
-        bottom: 'auto',
-        height: '150px',  // set height
-        left: '50%',
-        padding: '2rem',
-        position: 'fixed',
-        right: 'auto',
-        top: '50%', // start from center
-        transform: 'translate(-50%,-50%)', // adjust top "up" based on height
-        width: '40%',
-        maxWidth: '40rem'
-      }
-    };
-    return (
-      <ReactModal
-          isOpen={ this.state.modal.show }
-          contentLabel="Action Modal"
-          style={ style } >
-        <a href="#" className="close" onClick={ this.handleCloseModal }>X</a>
-        <br />
-        <div>
-          <p>{ this.state.modal.text }</p>
-          { this.state.modal.type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm() }
-        </div>
-      </ReactModal>
-    )
-  }
-
-  renderCups = () => {
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>Cup</th>
-            <th>Owner</th>
-            <th>Debt</th>
-            <th>Locked</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            Object.keys(this.state.sai.tub.cups).map(key =>
-              <tr key={key}>
-                <td>
-                  {key}
-                </td>
-                <td>
-                  { this.state.sai.tub.cups[key].owner}
-                </td>
-                <td>
-                  { this.toNumber(this.state.sai.tub.cups[key].debt) }
-                </td>
-                <td>
-                  { this.toNumber(this.state.sai.tub.cups[key].locked) }
-                </td>
-                <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
-                  {
-                    (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000')
-                    ? 'Closed'
-                    :
-                      (this.state.sai.tub.cups[key].safe === 'N/A')
-                      ? 'N/A'
-                      : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
-                  }
-                </td>
-                <td>
-                  { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
-                  { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
-                </td>
-              </tr>
-            )
-          }
-        </tbody>
-      </table>
-    )
-  }
-
-  renderTransfer = () => {
-    return (
-      <div>
-        <form>
-          <div>
-            <label>Token</label>
-            <select>
-              <option value="gem">GEM</option>
-              <option value="skr">SKR</option>
-              <option value="sai">SAI</option>
-            </select>
-          </div>
-          <div>
-            <label>To</label>
-            <input type="text" placeholder="0x" />
-          </div>
-          <input type="submit" />
-        </form>
-      </div>
-    )
   }
 
   renderMain() {
@@ -565,62 +391,14 @@ class App extends Component {
         <section className="content">
           <div>
             <div className="row">
-              { this.renderToken('gem', '') }
-              { this.renderToken('skr', 'bg-aqua') }
-              { this.renderToken('sai', 'bg-green') }
-              { this.renderToken('sin', 'bg-red') }
+              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='gem' color='' />
+              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='skr' color='bg-aqua' />
+              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='sai' color='bg-green' />
+              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='sin' color='bg-red' />
             </div>
             <div className="row">
               <div className="col-md-9">
-                <div className="box">
-                  <div className="box-header with-border">
-                    <h3 className="box-title">SAI Status</h3>
-                  </div>
-                  <div className="box-body">
-                    <div className="row">
-                      <div className="col-md-12">
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>SKR/ETH</th>
-                              <th>USD/ETH</th>
-                              <th>Liq. Ratio</th>
-                              <th>Liq. Penalty</th>
-                              <th>Debt Ceiling</th>
-                              <th>Deficit</th>
-                              <th>Safe</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                                <td>
-                                  { this.toNumber(this.state.sai.tub.per) }
-                                </td>
-                                <td>
-                                  { this.toNumber(this.state.sai.tub.tag) }
-                                </td>
-                                <td>
-                                  { this.toNumber(web3.fromWei(this.state.sai.tub.axe)) }
-                                </td>
-                                <td>
-                                  { this.toNumber(web3.fromWei(this.state.sai.tub.mat)) }
-                                </td>
-                                <td>
-                                  { this.toNumber(this.state.sai.tub.hat) }
-                                </td>
-                                <td>
-                                  { this.state.sai.tub.eek ? 'YES' : 'NO' }
-                                </td>
-                                <td>
-                                  { this.state.sai.tub.safe ? 'YES' : 'NO' }
-                                </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <SystemStatus toNumber={ this.toNumber } sai={ this.state.sai } />
               </div>
               <div className="col-md-3">
                 <div className="box">
@@ -641,57 +419,22 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9">
-                <div className="box">
-                  <div className="box-header with-border">
-                    <h3 className="box-title">All Cups</h3>
-                  </div>
-                  <div className="box-body">
-                    <div className="row">
-                      <div className="col-md-12">
-                        { this.renderCups() }
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } />
               </div>
               <div className="col-md-3">
-                <div className="box">
-                  <div className="box-header with-border">
-                    <h3 className="box-title">Transfer</h3>
-                  </div>
-                  <div className="box-body">
-                    <div className="row">
-                      <div className="col-md-12">
-                        { this.renderTransfer() }
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Transfer />
               </div>
             </div>
           </div>
-          { this.renderModal() }
+          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } />
         </section>
       </div>
     );
   }
 
-  renderNoConnection = () => {
-    return (
-      <div className="row">
-      <div className="col-md-12">
-        <div className="callout callout-warning">
-          <h4>No connection to Ethereum</h4>
-          <p>Please use Parity, Metamask or a local node at <strong>http://localhost:8545</strong></p>
-        </div>
-      </div>
-    </div>
-    );
-  }
-
   render() {
     return (
-      this.state.network.isConnected ? this.renderMain() : this.renderNoConnection()
+      this.state.network.isConnected ? this.renderMain() : <NoConnection />
     );
   }
 }
