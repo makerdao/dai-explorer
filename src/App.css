@@ -45,3 +45,19 @@
 tr th, tr td {
   padding: 5px;
 }
+
+.yesno {
+  display: block;
+  margin: auto;
+  margin-top: 25px;
+  width: 80px;
+}
+
+.yesno button {
+  display: block;
+  float: right;
+}
+
+.yesno button:first-child {
+  float: left;
+}

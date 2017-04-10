@@ -426,7 +426,7 @@ class App extends Component {
 
   renderYesNoForm = () => {
     return (
-      <form>
+      <form className="yesno">
         <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
         <button type="submit" onClick={(e) => this.handleCloseModal(e)}>No</button>
       </form>
@@ -443,11 +443,30 @@ class App extends Component {
   }
 
   renderModal = () => {
+    const style = {
+      content: {
+        border: 1,
+        borderStyle: 'solid',
+        borderRadius: '4px',
+        borderColor: '#d2d6de',
+        bottom: 'auto',
+        height: '150px',  // set height
+        left: '50%',
+        padding: '2rem',
+        position: 'fixed',
+        right: 'auto',
+        top: '50%', // start from center
+        transform: 'translate(-50%,-50%)', // adjust top "up" based on height
+        width: '40%',
+        maxWidth: '40rem'
+      }
+    };
     return (
       <ReactModal
           isOpen={ this.state.modal.show }
-          contentLabel="Minimal Modal Example">
-        <button onClick={ this.handleCloseModal }>Close Modal</button>
+          contentLabel="Action Modal"
+          style={ style } >
+        <a href="#" className="close" onClick={ this.handleCloseModal }>X</a>
         <br />
         <div>
           <p>{ this.state.modal.text }</p>
@@ -457,7 +476,80 @@ class App extends Component {
     )
   }
 
-  render() {
+  renderCups = () => {
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>Cup</th>
+            <th>Owner</th>
+            <th>Debt</th>
+            <th>Locked</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            Object.keys(this.state.sai.tub.cups).map(key =>
+              <tr key={key}>
+                <td>
+                  {key}
+                </td>
+                <td>
+                  { this.state.sai.tub.cups[key].owner}
+                </td>
+                <td>
+                  { this.toNumber(this.state.sai.tub.cups[key].debt) }
+                </td>
+                <td>
+                  { this.toNumber(this.state.sai.tub.cups[key].locked) }
+                </td>
+                <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
+                  {
+                    (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000')
+                    ? 'Closed'
+                    :
+                      (this.state.sai.tub.cups[key].safe === 'N/A')
+                      ? 'N/A'
+                      : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
+                  }
+                </td>
+                <td>
+                  { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
+                  { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
+                </td>
+              </tr>
+            )
+          }
+        </tbody>
+      </table>
+    )
+  }
+
+  renderTransfer = () => {
+    return (
+      <div>
+        <form>
+          <div>
+            <label>Token</label>
+            <select>
+              <option value="gem">GEM</option>
+              <option value="skr">SKR</option>
+              <option value="sai">SAI</option>
+            </select>
+          </div>
+          <div>
+            <label>To</label>
+            <input type="text" placeholder="0x" />
+          </div>
+          <input type="submit" />
+        </form>
+      </div>
+    )
+  }
+
+  renderMain() {
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -548,7 +640,7 @@ class App extends Component {
               </div>
             </div>
             <div className="row">
-              <div className="col-md-12">
+              <div className="col-md-9">
                 <div className="box">
                   <div className="box-header with-border">
                     <h3 className="box-title">All Cups</h3>
@@ -556,52 +648,21 @@ class App extends Component {
                   <div className="box-body">
                     <div className="row">
                       <div className="col-md-12">
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Cup</th>
-                              <th>Owner</th>
-                              <th>Debt</th>
-                              <th>Locked</th>
-                              <th>Status</th>
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {
-                              Object.keys(this.state.sai.tub.cups).map(key =>
-                                <tr key={key}>
-                                  <td>
-                                    {key}
-                                  </td>
-                                  <td>
-                                    { this.state.sai.tub.cups[key].owner}
-                                  </td>
-                                  <td>
-                                    { this.toNumber(this.state.sai.tub.cups[key].debt) }
-                                  </td>
-                                  <td>
-                                    { this.toNumber(this.state.sai.tub.cups[key].locked) }
-                                  </td>
-                                  <td style={this.state.sai.tub.cups[key].safe ? {'backgroundColor':'green'} : {'backgroundColor':'red'} }>
-                                    {
-                                      (this.state.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000')
-                                      ? 'Closed'
-                                      :
-                                        (this.state.sai.tub.cups[key].safe === 'N/A')
-                                        ? 'N/A'
-                                        : (this.state.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
-                                    }
-                                  </td>
-                                  <td>
-                                    { !this.state.sai.tub.cups[key].safe ? this.renderBiteAction() : '' }
-                                    { (this.state.sai.tub.cups[key].owner === this.state.network.defaultAccount) ? this.renderOwnerCupActions(key) : '' }
-                                  </td>
-                                </tr>
-                              )
-                            }
-                          </tbody>
-                        </table>
+                        { this.renderCups() }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className="box">
+                  <div className="box-header with-border">
+                    <h3 className="box-title">Transfer</h3>
+                  </div>
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        { this.renderTransfer() }
                       </div>
                     </div>
                   </div>
@@ -609,11 +670,28 @@ class App extends Component {
               </div>
             </div>
           </div>
-          {/*{this.state.connected ? <Main coinbase={this.state.defaultAccount} /> : <NoConnection />}*/}
-
           { this.renderModal() }
         </section>
       </div>
+    );
+  }
+
+  renderNoConnection = () => {
+    return (
+      <div className="row">
+      <div className="col-md-12">
+        <div className="callout callout-warning">
+          <h4>No connection to Ethereum</h4>
+          <p>Please use Parity, Metamask or a local node at <strong>http://localhost:8545</strong></p>
+        </div>
+      </div>
+    </div>
+    );
+  }
+
+  render() {
+    return (
+      this.state.network.isConnected ? this.renderMain() : this.renderNoConnection()
     );
   }
 }
