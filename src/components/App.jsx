@@ -183,8 +183,9 @@ class App extends Component {
     this.getDataFromToken('skr');
     this.getDataFromToken('sai');
     this.getDataFromToken('sin');
+    this.getCups(this.state.network.defaultAccount);
     this.getParameters();
-    this.getCups();
+    this.getParametersInterval = setInterval(this.getParameters, 10000);
 
     //Set up filters
     this.gemObj.Transfer({}, {}, (e, r) => {
@@ -198,6 +199,20 @@ class App extends Component {
     });
     this.gemObj.Transfer({}, {}, (e, r) => {
       this.getDataFromToken('sin');
+    });
+    const cupSignatures = [
+      'lock(bytes32,uint128)',
+      'free(bytes32,uint128)',
+      'draw(bytes32,uint128)',
+      'wipe(bytes32,uint128)',
+      'bite(bytes32,uint128)',
+      'shut(bytes32)',
+    ].map((v) => web3.sha3(v).substring(0, 10))
+
+    this.tubObj.LogNote({ guy: this.state.network.defaultAccount }, {}, (e, r) => {
+      if (cupSignatures.indexOf(r.args.sig) !== -1) {
+        this.getCup(`0x${r.args.fax.substring(10, 74)}`);
+      }
     });
   }
 
@@ -248,18 +263,17 @@ class App extends Component {
     });
   }
 
-  getCups = () => {
-    this.tubObj.cupi((e, cupi) => {
+  getCups = (address) => {
+    this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
       if (!e) {
-        for (let i = 1; i <= cupi.toNumber(); i++) {
-          this.getCup(i);
-        }
+        this.getCup(r.args['cup']);
       }
     });
   }
 
-  getCup(id) {
-    this.tubObj.cups(toBytes32(id), (e, cup) => {
+  getCup(idHex) {
+    this.tubObj.cups(idHex, (e, cup) => {
+      const id = parseInt(idHex, 16);
       const sai = {...this.state.sai};
       const firstLoad = typeof sai.tub.cups[id] === 'undefined';
       sai.tub.cups[id] =  {
