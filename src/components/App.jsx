@@ -377,7 +377,6 @@ class App extends Component {
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
-
     if (!cup && !value) {
       this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
@@ -406,6 +405,7 @@ class App extends Component {
         }
       });
     } else {
+      console.log(method, toBytes32(cup), web3.toWei(value), );
       this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
           console.log(`${method} ${cup} ${value} executed`);
