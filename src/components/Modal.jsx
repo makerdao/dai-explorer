@@ -4,11 +4,11 @@ import ReactModal from 'react-modal';
 class Modal extends Component {
   updateValue = (e) => {
     e.preventDefault();
-    const value = typeof this.updateVal !== 'undefined' && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
+    const value = this.updateVal !== 'undefined' && this.updateVal && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
 
     this.props.updateValue(value);
 
-    if (typeof this.updateValueForm !== 'undefined') {
+    if (typeof this.updateValueForm !== 'undefined' && this.updateValueForm) {
       this.updateValueForm.reset();
     }
   }

@@ -31,10 +31,10 @@ const SystemStatus = (props) => {
                       { props.toNumber(props.sai.tub.tag) }
                     </td>
                     <td>
-                      { props.toNumber(web3.fromWei(props.sai.tub.axe)) }
+                      { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)) }%
                     </td>
                     <td>
-                      { props.toNumber(web3.fromWei(props.sai.tub.mat)) }
+                      { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)) }%
                     </td>
                     <td>
                       { props.toNumber(props.sai.tub.hat) }
