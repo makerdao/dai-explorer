@@ -1,5 +1,5 @@
 import React from 'react';
-import AnimatedNumber from 'react-animated-number';
+import AnimatedNumber from '../AnimatedNumber';
 
 const Token = (props) => {
   return (
@@ -10,16 +10,16 @@ const Token = (props) => {
         </span>
         <div className="info-box-content">
           <span className="info-box-number">
-            <span>Total</span><AnimatedNumber value={props.toNumber(props.sai[props.token].totalSupply)} stepPrecision={4} />
+            <span>Total</span><AnimatedNumber value={props.toNumber(props.sai[props.token].totalSupply)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Mine</span><AnimatedNumber value={props.toNumber(props.sai[props.token].myBalance)} stepPrecision={4} />
+            <span>Mine</span><AnimatedNumber value={props.toNumber(props.sai[props.token].myBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Tub</span><AnimatedNumber value={props.toNumber(props.sai[props.token].tubBalance)} stepPrecision={4} />
+            <span>Tub</span><AnimatedNumber value={props.toNumber(props.sai[props.token].tubBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Pot</span><AnimatedNumber value={props.toNumber(props.sai[props.token].potBalance)} stepPrecision={4} />
+            <span>Pot</span><AnimatedNumber value={props.toNumber(props.sai[props.token].potBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
         </div>
       </div>

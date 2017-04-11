@@ -20,9 +20,6 @@ window.tub = tub;
 const dstoken = require('../config/dstoken');
 window.dstoken = dstoken;
 
-const dsvault = require('../config/dsvault');
-window.dsvault = dsvault;
-
 const dsvalue = require('../config/dsvalue');
 window.dsvalue = dsvalue;
 
@@ -176,25 +173,26 @@ class App extends Component {
     this.setState({ sai });
 
     window.tubObj = this.tubObj = this.loadObject(tub.abi, addrs['tub']);
-    window.gemObj = this.gemObj = this.loadObject(dstoken.abi, addrs['gem']);
-    window.skrObj = this.skrObj = this.loadObject(dstoken.abi, addrs['skr']);
-    window.saiObj = this.saiObj = this.loadObject(dstoken.abi, addrs['sai']);
-    window.sinObj = this.sinObj = this.loadObject(dstoken.abi, addrs['sin']);
-
-    this.getDataFromToken('gem');
-    this.getDataFromToken('skr');
-    this.getDataFromToken('sai');
-    this.getDataFromToken('sin');
-    this.getCups(this.state.network.defaultAccount);
     this.getParameters();
     this.getParametersInterval = setInterval(this.getParameters, 10000);
 
-    //Set up filters
-    this.setFilterTransfer('gem');
-    this.setFilterTransfer('skr');
-    this.setFilterTransfer('sai');
-    this.setFilterTransfer('sin');
+    this.setUpToken('gem');
+    this.setUpToken('skr');
+    this.setUpToken('sai');
+    this.setUpToken('sin');
+    
+    this.getCups(this.state.network.defaultAccount);
     this.setFiltersTub();
+  }
+
+  setUpToken = (token) => {
+    window.tubObj[token]((e, r) => {
+      if (!e) {
+        window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(dstoken.abi, r);
+        this.getDataFromToken(token);
+        this.setFilterTransfer(token);
+      }
+    })
   }
 
   setFilterTransfer = (token) => {
