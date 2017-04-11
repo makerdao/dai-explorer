@@ -165,17 +165,13 @@ class App extends Component {
 
     const sai = {...this.state.sai};
     sai['tub'].address = addrs['tub'];
-    sai['gem'].address = addrs['gem'];
-    sai['skr'].address = addrs['skr'];
-    sai['sai'].address = addrs['sai'];
-    sai['sin'].address = addrs['sin'];
-    sai['pot'].address = addrs['pot'];
     this.setState({ sai });
 
     window.tubObj = this.tubObj = this.loadObject(tub.abi, addrs['tub']);
     this.getParameters();
     this.getParametersInterval = setInterval(this.getParameters, 10000);
 
+    this.setUpPot();
     this.setUpToken('gem');
     this.setUpToken('skr');
     this.setUpToken('sai');
@@ -185,10 +181,25 @@ class App extends Component {
     this.setFiltersTub();
   }
 
+  setUpPot = () => {
+    this.tubObj.pot((e, r) => {
+      if (!e) {
+        const sai = {...this.state.sai};
+        sai.pot.address = r;
+        this.setState({ sai });
+      }
+    })
+  }
+
   setUpToken = (token) => {
-    window.tubObj[token]((e, r) => {
+    this.tubObj[token]((e, r) => {
       if (!e) {
         window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(dstoken.abi, r);
+
+        const sai = {...this.state.sai};
+        sai[token].address = r;
+        this.setState({ sai });
+
         this.getDataFromToken(token);
         this.setFilterTransfer(token);
       }
@@ -374,6 +385,17 @@ class App extends Component {
     }
   }
 
+  logTransactionFailed = (tx) => {
+    const msgTemp = 'Transaction TX failed.';
+    const transactions = {...this.state.transactions};
+    if (transactions[tx]) {
+      transactions[tx].pending = false;
+      this.setState({ transactions });
+      console.log(msgTemp.replace('TX', tx))
+      this.refs.notificator.error(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+    }
+  }
+
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
@@ -406,7 +428,7 @@ class App extends Component {
       });
     } else {
       console.log(method, toBytes32(cup), web3.toWei(value), );
-      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4300000 }, (e, r) => {
         if (!e) {
           console.log(`${method} ${cup} ${value} executed`);
           this.logPendingTransaction(r);
