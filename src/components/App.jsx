@@ -6,6 +6,7 @@ import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
 import web3 from '../web3';
+import ReactNotify from '../notify';
 import { toBytes32 } from '../helpers';
 import logo from '../logo.svg';
 import './App.css';
@@ -64,9 +65,10 @@ class App extends Component {
       },
       pot: {}
     },
+    transactions: {},
     modal: {
       show: false
-    }
+    },
   };
 
   checkNetwork = () => {
@@ -188,18 +190,23 @@ class App extends Component {
     this.getParametersInterval = setInterval(this.getParameters, 10000);
 
     //Set up filters
-    this.gemObj.Transfer({}, {}, (e, r) => {
-      this.getDataFromToken('gem');
+    this.setFilterTransfer('gem');
+    this.setFilterTransfer('skr');
+    this.setFilterTransfer('sai');
+    this.setFilterTransfer('sin');
+    this.setFiltersTub();
+  }
+
+  setFilterTransfer = (token) => {
+    this[`${token}Obj`].Transfer({}, {}, (e, r) => {
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        this.getDataFromToken(token);
+      }
     });
-    this.gemObj.Transfer({}, {}, (e, r) => {
-      this.getDataFromToken('skr');
-    });
-    this.gemObj.Transfer({}, {}, (e, r) => {
-      this.getDataFromToken('sai');
-    });
-    this.gemObj.Transfer({}, {}, (e, r) => {
-      this.getDataFromToken('sin');
-    });
+  }
+
+  setFiltersTub = () => {
     const cupSignatures = [
       'lock(bytes32,uint128)',
       'free(bytes32,uint128)',
@@ -210,8 +217,11 @@ class App extends Component {
     ].map((v) => web3.sha3(v).substring(0, 10))
 
     this.tubObj.LogNote({ guy: this.state.network.defaultAccount }, {}, (e, r) => {
-      if (cupSignatures.indexOf(r.args.sig) !== -1) {
-        this.getCup(`0x${r.args.fax.substring(10, 74)}`);
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        if (cupSignatures.indexOf(r.args.sig) !== -1) {
+          this.getCup(`0x${r.args.fax.substring(10, 74)}`);
+        }
       }
     });
   }
@@ -346,40 +356,62 @@ class App extends Component {
     this.setState({ modal: { show: false } });
   }
 
+  logPendingTransaction = (tx) => {
+    const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
+    const transactions = {...this.state.transactions};
+    transactions[tx] = { pending: true }
+    this.setState({ transactions });
+    console.log(msgTemp.replace('TX', tx))
+    this.refs.notificator.info(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), false);
+  }
+
+  logTransactionConfirmed = (tx) => {
+    const msgTemp = 'Transaction TX was confirmed.';
+    const transactions = {...this.state.transactions};
+    if (transactions[tx]) {
+      transactions[tx].pending = false;
+      this.setState({ transactions });
+      console.log(msgTemp.replace('TX', tx))
+      this.refs.notificator.success(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+    }
+  }
+
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
 
     if (!cup && !value) {
-      this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
+      this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
-          console.log(`${method} succeed`);
+          console.log(`${method} executed`);
+          this.logPendingTransaction(r);
         } else {
           console.log(e);
         }
       });
-    }
-    else if (!cup) {
-      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
+    } else if (!cup) {
+      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
-          console.log(`${method} ${value} succeed`);
+          console.log(`${method} ${value} executed`);
+          this.logPendingTransaction(r);
         } else {
           console.log(e);
         }
       });
-    }
-    else if (!value) {
-      this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
+    } else if (!value) {
+      this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
-          console.log(`${method} ${cup} succeed`);
+          console.log(`${method} ${cup} executed`);
+          this.logPendingTransaction(r);
         } else {
           console.log(e);
         }
       });
     } else {
-      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, result) => {
+      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
-          console.log(`${method} ${cup} ${value} succeed`);
+          console.log(`${method} ${cup} ${value} executed`);
+          this.logPendingTransaction(r);
         } else {
           console.log(e);
         }
@@ -387,6 +419,17 @@ class App extends Component {
     }
 
     this.setState({ modal: { show: false } });
+  }
+
+  transferToken = (token, to, amount) => {
+    this[`${token}Obj`].transfer(to, web3.toWei(amount), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      if (!e) {
+        console.log(`${token} transfer ${to} ${amount}...`);
+        this.logPendingTransaction(r);
+      } else {
+        console.log(e);
+      }
+    });
   }
 
   renderMain() {
@@ -436,11 +479,12 @@ class App extends Component {
                 <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } />
               </div>
               <div className="col-md-3">
-                <Transfer />
+                <Transfer transferToken={ this.transferToken }/>
               </div>
             </div>
           </div>
           <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } />
+          <ReactNotify ref='notificator'/>
         </section>
       </div>
     );

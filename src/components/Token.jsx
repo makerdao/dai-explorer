@@ -13,7 +13,7 @@ const Token = (props) => {
             <span>Total</span><AnimatedNumber value={props.toNumber(props.sai[props.token].totalSupply)} stepPrecision={4} />
           </span>
           <span className="info-box-number">
-            <span>Yours</span><AnimatedNumber value={props.toNumber(props.sai[props.token].myBalance)} stepPrecision={4} />
+            <span>Mine</span><AnimatedNumber value={props.toNumber(props.sai[props.token].myBalance)} stepPrecision={4} />
           </span>
           <span className="info-box-number">
             <span>Tub</span><AnimatedNumber value={props.toNumber(props.sai[props.token].tubBalance)} stepPrecision={4} />

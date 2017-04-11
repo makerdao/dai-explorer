@@ -25,7 +25,7 @@ const Cups = (props) => {
   return (
     <div className="box">
       <div className="box-header with-border">
-        <h3 className="box-title">All Cups</h3>
+        <h3 className="box-title">My Cups</h3>
       </div>
       <div className="box-body">
         <div className="row">
@@ -34,7 +34,6 @@ const Cups = (props) => {
               <thead>
                 <tr>
                   <th>Cup</th>
-                  <th>Owner</th>
                   <th>Debt</th>
                   <th>Locked</th>
                   <th>Status</th>
@@ -47,9 +46,6 @@ const Cups = (props) => {
                     <tr key={key}>
                       <td>
                         {key}
-                      </td>
-                      <td>
-                        {props.sai.tub.cups[key].owner}
                       </td>
                       <td>
                         { props.toNumber(props.sai.tub.cups[key].debt) }
