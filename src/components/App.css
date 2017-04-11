@@ -107,3 +107,20 @@ tr th, tr td {
 .notify-title {
   font-weight: 700;
 }
+
+.transfer label {
+  clear: left;
+  display: block;
+  float: left;
+  height: 25px;
+}
+
+.transfer input, .transfer select {
+  display: block;
+  float: right;
+  width: 150px;
+}
+
+.transfer input[type=submit] {
+  margin-top: 5px;
+}
