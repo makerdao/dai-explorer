@@ -179,6 +179,9 @@ class App extends Component {
     
     this.getCups(this.state.network.defaultAccount);
     this.setFiltersTub();
+
+    // This is necessary to finish transactions that failed after signing
+    this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
   }
 
   setUpPot = () => {
@@ -285,28 +288,31 @@ class App extends Component {
   getCups = (address) => {
     this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
       if (!e) {
-        this.getCup(r.args['cup']);
+        this.getCup(r.args['cup'], address);
       }
     });
   }
 
-  getCup(idHex) {
+  getCup(idHex, address) {
     this.tubObj.cups(idHex, (e, cup) => {
-      const id = parseInt(idHex, 16);
-      const sai = {...this.state.sai};
-      const firstLoad = typeof sai.tub.cups[id] === 'undefined';
-      sai.tub.cups[id] =  {
-        owner: cup[0],
-        debt: cup[1],
-        locked: cup[2],
-        safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
-      };
-      this.setState({ sai });
-      this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
+      if (address === cup[0]) {
+        //This verification needs to be done as the cup could have been given or closed by the user
+        const id = parseInt(idHex, 16);
         const sai = {...this.state.sai};
-        sai.tub.cups[id]['safe'] = safe;
+        const firstLoad = typeof sai.tub.cups[id] === 'undefined';
+        sai.tub.cups[id] =  {
+          owner: cup[0],
+          debt: cup[1],
+          locked: cup[2],
+          safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
+        };
         this.setState({ sai });
-      });
+        this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
+          const sai = {...this.state.sai};
+          sai.tub.cups[id]['safe'] = safe;
+          this.setState({ sai });
+        });
+      }
     });
   }
 
@@ -363,6 +369,23 @@ class App extends Component {
   handleCloseModal = (e) => {
     e.preventDefault();
     this.setState({ modal: { show: false } });
+  }
+
+  checkPendingTransactions = () => {
+    const transactions = {...this.state.transactions};
+    Object.keys(transactions).map(tx => {
+      if (transactions[tx].pending) {
+        web3.eth.getTransactionReceipt(tx, (e, r) => {
+          if (!e && r !== null) {
+            if (r.logs.length > 0) {
+              this.logTransactionConfirmed(tx);
+            } else {
+              this.logTransactionFailed(tx);
+            }
+          }
+        });
+      }
+    });
   }
 
   logPendingTransaction = (tx) => {
@@ -427,8 +450,7 @@ class App extends Component {
         }
       });
     } else {
-      console.log(method, toBytes32(cup), web3.toWei(value), );
-      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4300000 }, (e, r) => {
+      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
         if (!e) {
           console.log(`${method} ${cup} ${value} executed`);
           this.logPendingTransaction(r);
