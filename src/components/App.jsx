@@ -176,9 +176,8 @@ class App extends Component {
     this.setUpToken('skr');
     this.setUpToken('sai');
     this.setUpToken('sin');
-    
-    this.getCups(this.state.network.defaultAccount);
-    this.setFiltersTub();
+
+    this.setFiltersTub(this.state.network.defaultAccount);
 
     // This is necessary to finish transactions that failed after signing
     this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
@@ -218,7 +217,21 @@ class App extends Component {
     });
   }
 
-  setFiltersTub = () => {
+  setFiltersTub = (address) => {
+    console.log(address);
+    // Get open cups by address
+    this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
+      if (!e) {
+        this.getCup(r.args['cup'], address);
+      }
+    });
+    // Get cups given to address.
+    this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: 0 }, (e, r) => {
+      if (!e) {
+        this.getCup(r.args.foo, address);
+      }
+    });
+
     const cupSignatures = [
       'lock(bytes32,uint128)',
       'free(bytes32,uint128)',
@@ -226,13 +239,14 @@ class App extends Component {
       'wipe(bytes32,uint128)',
       'bite(bytes32,uint128)',
       'shut(bytes32)',
-    ].map((v) => web3.sha3(v).substring(0, 10))
+      'give(bytes32,address)',
+    ].map((v) => this.methodSig(v))
 
-    this.tubObj.LogNote({ guy: this.state.network.defaultAccount }, {}, (e, r) => {
+    this.tubObj.LogNote({ guy: address }, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
-          this.getCup(`0x${r.args.fax.substring(10, 74)}`);
+          this.getCup(r.args.foo, address);
         }
       }
     });
@@ -285,21 +299,13 @@ class App extends Component {
     });
   }
 
-  getCups = (address) => {
-    this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
-      if (!e) {
-        this.getCup(r.args['cup'], address);
-      }
-    });
-  }
-
   getCup(idHex, address) {
     this.tubObj.cups(idHex, (e, cup) => {
+      const id = parseInt(idHex, 16);
+      const sai = {...this.state.sai};
+      const firstLoad = typeof sai.tub.cups[id] === 'undefined';
       if (address === cup[0]) {
         //This verification needs to be done as the cup could have been given or closed by the user
-        const id = parseInt(idHex, 16);
-        const sai = {...this.state.sai};
-        const firstLoad = typeof sai.tub.cups[id] === 'undefined';
         sai.tub.cups[id] =  {
           owner: cup[0],
           debt: cup[1],
@@ -308,12 +314,23 @@ class App extends Component {
         };
         this.setState({ sai });
         this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
-          const sai = {...this.state.sai};
-          sai.tub.cups[id]['safe'] = safe;
-          this.setState({ sai });
+          if (!e) {
+            const sai = {...this.state.sai};
+            if (sai.tub.cups[id]) {
+              sai.tub.cups[id]['safe'] = safe;
+              this.setState({ sai });
+            }
+          }
         });
+      } else if(!firstLoad) {
+        // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
+        delete sai.tub.cups[id];
       }
     });
+  }
+
+  methodSig = (method) => {
+    return web3.sha3(method).substring(0, 10)
   }
 
   toNumber = (obj) => {
@@ -322,48 +339,9 @@ class App extends Component {
 
   handleOpenModal = (e) => {
     e.preventDefault();
-    let text = '';
-    let type = '';
+    const method = e.target.getAttribute('data-method');
     const cup = e.target.getAttribute('data-cup') ? e.target.getAttribute('data-cup') : false;
-
-    switch(e.target.getAttribute('data-method')) {
-      case 'open':
-        text = 'Are you sure you want to open a new Cup?';
-        type = 'yesno';
-        break;
-      case 'shut':
-        text = `Are you sure you want to close Cup ${cup}?`;
-        type = 'yesno';
-        break;
-      case 'join':
-        text = 'Please set amount of gem (ETH) you want to convert to collateral (SKR)';
-        type = 'inputnumber';
-        break;
-      case 'exit':
-        text = 'Please set amount of collateral (SKR) you want to convert to gem (ETH)';
-        type = 'inputnumber';
-        break;
-      case 'lock':
-        text = `Please set amount of collateral (SKR) you want to lock in CUP ${cup}`;
-        type = 'inputnumber';
-        break;
-      case 'free':
-        text = `Please set amount of collateral (SKR) you want to withdraw from CUP ${cup}`;
-        type = 'inputnumber';
-        break;
-      case 'draw':
-        text = `Please set amount of locked collateral (SKR) in CUP ${cup} that you want use to generate SAI`;
-        type = 'inputnumber';
-        break;
-      case 'wipe':
-        text = `Please set amount of collateral (SKR) you want to recover burning SAI in CUP ${cup}`;
-        type = 'inputnumber';
-        break;
-      default:
-        break;
-    }
-
-    this.setState({ modal: { show: true, method: e.target.getAttribute('data-method'), cup, text, type } });
+    this.setState({ modal: { show: true, method, cup } });
   }
 
   handleCloseModal = (e) => {
@@ -419,45 +397,85 @@ class App extends Component {
     }
   }
 
+  executeMethod = (method) => {
+    this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      if (!e) {
+        console.log(`${method} executed`);
+        this.logPendingTransaction(r);
+      } else {
+        console.log(e);
+      }
+    });
+  }
+
+  executeMethodCup = (method, cup) => {
+    this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      if (!e) {
+        console.log(`${method} ${cup} executed`);
+        this.logPendingTransaction(r);
+      } else {
+        console.log(e);
+      }
+    });
+  }
+
+  executeMethodValue = (method, value) => {
+    this.tubObj[method](value, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      if (!e) {
+        console.log(`${method} ${value} executed`);
+        this.logPendingTransaction(r);
+      } else {
+        console.log(e);
+      }
+    });
+  }
+
+  executeMethodCupValue = (method, cup, value) => {
+    this.tubObj[method](toBytes32(cup), value, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+      if (!e) {
+        console.log(`${method} ${cup} ${value} executed`);
+        this.logPendingTransaction(r);
+      } else {
+        console.log(e);
+      }
+    });
+  }
+
+
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
-    if (!cup && !value) {
-      this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
-        if (!e) {
-          console.log(`${method} executed`);
-          this.logPendingTransaction(r);
-        } else {
-          console.log(e);
-        }
-      });
-    } else if (!cup) {
-      this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
-        if (!e) {
-          console.log(`${method} ${value} executed`);
-          this.logPendingTransaction(r);
-        } else {
-          console.log(e);
-        }
-      });
-    } else if (!value) {
-      this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
-        if (!e) {
-          console.log(`${method} ${cup} executed`);
-          this.logPendingTransaction(r);
-        } else {
-          console.log(e);
-        }
-      });
-    } else {
-      this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
-        if (!e) {
-          console.log(`${method} ${cup} ${value} executed`);
-          this.logPendingTransaction(r);
-        } else {
-          console.log(e);
-        }
-      });
+
+    switch(method) {
+      case 'open':
+        this.executeMethod(method);
+        break;
+      case 'shut':
+        this.executeMethodCup(method, cup);
+        break;
+      case 'join':
+        this.executeMethodValue(method, web3.toWei(value));
+        break;
+      case 'exit':
+        this.executeMethodValue(method, web3.toWei(value));
+        break;
+      case 'lock':
+        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        break;
+      case 'free':
+        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        break;
+      case 'draw':
+        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        break;
+      case 'wipe':
+        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        break;
+      case 'give':
+      this.executeMethodCupValue(method, cup, value);
+        break;
+      default:
+        break;
     }
 
     this.setState({ modal: { show: false } });

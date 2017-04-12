@@ -16,7 +16,8 @@ const renderOwnerCupActions = (cup, handleOpenModal) => {
       <a href="#" data-method="free" data-cup={ cup } onClick={ handleOpenModal }>Free</a> -&nbsp;
       <a href="#" data-method="draw" data-cup={ cup } onClick={ handleOpenModal }>Draw</a> -&nbsp;
       <a href="#" data-method="wipe" data-cup={ cup } onClick={ handleOpenModal }>Wipe</a> -&nbsp;
-      <a href="#" data-method="shut" data-cup={ cup } onClick={ handleOpenModal }>Shut</a>
+      <a href="#" data-method="shut" data-cup={ cup } onClick={ handleOpenModal }>Shut</a> -&nbsp;
+      <a href="#" data-method="give" data-cup={ cup } onClick={ handleOpenModal }>Give</a>
     </span>
   )
 }
@@ -34,8 +35,8 @@ const Cups = (props) => {
               <thead>
                 <tr>
                   <th>Cup</th>
-                  <th>Debt</th>
-                  <th>Locked</th>
+                  <th>Debt (SIN)</th>
+                  <th>Locked (SKR)</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
