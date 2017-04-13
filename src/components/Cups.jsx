@@ -9,15 +9,28 @@ const renderBiteAction = () => {
   )
 }
 
-const renderOwnerCupActions = (cup, handleOpenModal) => {
+const renderOwnerCupActions = (lock, cupId, cup, handleOpenModal) => {
+  const actions = [];
+  if (lock) {
+    actions.push('lock');
+  }
+  if (cup.locked.valueOf() !== '0' && cup.safe) {
+    actions.push('free');
+    actions.push('draw');
+  }
+  if (cup.debt.valueOf() !== '0') {
+    actions.push('wipe');
+  }
+  actions.push('shut');
+  actions.push('give');
+  
   return (
     <span>
-      <a href="#" data-method="lock" data-cup={ cup } onClick={ handleOpenModal }>Lock</a> -&nbsp;
-      <a href="#" data-method="free" data-cup={ cup } onClick={ handleOpenModal }>Free</a> -&nbsp;
-      <a href="#" data-method="draw" data-cup={ cup } onClick={ handleOpenModal }>Draw</a> -&nbsp;
-      <a href="#" data-method="wipe" data-cup={ cup } onClick={ handleOpenModal }>Wipe</a> -&nbsp;
-      <a href="#" data-method="shut" data-cup={ cup } onClick={ handleOpenModal }>Shut</a> -&nbsp;
-      <a href="#" data-method="give" data-cup={ cup } onClick={ handleOpenModal }>Give</a>
+      {
+        Object.keys(actions).map(key =>
+          <span key={ key }><a href="#" data-method={ actions[key] } data-cup={ cupId } onClick={ handleOpenModal }>{ actions[key] }</a> / </span>
+        )
+      }
     </span>
   )
 }
@@ -70,7 +83,7 @@ const Cups = (props) => {
                       </td>
                       <td>
                         { !props.sai.tub.cups[key].safe ? renderBiteAction() : '' }
-                        { (props.sai.tub.cups[key].owner === props.network.defaultAccount) ? renderOwnerCupActions(key, props.handleOpenModal) : '' }
+                        { (props.sai.tub.cups[key].owner === props.network.defaultAccount) ? renderOwnerCupActions(props.sai.skr.myBalance.valueOf() !== '0', key, props.sai.tub.cups[key], props.handleOpenModal) : '' }
                       </td>
                     </tr>
                   )

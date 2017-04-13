@@ -508,6 +508,13 @@ class App extends Component {
   }
 
   renderMain() {
+    const actions = ['open'];
+    if (this.state.sai.gem.myBalance.valueOf() !== '0') {
+      actions.push('join');
+    }
+    if (this.state.sai.skr.myBalance.valueOf() !== '0') {
+      actions.push('exit');
+    }
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -540,9 +547,11 @@ class App extends Component {
                   <div className="box-body">
                     <div className="row">
                       <div className="col-md-12">
-                        <a href="#" data-method="join" onClick={ this.handleOpenModal }>Join</a> -&nbsp;
-                        <a href="#" data-method="exit" onClick={ this.handleOpenModal }>Exit</a> -&nbsp;
-                        <a href="#" data-method="open" onClick={ this.handleOpenModal }>Open</a>
+                        {
+                          Object.keys(actions).map(key =>
+                            <span key={ key }><a href="#" data-method={ actions[key] } onClick={ this.handleOpenModal }>{ actions[key] }</a> / </span>
+                          )
+                        }
                       </div>
                     </div>
                   </div>
