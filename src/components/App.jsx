@@ -8,7 +8,7 @@ import Transfer from './Transfer';
 import web3 from '../web3';
 import ReactNotify from '../notify';
 import { toBytes32 } from '../helpers';
-import logo from '../logo.svg';
+// import logo from '../logo.svg';
 import './App.css';
 
 
@@ -218,7 +218,6 @@ class App extends Component {
   }
 
   setFiltersTub = (address) => {
-    console.log(address);
     // Get open cups by address
     this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
       if (!e) {
@@ -363,6 +362,7 @@ class App extends Component {
           }
         });
       }
+      return false;
     });
   }
 

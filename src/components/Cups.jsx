@@ -37,6 +37,7 @@ const Cups = (props) => {
                   <th>Cup</th>
                   <th>Debt (SIN)</th>
                   <th>Locked (SKR)</th>
+                  <th>% SKR</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -53,6 +54,9 @@ const Cups = (props) => {
                       </td>
                       <td>
                         { props.toNumber(props.sai.tub.cups[key].locked) }
+                      </td>
+                      <td>
+                        { props.sai.tub.cups[key].locked.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3) }%
                       </td>
                       <td style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {

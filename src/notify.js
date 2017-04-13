@@ -1,5 +1,20 @@
-'use strict';
 var React = require('react');
+
+var Item = React.createClass({
+  displayName: "Item",
+  hideNotification: function () {
+    this.props.hideNotification(this.props.id);
+  },
+  render: function () {
+    return (
+      React.createElement("div", { className: "notify-item " + this.props.theme, onClick: this.hideNotification },
+        React.createElement("p", { className: "notify-title" }, this.props.title),
+
+        React.createElement("p", { className: "notify-body" }, this.props.msg)
+      )
+    )
+  }
+});
 
 var Notify = React.createClass({
   displayName: "Notify",
@@ -17,8 +32,9 @@ var Notify = React.createClass({
     this.addNotify(key, title, msg, time, 'info');
   },
   addNotify: function (key, title, msg, time, theme) {
-    this.state[key] = { title: title, msg: msg, time: time, theme: theme };
-    this.setState(this.state);
+    const state = {...this.state}
+    state[key] = { title: title, msg: msg, time: time, theme: theme };
+    this.setState(state);
     this.countToHide(time, key);
   },
   countToHide: function (duration, key) {
@@ -52,19 +68,4 @@ var Notify = React.createClass({
   }
 });
 
-var Item = React.createClass({
-  displayName: "Item",
-  hideNotification: function () {
-    this.props.hideNotification(this.props.id);
-  },
-  render: function () {
-    return (
-      React.createElement("div", { className: "notify-item " + this.props.theme, onClick: this.hideNotification },
-        React.createElement("p", { className: "notify-title" }, this.props.title),
-
-        React.createElement("p", { className: "notify-body" }, this.props.msg)
-      )
-    )
-  }
-});
 module.exports = Notify;

@@ -90,7 +90,7 @@ class Modal extends Component {
         type = 'number';
         break;
       case 'wipe':
-        text = `Please set amount of collateral (SKR) you want to recover burning SAI in CUP ${modal.cup}.<br />`;
+        text = `Please set amount of collateral (SKR) you want to recover burning SAI in CUP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         style.content.height = '200px';
