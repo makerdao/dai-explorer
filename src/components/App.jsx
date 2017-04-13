@@ -366,13 +366,13 @@ class App extends Component {
     });
   }
 
-  logPendingTransaction = (tx) => {
+  logPendingTransaction = (tx, title, callback = {}) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = {...this.state.transactions};
-    transactions[tx] = { pending: true }
+    transactions[tx] = { pending: true, title, callback }
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx))
-    this.refs.notificator.info(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), false);
+    this.refs.notificator.info(tx, title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), false);
   }
 
   logTransactionConfirmed = (tx) => {
@@ -381,8 +381,13 @@ class App extends Component {
     if (transactions[tx]) {
       transactions[tx].pending = false;
       this.setState({ transactions });
-      console.log(msgTemp.replace('TX', tx))
-      this.refs.notificator.success(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+
+      this.refs.notificator.success(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+
+      const c = transactions[tx].callback;
+      if (c.method) {
+        c.cup ? this.executeMethodCupValue(c.method, c.cup, c.value) : this.executeMethodValue(c.method, c.value);
+      }
     }
   }
 
@@ -392,16 +397,14 @@ class App extends Component {
     if (transactions[tx]) {
       transactions[tx].pending = false;
       this.setState({ transactions });
-      console.log(msgTemp.replace('TX', tx))
-      this.refs.notificator.error(tx, '', msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
     }
   }
 
   executeMethod = (method) => {
-    this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+    this.tubObj[method]({ from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
-        console.log(`${method} executed`);
-        this.logPendingTransaction(r);
+        this.logPendingTransaction(tx, `tub: ${method}`);
       } else {
         console.log(e);
       }
@@ -409,10 +412,9 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+    this.tubObj[method](toBytes32(cup), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
-        console.log(`${method} ${cup} executed`);
-        this.logPendingTransaction(r);
+        this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
         console.log(e);
       }
@@ -420,10 +422,9 @@ class App extends Component {
   }
 
   executeMethodValue = (method, value) => {
-    this.tubObj[method](value, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+    this.tubObj[method](web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
-        console.log(`${method} ${value} executed`);
-        this.logPendingTransaction(r);
+        this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
         console.log(e);
       }
@@ -431,12 +432,26 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value) => {
-    this.tubObj[method](toBytes32(cup), value, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+    this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
-        console.log(`${method} ${cup} ${value} executed`);
-        this.logPendingTransaction(r);
+        this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
         console.log(e);
+      }
+    });
+  }
+
+  tubAllowance = (token, method, cup, value) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
+      if (!e) {
+        const valueObj = web3.toBigNumber(web3.toWei(value));
+        if (r.lt(valueObj)) {
+          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
+            this.logPendingTransaction(tx, `${token}: approve tub ${value}`, { method, cup, value  });
+          });
+        } else {
+          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value);
+        }
       }
     });
   }
@@ -454,22 +469,22 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.executeMethodValue(method, web3.toWei(value));
+        this.tubAllowance('gem', method, false, value);
         break;
       case 'exit':
-        this.executeMethodValue(method, web3.toWei(value));
+        this.tubAllowance('skr', method, false, value);
         break;
       case 'lock':
-        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        this.tubAllowance('skr', method, cup, value);
         break;
       case 'free':
-        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        this.executeMethodCupValue(method, cup, value);
         break;
       case 'draw':
-        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        this.executeMethodCupValue(method, cup, web3.toWei(value));
+        this.tubAllowance('sai', method, cup, value);
         break;
       case 'give':
       this.executeMethodCupValue(method, cup, value);

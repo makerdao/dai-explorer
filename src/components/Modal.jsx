@@ -25,7 +25,7 @@ class Modal extends Component {
   renderInputForm = (type) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <input ref={(input) => this.updateVal = input} type={type} required />
+        <input ref={(input) => this.updateVal = input} type={type} required step="0.001" />
         <input type="submit" />
       </form>
     )
