@@ -86,11 +86,11 @@ class Modal extends Component {
         type = 'number';
         break;
       case 'draw':
-        text = `Please set amount of locked collateral (SKR) in CUP ${modal.cup} that you want use to generate SAI`;
+        text = `Please set amount of SAI you want to generate from your locked collateral (SKR) in CUP ${modal.cup}`;
         type = 'number';
         break;
       case 'wipe':
-        text = `Please set amount of collateral (SKR) you want to recover burning SAI in CUP ${modal.cup}.<br />` +
+        text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CUP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         style.content.height = '200px';
