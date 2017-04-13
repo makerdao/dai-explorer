@@ -497,10 +497,9 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    this[`${token}Obj`].transfer(to, web3.toWei(amount), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, r) => {
+    this[`${token}Obj`].transfer(to, web3.toWei(amount), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
-        console.log(`${token} transfer ${to} ${amount}...`);
-        this.logPendingTransaction(r);
+        this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
       } else {
         console.log(e);
       }
