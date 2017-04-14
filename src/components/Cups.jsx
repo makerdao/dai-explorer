@@ -51,8 +51,8 @@ const Cups = (props) => {
                   <th>Cup</th>
                   <th>Debt (SAI)</th>
                   <th>Locked (SKR)</th>
-                  <th>% Ratio</th>
                   <th>% Tot SKR</th>
+                  <th>% Ratio</th>
                   <th>Avail. SAI (to draw)</th>
                   <th>Avail. SKR (to free)</th>
                   <th>Status</th>
@@ -74,15 +74,15 @@ const Cups = (props) => {
                       </td>
                       <td>
                         {
-                          props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0))
-                            ? props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3)
+                          props.sai.skr.totalSupply
+                            ? props.sai.tub.cups[key].locked.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3)
                             : '0.000'
                         }%
                       </td>
                       <td>
                         {
-                          props.sai.skr.totalSupply
-                            ? props.sai.tub.cups[key].locked.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3)
+                          props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0))
+                            ? props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3)
                             : '0.000'
                         }%
                       </td>
