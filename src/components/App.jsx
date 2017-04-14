@@ -309,6 +309,7 @@ class App extends Component {
           owner: cup[0],
           debt: cup[1],
           locked: cup[2],
+          pro: cup[2].div(this.state.sai.tub.per).times((this.state.sai.tub.tag)),
           safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
         };
         this.setState({ sai });
@@ -333,7 +334,7 @@ class App extends Component {
   }
 
   toNumber = (obj) => {
-    return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj.toNumber())) : 0;
+    return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj)) : 0;
   }
 
   handleOpenModal = (e) => {

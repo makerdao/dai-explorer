@@ -1,4 +1,5 @@
 import React from 'react';
+import web3 from '../web3';
 
 // Start Render functions
 const renderBiteAction = () => {
@@ -14,11 +15,11 @@ const renderOwnerCupActions = (lock, cupId, cup, handleOpenModal) => {
   if (lock) {
     actions.push('lock');
   }
-  if (cup.locked.valueOf() !== '0' && cup.safe) {
+  if (cup.locked.gt(web3.toBigNumber(0)) && cup.safe) {
     actions.push('free');
     actions.push('draw');
   }
-  if (cup.debt.valueOf() !== '0') {
+  if (cup.debt.gt(web3.toBigNumber(0))) {
     actions.push('wipe');
   }
   actions.push('shut');
@@ -48,9 +49,12 @@ const Cups = (props) => {
               <thead>
                 <tr>
                   <th>Cup</th>
-                  <th>Debt (SIN)</th>
+                  <th>Debt (SAI)</th>
                   <th>Locked (SKR)</th>
-                  <th>% SKR</th>
+                  <th>% Ratio</th>
+                  <th>% Tot SKR</th>
+                  <th>Avail. SAI (to draw)</th>
+                  <th>Avail. SKR (to free)</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -63,27 +67,41 @@ const Cups = (props) => {
                         {key}
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].debt) }
+                        { props.toNumber(props.sai.tub.cups[key].debt).toFixed(3) }
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].locked) }
+                        { props.toNumber(props.sai.tub.cups[key].locked).toFixed(3) }
                       </td>
                       <td>
-                        { props.sai.tub.cups[key].locked.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3) }%
+                        {
+                          props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0))
+                            ? props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3)
+                            : '0.000'
+                        }%
+                      </td>
+                      <td>
+                        {
+                          props.sai.skr.totalSupply
+                            ? props.sai.tub.cups[key].locked.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3)
+                            : '0.000'
+                        }%
+                      </td>
+                      <td>
+                        { props.toNumber(props.sai.tub.cups[key].pro.div(web3.fromWei(web3.fromWei(props.sai.tub.mat))).minus(props.sai.tub.cups[key].debt)).toFixed(3) }
+                      </td>
+                      <td>
+                        { props.toNumber(props.sai.tub.cups[key].locked.minus(props.sai.tub.cups[key].debt.times(props.sai.tub.per).div(props.sai.tub.tag).times(web3.fromWei(web3.fromWei(props.sai.tub.mat))))).toFixed(3) }
                       </td>
                       <td style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {
-                          (props.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000')
-                            ? 'Closed'
-                            :
-                            (props.sai.tub.cups[key].safe === 'N/A')
-                              ? 'N/A'
-                              : (props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
+                          props.sai.tub.cups[key].safe === 'N/A'
+                            ? 'N/A'
+                            : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe'
                         }
                       </td>
                       <td>
                         { !props.sai.tub.cups[key].safe ? renderBiteAction() : '' }
-                        { (props.sai.tub.cups[key].owner === props.network.defaultAccount) ? renderOwnerCupActions(props.sai.skr.myBalance.valueOf() !== '0', key, props.sai.tub.cups[key], props.handleOpenModal) : '' }
+                        { (props.sai.tub.cups[key].owner === props.network.defaultAccount) ? renderOwnerCupActions(props.sai.skr.myBalance.gt(web3.toBigNumber(0)), key, props.sai.tub.cups[key], props.handleOpenModal) : '' }
                       </td>
                     </tr>
                   )
