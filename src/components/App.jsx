@@ -612,7 +612,7 @@ class App extends Component {
                 <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } />
               </div>
               <div className="col-md-3">
-                <Transfer transferToken={ this.transferToken }/>
+                <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
               </div>
             </div>
           </div>

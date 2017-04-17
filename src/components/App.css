@@ -126,6 +126,7 @@ tr th, tr td {
 }
 
 p.error {
+  clear: left;
   color: red;
   display: block;
   margin-top: 5px;
