@@ -94,9 +94,11 @@ const Cups = (props) => {
                       </td>
                       <td style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {
-                          props.sai.tub.cups[key].safe === 'N/A'
+                          props.sai.tub.cups[key].owner === '0x0000000000000000000000000000000000000000'
+                          ? 'Closed'
+                          : (props.sai.tub.cups[key].safe === 'N/A'
                             ? 'N/A'
-                            : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe'
+                            : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
                         }
                       </td>
                       <td>
