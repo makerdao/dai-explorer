@@ -5,7 +5,7 @@ import Token from './Token';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
-import web3 from '../web3';
+import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { toBytes32 } from '../helpers';
 // import logo from '../logo.svg';
@@ -150,6 +150,12 @@ class App extends Component {
   }
 
   componentDidMount = () => {
+    setTimeout(this.init, 500);
+  }
+
+  init = () => {
+    initWeb3(web3);
+
     this.checkNetwork();
     this.checkAccounts();
 
