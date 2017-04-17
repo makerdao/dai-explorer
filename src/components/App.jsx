@@ -181,7 +181,7 @@ class App extends Component {
     this.setUpToken('sai');
     this.setUpToken('sin');
 
-    this.setFiltersTub(this.state.network.defaultAccount);
+    this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
 
     // This is necessary to finish transactions that failed after signing
     this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
@@ -222,20 +222,19 @@ class App extends Component {
   }
 
   setFiltersTub = (address) => {
-    // Get open cups by address
-    if (this.state.params && this.state.params[0] && this.state.params[0] === 'all') {
-      this.tubObj.LogNewCup({}, { fromBlock: 0 }, (e, r) => {
-        if (!e) {
-          this.getCup(r.args['cup'], false);
-        }
-      });
-    } else {
-      this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
-        if (!e) {
-          this.getCup(r.args['cup'], address);
-        }
-      });
-      // Get cups given to address.
+    // Get open cups by address (or all)
+    
+    let conditions = {};
+    if (address) {
+      conditions = { lad: address }
+    }
+    this.tubObj.LogNewCup(conditions, { fromBlock: 0 }, (e, r) => {
+      if (!e) {
+        this.getCup(r.args['cup'], address);
+      }
+    });
+    if (address) {
+      // Get cups given to address (only if not seeing all cups).
       this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: 0 }, (e, r) => {
         if (!e) {
           this.getCup(r.args.foo, address);
@@ -253,7 +252,11 @@ class App extends Component {
       'give(bytes32,address)',
     ].map((v) => this.methodSig(v))
 
-    this.tubObj.LogNote({ guy: address }, {}, (e, r) => {
+    if (address) {
+      conditions = { guy: address }
+    }
+
+    this.tubObj.LogNote(conditions, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
