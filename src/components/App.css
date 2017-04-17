@@ -124,3 +124,10 @@ tr th, tr td {
 .transfer input[type=submit] {
   margin-top: 5px;
 }
+
+p.error {
+  color: red;
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 0px;
+}

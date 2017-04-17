@@ -81,16 +81,16 @@ const Cups = (props) => {
                       </td>
                       <td>
                         {
-                          props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0))
+                          props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
                             ? props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3)
                             : '0.000'
                         }%
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].pro.div(web3.fromWei(web3.fromWei(props.sai.tub.mat))).minus(props.sai.tub.cups[key].debt)).toFixed(3) }
+                        { props.toNumber(props.sai.tub.cups[key].avail_sai).toFixed(3) }
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].locked.minus(props.sai.tub.cups[key].debt.times(props.sai.tub.per).div(props.sai.tub.tag).times(web3.fromWei(web3.fromWei(props.sai.tub.mat))))).toFixed(3) }
+                        { props.toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) }
                       </td>
                       <td style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {

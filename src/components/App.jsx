@@ -79,7 +79,7 @@ class App extends Component {
             console.debug('YIKES! getBlock returned undefined!');
           }
           if (res.number >= this.state.network.latestBlock) {
-            const networkState = {...this.state.network};
+            const networkState = { ...this.state.network };
             networkState['latestBlock'] = res.number;
             networkState['outOfSync'] = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
             this.setState({ network: networkState });
@@ -116,7 +116,7 @@ class App extends Component {
             }
           });
         } else {
-          const networkState = {...this.state.network};
+          const networkState = { ...this.state.network };
           networkState['isConnected'] = isConnected;
           networkState['network'] = false;
           networkState['latestBlock'] = 0;
@@ -128,7 +128,7 @@ class App extends Component {
 
   initNetwork = (newNetwork) => {
     //checkAccounts();
-    const networkState = {...this.state.network};
+    const networkState = { ...this.state.network };
     networkState['network'] = newNetwork;
     networkState['isConnected'] = true;
     networkState['latestBlock'] = 0;
@@ -140,7 +140,7 @@ class App extends Component {
   checkAccounts = () => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
-        const networkState = {...this.state.network};
+        const networkState = { ...this.state.network };
         networkState['accounts'] = accounts;
         networkState['defaultAccount'] = accounts[0];
         this.setState({ network: networkState });
@@ -163,7 +163,7 @@ class App extends Component {
   initContracts = () => {
     const addrs = addresses[this.state.network.network];
 
-    const sai = {...this.state.sai};
+    const sai = { ...this.state.sai };
     sai['tub'].address = addrs['tub'];
     this.setState({ sai });
 
@@ -186,7 +186,7 @@ class App extends Component {
   setUpPot = () => {
     this.tubObj.pot((e, r) => {
       if (!e) {
-        const sai = {...this.state.sai};
+        const sai = { ...this.state.sai };
         sai.pot.address = r;
         this.setState({ sai });
       }
@@ -198,7 +198,7 @@ class App extends Component {
       if (!e) {
         window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(dstoken.abi, r);
 
-        const sai = {...this.state.sai};
+        const sai = { ...this.state.sai };
         sai[token].address = r;
         this.setState({ sai });
 
@@ -261,7 +261,7 @@ class App extends Component {
   getTotalSupply = (name) => {
     this[`${name}Obj`].totalSupply((e, r) => {
       if (!e) {
-        const sai = {...this.state.sai};
+        const sai = { ...this.state.sai };
         sai[name].totalSupply = r;
         this.setState({ sai });
       }
@@ -271,7 +271,7 @@ class App extends Component {
   getBalanceOf = (name, address, field) => {
     this[`${name}Obj`].balanceOf(address, (e, r) => {
       if (!e) {
-        const sai = {...this.state.sai};
+        const sai = { ...this.state.sai };
         sai[name][field] = r;
         this.setState({ sai });
       }
@@ -291,9 +291,13 @@ class App extends Component {
   getParameterFromTub = (field) => {
     this.tubObj[field]((e, value) => {
       if (!e) {
-        const sai = {...this.state.sai};
+        const sai = { ...this.state.sai };
         sai.tub[field] = value;
         this.setState({ sai });
+
+        Object.keys(sai.tub.cups).map(key =>
+          this.updateCup(key)
+        )
       }
     });
   }
@@ -301,32 +305,41 @@ class App extends Component {
   getCup(idHex, address) {
     this.tubObj.cups(idHex, (e, cup) => {
       const id = parseInt(idHex, 16);
-      const sai = {...this.state.sai};
+      const sai = { ...this.state.sai };
       const firstLoad = typeof sai.tub.cups[id] === 'undefined';
       if (address === cup[0]) {
-        //This verification needs to be done as the cup could have been given or closed by the user
+        // This verification needs to be done as the cup could have been given or closed by the user
         sai.tub.cups[id] =  {
           owner: cup[0],
           debt: cup[1],
           locked: cup[2],
-          pro: cup[2].div(this.state.sai.tub.per).times((this.state.sai.tub.tag)),
           safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
         };
         this.setState({ sai });
         this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
           if (!e) {
-            const sai = {...this.state.sai};
+            const sai = { ...this.state.sai };
             if (sai.tub.cups[id]) {
               sai.tub.cups[id]['safe'] = safe;
               this.setState({ sai });
             }
           }
         });
+        this.updateCup(id);
       } else if(!firstLoad) {
         // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
         delete sai.tub.cups[id];
       }
     });
+  }
+
+  updateCup = (id) => {
+    const sai = { ...this.state.sai };
+    const cup = sai.tub.cups[id];
+    sai.tub.cups[id].pro = cup.locked.div(sai.tub.per).times((sai.tub.tag));
+    sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(web3.fromWei(sai.tub.mat))).minus(cup.debt);
+    sai.tub.cups[id].avail_skr = cup.locked.minus(cup.debt.times(sai.tub.per).div(sai.tub.tag).times(web3.fromWei(web3.fromWei(sai.tub.mat))));
+    this.setState({ sai });
   }
 
   methodSig = (method) => {
@@ -350,7 +363,7 @@ class App extends Component {
   }
 
   checkPendingTransactions = () => {
-    const transactions = {...this.state.transactions};
+    const transactions = { ...this.state.transactions };
     Object.keys(transactions).map(tx => {
       if (transactions[tx].pending) {
         web3.eth.getTransactionReceipt(tx, (e, r) => {
@@ -369,7 +382,7 @@ class App extends Component {
 
   logPendingTransaction = (tx, title, callback = {}) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
-    const transactions = {...this.state.transactions};
+    const transactions = { ...this.state.transactions };
     transactions[tx] = { pending: true, title, callback }
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx))
@@ -378,7 +391,7 @@ class App extends Component {
 
   logTransactionConfirmed = (tx) => {
     const msgTemp = 'Transaction TX was confirmed.';
-    const transactions = {...this.state.transactions};
+    const transactions = { ...this.state.transactions };
     if (transactions[tx]) {
       transactions[tx].pending = false;
       this.setState({ transactions });
@@ -394,7 +407,7 @@ class App extends Component {
 
   logTransactionFailed = (tx) => {
     const msgTemp = 'Transaction TX failed.';
-    const transactions = {...this.state.transactions};
+    const transactions = { ...this.state.transactions };
     if (transactions[tx]) {
       transactions[tx].pending = false;
       this.setState({ transactions });
@@ -461,6 +474,8 @@ class App extends Component {
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
+    const valueWei = web3.toWei(value);
+    let error = false;
 
     switch(method) {
       case 'open':
@@ -470,31 +485,65 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.tubAllowance('gem', method, false, value);
+        if (this.state.sai.gem.myBalance.gte(valueWei)) {
+          this.tubAllowance('gem', method, false, value);
+        } else {
+          error = `Not enough balance to join ${value} GEM.`;
+        }
         break;
       case 'exit':
-        this.tubAllowance('skr', method, false, value);
+        if (this.state.sai.skr.myBalance.gte(valueWei)) {
+          this.tubAllowance('skr', method, false, value);
+        } else {
+          error = `Not enough balance to exit ${value} SKR.`;
+        }
         break;
       case 'lock':
-        this.tubAllowance('skr', method, cup, value);
+        if (this.state.sai.skr.myBalance.gte(valueWei)) {
+          this.tubAllowance('skr', method, cup, value);
+        } else {
+          error = `Not enough balance to lock ${value} SKR.`;
+        }
         break;
       case 'free':
-        this.executeMethodCupValue(method, cup, value);
+        if (this.state.sai.tub.cups[cup].avail_skr.gte(valueWei)) {
+          this.executeMethodCupValue(method, cup, value);
+        } else {
+          error = `${value} SKR exceeds the maximum available to free.`;
+        }
         break;
       case 'draw':
-        this.executeMethodCupValue(method, cup, value);
+        if(this.state.sai.sin.totalSupply.add(valueWei).gt(this.state.sai.tub.hat)) {
+          error = `${value} SAI exceeds the system deb ceiling.`;
+        } else if (this.state.sai.tub.cups[cup].avail_sai.lt(valueWei)) {
+          error = `${value} SAI exceeds the maximum available to draw.`;
+        } else {
+          this.executeMethodCupValue(method, cup, value);
+        }
         break;
       case 'wipe':
-        this.tubAllowance('sai', method, cup, value);
+        if(this.state.sai.sai.myBalance.lt(valueWei)) {
+          error = `Not enough balance to wipe ${value} SAI.`;
+        } else if(this.state.sai.tub.cups[cup].debt.lt(valueWei)) {
+          error = `Debt in CUP ${cup} is lower than ${value} SAI.`;
+        } else {
+          this.tubAllowance('sai', method, cup, value);
+        }
         break;
       case 'give':
-      this.executeMethodCupValue(method, cup, value);
+        this.executeMethodCupValue(method, cup, value);
         break;
       default:
         break;
     }
 
-    this.setState({ modal: { show: false } });
+    if (error) {
+      const modal = { ...this.state.modal }
+      modal.error = error;
+      this.setState({ modal });
+    } else {
+      this.setState({ modal: { show: false } });
+    }
   }
 
   transferToken = (token, to, amount) => {
