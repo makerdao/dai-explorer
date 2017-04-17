@@ -66,6 +66,7 @@ class App extends Component {
     modal: {
       show: false
     },
+    params: ''
   };
 
   checkNetwork = () => {
@@ -152,6 +153,9 @@ class App extends Component {
     this.checkNetwork();
     this.checkAccounts();
 
+    const params = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
+    this.setState({ params });
+
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
@@ -219,17 +223,25 @@ class App extends Component {
 
   setFiltersTub = (address) => {
     // Get open cups by address
-    this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
-      if (!e) {
-        this.getCup(r.args['cup'], address);
-      }
-    });
-    // Get cups given to address.
-    this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: 0 }, (e, r) => {
-      if (!e) {
-        this.getCup(r.args.foo, address);
-      }
-    });
+    if (this.state.params && this.state.params[0] && this.state.params[0] === 'all') {
+      this.tubObj.LogNewCup({}, { fromBlock: 0 }, (e, r) => {
+        if (!e) {
+          this.getCup(r.args['cup'], false);
+        }
+      });
+    } else {
+      this.tubObj.LogNewCup({ lad: address }, { fromBlock: 0 }, (e, r) => {
+        if (!e) {
+          this.getCup(r.args['cup'], address);
+        }
+      });
+      // Get cups given to address.
+      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: 0 }, (e, r) => {
+        if (!e) {
+          this.getCup(r.args.foo, address);
+        }
+      });
+    }
 
     const cupSignatures = [
       'lock(bytes32,uint128)',
@@ -307,7 +319,7 @@ class App extends Component {
       const id = parseInt(idHex, 16);
       const sai = { ...this.state.sai };
       const firstLoad = typeof sai.tub.cups[id] === 'undefined';
-      if (address === cup[0]) {
+      if (!address || address === cup[0]) {
         // This verification needs to be done as the cup could have been given or closed by the user
         sai.tub.cups[id] =  {
           owner: cup[0],
