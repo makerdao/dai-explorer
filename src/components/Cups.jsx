@@ -1,29 +1,26 @@
 import React from 'react';
 import web3 from '../web3';
 
-// Start Render functions
-const renderBiteAction = () => {
-  return (
-    <span>
-      <a href="">Bite</a>/
-    </span>
-  )
-}
-
-const renderOwnerCupActions = (lock, cupId, cup, handleOpenModal) => {
+const renderCupActions = (lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = [];
-  if (lock) {
-    actions.push('lock');
+  if (cup.owner === defaultAccount) {
+    if (lock) {
+      actions.push('lock');
+    }
+    if (cup.locked.gt(0) && cup.safe) {
+      actions.push('free');
+      actions.push('draw');
+    }
+    if (cup.debt.gt(0)) {
+      actions.push('wipe');
+    }
+    actions.push('shut');
+    actions.push('give');
   }
-  if (cup.locked.gt(web3.toBigNumber(0)) && cup.safe) {
-    actions.push('free');
-    actions.push('draw');
+
+  if (cup.safe === false) {
+    actions.push('bite');
   }
-  if (cup.debt.gt(web3.toBigNumber(0))) {
-    actions.push('wipe');
-  }
-  actions.push('shut');
-  actions.push('give');
   
   return (
     <span>
@@ -102,8 +99,7 @@ const Cups = (props) => {
                         }
                       </td>
                       <td>
-                        { !props.sai.tub.cups[key].safe ? renderBiteAction() : '' }
-                        { (props.sai.tub.cups[key].owner === props.network.defaultAccount) ? renderOwnerCupActions(props.sai.skr.myBalance.gt(web3.toBigNumber(0)), key, props.sai.tub.cups[key], props.handleOpenModal) : '' }
+                        { renderCupActions(props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )

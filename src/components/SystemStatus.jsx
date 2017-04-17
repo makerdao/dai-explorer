@@ -20,31 +20,41 @@ const SystemStatus = (props) => {
                   <th>Debt Ceiling</th>
                   <th>Deficit</th>
                   <th>Safe</th>
+                  <th>Avail. Boom</th>
+                  <th>Avail. Bust</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                    <td>
-                      { props.toNumber(props.sai.tub.per) }
-                    </td>
-                    <td>
-                      { props.toNumber(props.sai.tub.tag) }
-                    </td>
-                    <td>
-                      { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)) }%
-                    </td>
-                    <td>
-                      { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)) }%
-                    </td>
-                    <td>
-                      { props.toNumber(props.sai.tub.hat) }
-                    </td>
-                    <td>
-                      { props.sai.tub.eek ? 'YES' : 'NO' }
-                    </td>
-                    <td>
-                      { props.sai.tub.safe ? 'YES' : 'NO' }
-                    </td>
+                  <td>
+                    { props.toNumber(props.sai.tub.per).toFixed(3) }
+                  </td>
+                  <td>
+                    { props.toNumber(props.sai.tub.tag).toFixed(3) }
+                  </td>
+                  <td>
+                    { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)).toFixed(3) }%
+                  </td>
+                  <td>
+                    { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)).toFixed(3) }%
+                  </td>
+                  <td>
+                    { props.toNumber(props.sai.tub.hat).toFixed(3) }
+                  </td>
+                  <td>
+                    { props.sai.tub.eek ? 'YES' : 'NO' }
+                  </td>
+                  <td>
+                    { props.sai.tub.safe ? 'YES' : 'NO' }
+                  </td>
+                  <td>
+                    { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR at<br />
+                    { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SAI
+                  </td>
+                  <td>
+                    { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI at<br />
+                    { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SKR
+                  </td>
                 </tr>
               </tbody>
             </table>

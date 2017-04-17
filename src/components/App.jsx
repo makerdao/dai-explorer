@@ -253,7 +253,7 @@ class App extends Component {
       'free(bytes32,uint128)',
       'draw(bytes32,uint128)',
       'wipe(bytes32,uint128)',
-      'bite(bytes32,uint128)',
+      'bite(bytes32)',
       'shut(bytes32)',
       'give(bytes32,address)',
     ].map((v) => this.methodSig(v))
@@ -277,6 +277,9 @@ class App extends Component {
     this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
     this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
     this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
+    if (token === 'sai' || token === 'sin') {
+      this.getBoomBustValues();
+    }
   }
 
   getTotalSupply = (name) => {
@@ -316,11 +319,30 @@ class App extends Component {
         sai.tub[field] = value;
         this.setState({ sai });
 
+        this.getBoomBustValues();
+
         Object.keys(sai.tub.cups).map(key =>
           this.updateCup(key)
-        )
+        );
       }
     });
+  }
+
+  getBoomBustValues = () => {
+    if (this.state.sai.sai.tubBalance && this.state.sai.sin.tubBalance) {
+      const sai = { ...this.state.sai };
+      const dif = this.state.sai.sai.tubBalance.minus(this.state.sai.sin.tubBalance);
+      sai.tub.avail_boom_sai = web3.toBigNumber(0);
+      sai.tub.avail_bust_sai = web3.toBigNumber(0);
+      if (dif.gt(0)) {
+        sai.tub.avail_boom_sai = dif;
+      } else if (dif.lt(0)) {
+        sai.tub.avail_bust_sai = dif.abs();
+      }
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
+      sai.tub.avail_bust_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
+      this.setState({ sai });
+    }
   }
 
   getCup(idHex, address) {
@@ -476,13 +498,14 @@ class App extends Component {
     });
   }
 
-  tubAllowance = (token, method, cup, value) => {
+  tubAllowance = (token, method, cup, value, value2 = false) => {
     this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
       if (!e) {
-        const valueObj = web3.toBigNumber(web3.toWei(value));
+        const valueAllowance = value2 ? value2 : value;
+        const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
-            this.logPendingTransaction(tx, `${token}: approve tub ${value}`, { method, cup, value  });
+          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
+            this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
           });
         } else {
           cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value);
@@ -503,34 +526,55 @@ class App extends Component {
         this.executeMethod(method);
         break;
       case 'shut':
+      case 'bite':
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        if (this.state.sai.gem.myBalance.gte(valueWei)) {
-          this.tubAllowance('gem', method, false, value);
-        } else {
+        if (this.state.sai.gem.myBalance.lt(valueWei)) {
           error = `Not enough balance to join ${value} GEM.`;
+        } else {
+          this.tubAllowance('gem', method, false, value);
         }
         break;
       case 'exit':
-        if (this.state.sai.skr.myBalance.gte(valueWei)) {
-          this.tubAllowance('skr', method, false, value);
-        } else {
+        if (this.state.sai.skr.myBalance.lt(valueWei)) {
           error = `Not enough balance to exit ${value} SKR.`;
+        } else {
+          this.tubAllowance('skr', method, false, value);
+        }
+        break;
+      case 'boom':
+        if (this.state.sai.tub.avail_boom_skr.lt(valueWei)) {
+          error = `Not enough SKR in the system to boom ${value} SKR.`;
+        } if (this.state.sai.skr.myBalance.lt(valueWei)) {
+          error = `Not enough balance of SKR to boom ${value} SKR.`;
+        } else {
+          this.tubAllowance('skr', method, false, value);
+        }
+        break;
+      case 'bust':
+        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
+        const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
+        if (this.state.sai.tub.avail_bust_sai.lt(valueSAIWei)) {
+          error = `Not enough SAI in the system to bust ${value} SKR.`;
+        } else if (this.state.sai.sai.myBalance.lt(valueSAIWei)) {
+          error = `Not enough balance of SAI to bust ${value} SKR.`;
+        } else {
+          this.tubAllowance('sai', method, false, value, valueSAI);
         }
         break;
       case 'lock':
-        if (this.state.sai.skr.myBalance.gte(valueWei)) {
-          this.tubAllowance('skr', method, cup, value);
-        } else {
+        if (this.state.sai.skr.myBalance.lt(valueWei)) {
           error = `Not enough balance to lock ${value} SKR.`;
+        } else {
+          this.tubAllowance('skr', method, cup, value);
         }
         break;
       case 'free':
-        if (this.state.sai.tub.cups[cup].avail_skr.gte(valueWei)) {
-          this.executeMethodCupValue(method, cup, value);
-        } else {
+        if (this.state.sai.tub.cups[cup].avail_skr.lt(valueWei)) {
           error = `${value} SKR exceeds the maximum available to free.`;
+        } else {
+          this.executeMethodCupValue(method, cup, value);
         }
         break;
       case 'draw':
@@ -579,11 +623,17 @@ class App extends Component {
 
   renderMain() {
     const actions = ['open'];
-    if (this.state.sai.gem.myBalance.valueOf() !== '0') {
+    if (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) {
       actions.push('join');
     }
-    if (this.state.sai.skr.myBalance.valueOf() !== '0') {
+    if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
       actions.push('exit');
+    }
+    if (this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0)) {
+      actions.push('boom');
+    }
+    if (this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)) {
+      actions.push('bust');
     }
     return (
       <div className="content-wrapper">

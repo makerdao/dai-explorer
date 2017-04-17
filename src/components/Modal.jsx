@@ -71,6 +71,10 @@ class Modal extends Component {
         text = `Are you sure you want to close Cup ${modal.cup}?`;
         type = 'yesno';
         break;
+      case 'bite':
+        text = `Are you sure you want to bite Cup ${modal.cup}?`;
+        type = 'yesno';
+        break;
       case 'join':
         text = 'Please set amount of GEM (W-ETH) you want to convert to collateral (SKR).<br />' + 
                'You might be requested for signing two transactions if there is not enough allowance in GEM to complete this transaction.';
@@ -80,6 +84,18 @@ class Modal extends Component {
       case 'exit':
         text = 'Please set amount of collateral (SKR) you want to convert to GEM (W-ETH).<br />' + 
                'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        type = 'number';
+        style.content.height = '220px';
+        break;
+      case 'boom':
+        text = 'Please set amount of SKR you want to transfer to get SAI.<br />' +
+               'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        type = 'number';
+        style.content.height = '220px';
+        break;
+      case 'bust':
+        text = 'Please set amount of SKR you want to get in exchange of SAI.<br />' +
+               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         style.content.height = '220px';
         break;
