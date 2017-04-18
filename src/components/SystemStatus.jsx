@@ -48,12 +48,12 @@ const SystemStatus = (props) => {
                     { props.sai.tub.safe ? 'YES' : 'NO' }
                   </td>
                   <td>
-                    { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR at<br />
-                    { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SAI
+                    Sell { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR<br />
+                    Buy { props.toNumber(props.sai.tub.avail_boom_skr).toFixed(3) } SAI
                   </td>
                   <td>
-                    { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI at<br />
-                    { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SKR
+                    Sell { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI<br />
+                    Buy { props.toNumber(props.sai.tub.avail_bust_skr).toFixed(3) } SKR
                   </td>
                 </tr>
               </tbody>

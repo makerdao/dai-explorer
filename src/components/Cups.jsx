@@ -79,9 +79,9 @@ const Cups = (props) => {
                       <td>
                         {
                           props.sai.tub.cups[key].debt.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
-                            ? props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3)
-                            : '0.000'
-                        }%
+                            ? `${ props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].debt).times(100).toNumber().toFixed(3) }%`
+                            : 'N/A'
+                        }
                       </td>
                       <td>
                         { props.toNumber(props.sai.tub.cups[key].avail_sai).toFixed(3) }
@@ -99,7 +99,7 @@ const Cups = (props) => {
                         }
                       </td>
                       <td>
-                        { renderCupActions(props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )

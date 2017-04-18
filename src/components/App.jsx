@@ -213,18 +213,24 @@ class App extends Component {
         this.setState({ sai });
 
         this.getDataFromToken(token);
-        this.setFilterTransfer(token);
+        this.setFilterToken(token);
       }
     })
   }
 
-  setFilterTransfer = (token) => {
-    this[`${token}Obj`].Transfer({}, {}, (e, r) => {
-      if (!e) {
-        this.logTransactionConfirmed(r.transactionHash);
-        this.getDataFromToken(token);
+  setFilterToken = (token) => {
+    const filters = ['Transfer', 'Deposit', 'Withdraw'];
+
+    for (let i = 0; i < filters.length; i++) {
+      if (this[`${token}Obj`][filters[i]]) {
+        this[`${token}Obj`][filters[i]]({}, {}, (e, r) => {
+          if (!e) {
+            this.logTransactionConfirmed(r.transactionHash);
+            this.getDataFromToken(token);
+          }
+        });
       }
-    });
+    }
   }
 
   setFiltersTub = (address) => {
@@ -339,8 +345,8 @@ class App extends Component {
       } else if (dif.lt(0)) {
         sai.tub.avail_bust_sai = dif.abs();
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
-      sai.tub.avail_bust_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.per).div(this.state.sai.tub.tag);
+      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(this.state.sai.tub.per).div(this.state.sai.tub.tag);
       this.setState({ sai });
     }
   }
@@ -359,15 +365,6 @@ class App extends Component {
           safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
         };
         this.setState({ sai });
-        this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
-          if (!e) {
-            const sai = { ...this.state.sai };
-            if (sai.tub.cups[id]) {
-              sai.tub.cups[id]['safe'] = safe;
-              this.setState({ sai });
-            }
-          }
-        });
         this.updateCup(id);
       } else if(!firstLoad) {
         // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
@@ -383,6 +380,16 @@ class App extends Component {
     sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(web3.fromWei(sai.tub.mat))).minus(cup.debt);
     sai.tub.cups[id].avail_skr = cup.locked.minus(cup.debt.times(sai.tub.per).div(sai.tub.tag).times(web3.fromWei(web3.fromWei(sai.tub.mat))));
     this.setState({ sai });
+
+    this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
+      if (!e) {
+        const sai = { ...this.state.sai };
+        if (sai.tub.cups[id]) {
+          sai.tub.cups[id]['safe'] = safe;
+          this.setState({ sai });
+        }
+      }
+    });
   }
 
   methodSig = (method) => {
