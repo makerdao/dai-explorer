@@ -495,8 +495,8 @@ class App extends Component {
     });
   }
 
-  executeMethodCupValue = (method, cup, value) => {
-    this.tubObj[method](toBytes32(cup), web3.toWei(value), { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
+  executeMethodCupValue = (method, cup, value, toWei = true) => {
+    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
@@ -603,7 +603,7 @@ class App extends Component {
         }
         break;
       case 'give':
-        this.executeMethodCupValue(method, cup, value);
+        this.executeMethodCupValue(method, cup, value, false);
         break;
       default:
         break;
