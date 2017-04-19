@@ -19,7 +19,7 @@ class Transfer extends Component {
       this.setState({ error: 'Invalid Amount' });
     } else if (this.props.sai[token].myBalance.lt(web3.toWei(amount))) {
       this.setState({ error: `Not enough balance to transfer ${amount} ${token}` });
-    } else if (!token) {
+    } else if (token) {
       this.props.transferToken(token, to, amount);
       this.transferForm.reset();
     }

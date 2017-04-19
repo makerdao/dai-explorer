@@ -309,6 +309,7 @@ class App extends Component {
   }
 
   getParameters = () => {
+    this.getParameterFromTub('off');
     this.getParameterFromTub('per');
     this.getParameterFromTub('tag');
     this.getParameterFromTub('axe');
@@ -316,6 +317,8 @@ class App extends Component {
     this.getParameterFromTub('hat');
     this.getParameterFromTub('eek');
     this.getParameterFromTub('safe');
+    this.getParameterFromTub('fix');
+    this.getParameterFromTub('fit');
   }
 
   getParameterFromTub = (field) => {
@@ -359,9 +362,9 @@ class App extends Component {
       if (!address || address === cup[0]) {
         // This verification needs to be done as the cup could have been given or closed by the user
         sai.tub.cups[id] =  {
-          owner: cup[0],
-          debt: cup[1],
-          locked: cup[2],
+          lad: cup[0],
+          art: cup[1],
+          ink: cup[2],
           safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
         };
         this.setState({ sai });
@@ -376,9 +379,9 @@ class App extends Component {
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = cup.locked.div(sai.tub.per).times((sai.tub.tag));
-    sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(web3.fromWei(sai.tub.mat))).minus(cup.debt);
-    sai.tub.cups[id].avail_skr = cup.locked.minus(cup.debt.times(sai.tub.per).div(sai.tub.tag).times(web3.fromWei(web3.fromWei(sai.tub.mat))));
+    sai.tub.cups[id].pro = cup.ink.div(sai.tub.per).times((sai.tub.tag));
+    sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(web3.fromWei(sai.tub.mat))).minus(cup.art);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.times(sai.tub.per).div(sai.tub.tag).times(web3.fromWei(web3.fromWei(sai.tub.mat))));
     this.setState({ sai });
 
     this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
@@ -450,7 +453,19 @@ class App extends Component {
 
       const c = transactions[tx].callback;
       if (c.method) {
-        c.cup ? this.executeMethodCupValue(c.method, c.cup, c.value) : this.executeMethodValue(c.method, c.value);
+        if (c.method === 'tubCashAllowanceSKR') {
+          this.tubCashAllowance2();
+        } else {
+          if (c.cup && c.value) {
+            this.executeMethodCupValue(c.method, c.cup, c.value);
+          } else if (c.value) {
+            this.executeMethodValue(c.method, c.value);
+          } else if (c.cup) {
+            this.executeMethodCup(c.method, c.cup);
+          } else {
+            this.executeMethod(c.method);
+          }
+        }
       }
     }
   }
@@ -521,6 +536,41 @@ class App extends Component {
     });
   }
 
+  tubCashAllowanceSAI = () => {
+    if (this.state.sai.sai.myBalance.gt(0)) {
+      this.saiObj.allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
+        if (!e) {
+          if (r.lt(this.state.sai.sai.myBalance)) {
+            this.saiObj.approve(this.tubObj.address, this.state.sai.sai.myBalance, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
+              this.logPendingTransaction(tx, `sai: approve tub ${web3.fromWei(this.state.sai.sai.myBalance)}`, { method: 'tubCashAllowanceSKR' });
+            });
+          } else {
+            this.tubCashAllowanceSKR();
+          }
+        }
+      });
+    } else {
+      this.tubCashAllowanceSKR();
+    }
+  }
+
+  tubCashAllowanceSKR = () => {
+    if (this.state.sai.skr.myBalance.gt(0)) {
+      this.skrObj.allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
+        if (!e) {
+          if (r.lt(this.state.sai.skr.myBalance)) {
+            this.skrObj.approve(this.tubObj.address, this.state.sai.skr.myBalance, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
+              this.logPendingTransaction(tx, `skr: approve tub ${web3.fromWei(this.state.sai.skr.myBalance)}`, { method: 'cash' });
+            });
+          } else {
+            this.executeMethod('cash');
+          }
+        }
+      });
+    } else {
+      this.executeMethod('cash');
+    }
+  }
 
   updateValue = (value) => {
     const method = this.state.modal.method;
@@ -585,7 +635,7 @@ class App extends Component {
         }
         break;
       case 'draw':
-        if(this.state.sai.sin.totalSupply.add(valueWei).gt(this.state.sai.tub.hat)) {
+        if (this.state.sai.sin.totalSupply.add(valueWei).gt(this.state.sai.tub.hat)) {
           error = `${value} SAI exceeds the system deb ceiling.`;
         } else if (this.state.sai.tub.cups[cup].avail_sai.lt(valueWei)) {
           error = `${value} SAI exceeds the maximum available to draw.`;
@@ -594,9 +644,9 @@ class App extends Component {
         }
         break;
       case 'wipe':
-        if(this.state.sai.sai.myBalance.lt(valueWei)) {
+        if (this.state.sai.sai.myBalance.lt(valueWei)) {
           error = `Not enough balance to wipe ${value} SAI.`;
-        } else if(this.state.sai.tub.cups[cup].debt.lt(valueWei)) {
+        } else if(this.state.sai.tub.cups[cup].art.lt(valueWei)) {
           error = `Debt in CUP ${cup} is lower than ${value} SAI.`;
         } else {
           this.tubAllowance('sai', method, cup, value);
@@ -604,6 +654,13 @@ class App extends Component {
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
+        break;
+      case 'cash':
+        if (this.state.sai.sai.myBalance.lte(0) && this.state.sai.skr.myBalance.lte(0)) {
+          error = 'Your SAI and SKR balances are 0. No need for cash';
+        } else {
+          this.tubCashAllowanceSAI();
+        }
         break;
       default:
         break;
@@ -629,18 +686,23 @@ class App extends Component {
   }
 
   renderMain() {
-    const actions = ['open'];
-    if (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) {
-      actions.push('join');
-    }
-    if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
-      actions.push('exit');
-    }
-    if (this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0)) {
-      actions.push('boom');
-    }
-    if (this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)) {
-      actions.push('bust');
+    const actions = [];
+    if (this.state.sai.tub.off) {
+      actions.push('cash');
+    } else if(this.state.sai.tub.off === false) {
+      actions.push('open');
+      if (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) {
+        actions.push('join');
+      }
+      if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
+        actions.push('exit');
+      }
+      if (this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0)) {
+        actions.push('boom');
+      }
+      if (this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)) {
+        actions.push('bust');
+      }
     }
     return (
       <div className="content-wrapper">

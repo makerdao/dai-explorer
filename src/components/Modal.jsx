@@ -123,6 +123,16 @@ class Modal extends Component {
         text = `Please set the new address to be owner of CUP ${modal.cup}`;
         type = 'text';
         break;
+      case 'cash':
+        text = 'Are you sure you want to cash?<br />'+
+               'You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or SKR to complete this transaction.';
+        type = 'yesno';
+        style.content.height = '220px';
+        break;
+      case 'bail':
+        text = `Are you sure you want to bail Cup ${modal.cup}?`;
+        type = 'yesno';
+        break;
       default:
         break;
     }
