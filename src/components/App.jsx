@@ -454,7 +454,7 @@ class App extends Component {
       const c = transactions[tx].callback;
       if (c.method) {
         if (c.method === 'tubCashAllowanceSKR') {
-          this.tubCashAllowance2();
+          this.tubCashAllowanceSKR();
         } else {
           if (c.cup && c.value) {
             this.executeMethodCupValue(c.method, c.cup, c.value);
@@ -656,11 +656,7 @@ class App extends Component {
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        if (this.state.sai.sai.myBalance.lte(0) && this.state.sai.skr.myBalance.lte(0)) {
-          error = 'Your SAI and SKR balances are 0. No need for cash';
-        } else {
-          this.tubCashAllowanceSAI();
-        }
+        this.tubCashAllowanceSAI();
         break;
       default:
         break;
@@ -687,7 +683,8 @@ class App extends Component {
 
   renderMain() {
     const actions = [];
-    if (this.state.sai.tub.off) {
+    if (this.state.sai.tub.off && this.state.sai.sai.myBalance && this.state.sai.skr.myBalance
+        && (this.state.sai.sai.myBalance.gt(0) || this.state.sai.skr.myBalance.gt(0))) {
       actions.push('cash');
     } else if(this.state.sai.tub.off === false) {
       actions.push('open');
