@@ -30,7 +30,7 @@ const SystemStatus = (props) => {
               <tbody>
                 <tr>
                   <td>
-                    { typeof props.sai.tub.off != 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }
+                    { typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }
                   </td>
                   <td>
                     { props.toNumber(props.sai.tub.per).toFixed(3) }

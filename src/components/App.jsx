@@ -261,6 +261,7 @@ class App extends Component {
       'wipe(bytes32,uint128)',
       'bite(bytes32)',
       'shut(bytes32)',
+      'bail(bytes32)',
       'give(bytes32,address)',
     ].map((v) => this.methodSig(v))
 
@@ -584,6 +585,7 @@ class App extends Component {
         break;
       case 'shut':
       case 'bite':
+      case 'bail':
         this.executeMethodCup(method, cup);
         break;
       case 'join':
@@ -746,7 +748,7 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9">
-                <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } />
+                <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
