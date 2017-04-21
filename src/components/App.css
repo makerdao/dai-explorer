@@ -132,3 +132,17 @@ p.error {
   margin-top: 5px;
   margin-bottom: 0px;
 }
+
+.general-info > div {
+  float: left;
+  margin-right: 15px;
+}
+
+.system-status > div {
+  float: left;
+}
+
+.system-status > div strong, .system-status > div span {
+  display: block;
+  margin: 10px;
+}

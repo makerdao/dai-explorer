@@ -9,79 +9,73 @@ const SystemStatus = (props) => {
       </div>
       <div className="box-body">
         <div className="row">
-          <div className="col-md-12">
-            <table>
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>SKR/ETH</th>
-                  <th>USD/ETH</th>
-                  <th>Liq. Ratio</th>
-                  <th>Liq. Penalty</th>
-                  <th>Debt Ceiling</th>
-                  <th>Deficit</th>
-                  <th>Safe</th>
-                  <th>Avail. Boom</th>
-                  <th>Avail. Bust</th>
-                  <th>Fix</th>
-                  <th>Fit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    { typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }
-                  </td>
-                  <td>
-                    { props.toNumber(props.sai.tub.per).toFixed(3) }
-                  </td>
-                  <td>
-                    { props.toNumber(props.sai.tub.tag).toFixed(3) }
-                  </td>
-                  <td>
-                    { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)).toFixed(3) }%
-                  </td>
-                  <td>
-                    { props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)).toFixed(3) }%
-                  </td>
-                  <td>
-                    { props.toNumber(props.sai.tub.hat).toFixed(3) }
-                  </td>
-                  <td>
-                    { props.sai.tub.off === false ? (props.sai.tub.eek ? 'YES' : 'NO') : '-' }
-                  </td>
-                  <td>
-                    { props.sai.tub.off === false ? (props.sai.tub.safe ? 'YES' : 'NO') : '-' }
-                  </td>
-                  <td>
-                    {
-                      props.sai.tub.off === false
-                      ? <span>
-                          Sell { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR<br />
-                          Buy { props.toNumber(props.sai.tub.avail_boom_skr).toFixed(3) } SAI
-                        </span>
-                      : '-'
-                    }
-                  </td>
-                  <td>
-                    {
-                      props.sai.tub.off === false
-                      ? <span>
-                          Sell { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI<br />
-                          Buy { props.toNumber(props.sai.tub.avail_bust_skr).toFixed(3) } SKR
-                        </span>
-                      : '-'
-                    }
-                  </td>
-                  <td>
-                    { props.sai.tub.off ? props.toNumber(props.sai.tub.fix).toFixed(3) : '-' }
-                  </td>
-                  <td>
-                    { props.sai.tub.off ? props.toNumber(props.sai.tub.fit).toFixed(3) : '-' }
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="col-md-12 system-status">
+            <div>
+              <strong>Status</strong>
+              <span>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
+            </div>
+            <div>
+              <strong>SKR/ETH</strong>
+              <span>{ props.toNumber(props.sai.tub.per).toFixed(3) }</span>
+            </div>
+            <div>
+              <strong>USD/ETH</strong>
+              <span>{ props.toNumber(props.sai.tub.tag).toFixed(3) }</span>
+            </div>
+            <div>
+              <strong>Liq. Ratio</strong>
+              <span>{ props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)).toFixed(3) }%</span>
+            </div>
+            <div>
+              <strong>Liq. Penalty</strong>
+              <span>{ props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)).toFixed(3) }%</span>
+            </div>
+            <div>
+              <strong>Debt Ceiling</strong>
+              <span>{ props.toNumber(props.sai.tub.hat).toFixed(3) }</span>
+            </div>
+            <div>
+              <strong>Deficit</strong>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.eek ? 'YES' : 'NO') : '-' }</span>
+            </div>
+            <div>
+              <strong>Safe</strong>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.safe ? 'YES' : 'NO') : '-' }</span>
+            </div>
+            <div>
+              <strong>Avail. Boom</strong>
+              <span>
+                {
+                  props.sai.tub.off === false
+                  ? <span>
+                      Sell { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR<br />
+                      Buy { props.toNumber(props.sai.tub.avail_boom_skr).toFixed(3) } SAI
+                    </span>
+                  : '-'
+                }
+              </span>
+            </div>
+            <div>
+              <strong>Avail. Bust</strong>
+              <span>
+                {
+                  props.sai.tub.off === false
+                  ? <span>
+                      Sell { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI<br />
+                      Buy { props.toNumber(props.sai.tub.avail_bust_skr).toFixed(3) } SKR
+                    </span>
+                  : '-'
+                }
+              </span>
+            </div>
+            <div>
+              <strong>Fix</strong>
+              <span>{ props.sai.tub.off ? props.toNumber(props.sai.tub.fix).toFixed(3) : '-' }</span>
+            </div>
+            <div>
+              <strong>Fit</strong>
+              <span>{ props.sai.tub.off ? props.toNumber(props.sai.tub.fit).toFixed(3) : '-' }</span>
+            </div>
           </div>
         </div>
       </div>

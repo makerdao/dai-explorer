@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import NoConnection from './NoConnection';
 import Modal from './Modal';
 import Token from './Token';
+import GeneralInfo from './GeneralInfo';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
@@ -717,6 +718,11 @@ class App extends Component {
         </section>
         <section className="content">
           <div>
+            <div className="row">
+              <div className="col-md-12">
+                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
+              </div>
+            </div>
             <div className="row">
               <Token toNumber={ this.toNumber } sai={ this.state.sai } token='gem' color='' />
               <Token toNumber={ this.toNumber } sai={ this.state.sai } token='skr' color='bg-aqua' />
