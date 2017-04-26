@@ -142,7 +142,7 @@ p.error {
   float: left;
 }
 
-.system-status > div strong, .system-status > div span {
+.system-status > div > strong, .system-status > div > span {
   display: block;
   margin: 10px;
 }
