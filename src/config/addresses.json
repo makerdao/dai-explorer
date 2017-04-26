@@ -1,8 +1,8 @@
 {
   "private": {
-    "tub": "0xc4bc1f775db36c07b0bc506cbb83fce12e182053"
+    "tub": ""
   },
   "kovan": {
-    "tub": "0xe37e1c1df2e8b824287f459a0ef908a32068f5a5"
+    "tub": ""
   }
 }

@@ -8,7 +8,7 @@ import Cups from './Cups';
 import Transfer from './Transfer';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32 } from '../helpers';
+import { toBytes32, fromRaytoWad } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -30,11 +30,13 @@ class App extends Component {
     network: {},
     sai: {
       tub: {
-        per: 0,
-        tag: 0,
-        axe: 0,
-        mat: 0,
-        hat: 0,
+        per: web3.toBigNumber(0),
+        tag: web3.toBigNumber(0),
+        axe: web3.toBigNumber(0),
+        mat: web3.toBigNumber(0),
+        hat: web3.toBigNumber(0),
+        fix: web3.toBigNumber(0),
+        par: web3.toBigNumber(0),
         cups: {}
       },
       gem: {
@@ -220,11 +222,25 @@ class App extends Component {
   }
 
   setFilterToken = (token) => {
-    const filters = ['Transfer', 'Deposit', 'Withdraw'];
+    const filters = ['Transfer', 'LogNoteMint', 'LogNoteBurn'];
+
+    if (token === 'gem') {
+      filters.push('Deposit');
+      filters.push('Withdraw');
+    }
 
     for (let i = 0; i < filters.length; i++) {
+      const conditions = {};
+      if (filters[i] === 'LogNoteMint') {
+        conditions.sig = this.methodSig('mint(uint128)');
+        filters[i] = 'LogNote';
+      }
+      if (filters[i] === 'LogNoteBurn') {
+        conditions.sig = this.methodSig('burn(uint128)');
+        filters[i] = 'LogNote';
+      }
       if (this[`${token}Obj`][filters[i]]) {
-        this[`${token}Obj`][filters[i]]({}, {}, (e, r) => {
+        this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
           if (!e) {
             this.logTransactionConfirmed(r.transactionHash);
             this.getDataFromToken(token);
@@ -312,22 +328,22 @@ class App extends Component {
 
   getParameters = () => {
     this.getParameterFromTub('off');
-    this.getParameterFromTub('per');
+    this.getParameterFromTub('per', true);
     this.getParameterFromTub('tag');
-    this.getParameterFromTub('axe');
-    this.getParameterFromTub('mat');
+    this.getParameterFromTub('axe', true);
+    this.getParameterFromTub('mat', true);
     this.getParameterFromTub('hat');
     this.getParameterFromTub('eek');
     this.getParameterFromTub('safe');
-    this.getParameterFromTub('fix');
-    this.getParameterFromTub('fit');
+    this.getParameterFromTub('fix', true);
+    this.getParameterFromTub('par', true);
   }
 
-  getParameterFromTub = (field) => {
+  getParameterFromTub = (field, ray = false) => {
     this.tubObj[field]((e, value) => {
       if (!e) {
         const sai = { ...this.state.sai };
-        sai.tub[field] = value;
+        sai.tub[field] = ray ? fromRaytoWad(value) : value;
         this.setState({ sai });
 
         this.getBoomBustValues();
@@ -350,8 +366,8 @@ class App extends Component {
       } else if (dif.lt(0)) {
         sai.tub.avail_bust_sai = dif.abs();
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(this.state.sai.tub.per).div(this.state.sai.tub.tag);
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(this.state.sai.tub.per).div(this.state.sai.tub.tag);
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).times(web3.toBigNumber(10).pow(36));
+      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).times(web3.toBigNumber(10).pow(36));
       this.setState({ sai });
     }
   }
@@ -381,9 +397,9 @@ class App extends Component {
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = cup.ink.div(sai.tub.per).times((sai.tub.tag));
-    sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(web3.fromWei(sai.tub.mat))).minus(cup.art);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.times(sai.tub.per).div(sai.tub.tag).times(web3.fromWei(web3.fromWei(sai.tub.mat))));
+    sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
+    sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(sai.tub.mat)).minus(cup.art);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.div(sai.tub.per.times(sai.tub.tag)).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)));
     this.setState({ sai });
 
     this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
@@ -455,18 +471,14 @@ class App extends Component {
 
       const c = transactions[tx].callback;
       if (c.method) {
-        if (c.method === 'tubCashAllowanceSKR') {
-          this.tubCashAllowanceSKR();
+        if (c.cup && c.value) {
+          this.executeMethodCupValue(c.method, c.cup, c.value);
+        } else if (c.value) {
+          this.executeMethodValue(c.method, c.value);
+        } else if (c.cup) {
+          this.executeMethodCup(c.method, c.cup);
         } else {
-          if (c.cup && c.value) {
-            this.executeMethodCupValue(c.method, c.cup, c.value);
-          } else if (c.value) {
-            this.executeMethodValue(c.method, c.value);
-          } else if (c.cup) {
-            this.executeMethodCup(c.method, c.cup);
-          } else {
-            this.executeMethod(c.method);
-          }
+          this.executeMethod(c.method);
         }
       }
     }
@@ -538,42 +550,6 @@ class App extends Component {
     });
   }
 
-  tubCashAllowanceSAI = () => {
-    if (this.state.sai.sai.myBalance.gt(0)) {
-      this.saiObj.allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
-        if (!e) {
-          if (r.lt(this.state.sai.sai.myBalance)) {
-            this.saiObj.approve(this.tubObj.address, this.state.sai.sai.myBalance, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
-              this.logPendingTransaction(tx, `sai: approve tub ${web3.fromWei(this.state.sai.sai.myBalance)}`, { method: 'tubCashAllowanceSKR' });
-            });
-          } else {
-            this.tubCashAllowanceSKR();
-          }
-        }
-      });
-    } else {
-      this.tubCashAllowanceSKR();
-    }
-  }
-
-  tubCashAllowanceSKR = () => {
-    if (this.state.sai.skr.myBalance.gt(0)) {
-      this.skrObj.allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
-        if (!e) {
-          if (r.lt(this.state.sai.skr.myBalance)) {
-            this.skrObj.approve(this.tubObj.address, this.state.sai.skr.myBalance, { from: this.state.network.defaultAccount, gas: 4000000 }, (e, tx) => {
-              this.logPendingTransaction(tx, `skr: approve tub ${web3.fromWei(this.state.sai.skr.myBalance)}`, { method: 'cash' });
-            });
-          } else {
-            this.executeMethod('cash');
-          }
-        }
-      });
-    } else {
-      this.executeMethod('cash');
-    }
-  }
-
   updateValue = (value) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
@@ -597,10 +573,14 @@ class App extends Component {
         }
         break;
       case 'exit':
-        if (this.state.sai.skr.myBalance.lt(valueWei)) {
-          error = `Not enough balance to exit ${value} SKR.`;
+        if (this.state.sai.tub.off) {
+          this.tubAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
         } else {
-          this.tubAllowance('skr', method, false, value);
+          if (this.state.sai.skr.myBalance.lt(valueWei)) {
+            error = `Not enough balance to exit ${value} SKR.`;
+          } else {
+            this.tubAllowance('skr', method, false, value);
+          }
         }
         break;
       case 'boom':
@@ -613,7 +593,7 @@ class App extends Component {
         }
         break;
       case 'bust':
-        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).div(this.state.sai.tub.per);
+        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(36));
         const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
         if (this.state.sai.tub.avail_bust_sai.lt(valueSAIWei)) {
           error = `Not enough SAI in the system to bust ${value} SKR.`;
@@ -659,7 +639,7 @@ class App extends Component {
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.tubCashAllowanceSAI();
+        this.tubAllowance('sai', method, false, web3.fromWei(this.state.sai.sai.myBalance));
         break;
       default:
         break;
@@ -686,9 +666,13 @@ class App extends Component {
 
   renderMain() {
     const actions = [];
-    if (this.state.sai.tub.off && this.state.sai.sai.myBalance && this.state.sai.skr.myBalance
-        && (this.state.sai.sai.myBalance.gt(0) || this.state.sai.skr.myBalance.gt(0))) {
-      actions.push('cash');
+    if (this.state.sai.tub.off) {
+      if(this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)) {
+        actions.push('cash');
+      }
+      if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
+        actions.push('exit');
+      }
     } else if(this.state.sai.tub.off === false) {
       actions.push('open');
       if (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) {
@@ -761,7 +745,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } />
+          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.sai.tub.off } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

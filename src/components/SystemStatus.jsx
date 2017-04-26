@@ -1,5 +1,4 @@
 import React from 'react';
-import web3 from '../web3';
 
 const SystemStatus = (props) => {
   return (
@@ -15,7 +14,7 @@ const SystemStatus = (props) => {
               <span>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
             </div>
             <div>
-              <strong>SKR/ETH</strong>
+              <strong>ETH/SKR</strong>
               <span>{ props.toNumber(props.sai.tub.per).toFixed(3) }</span>
             </div>
             <div>
@@ -24,11 +23,11 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Liq. Ratio</strong>
-              <span>{ props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.mat)).times(100)).toFixed(3) }%</span>
+              <span>{ props.toNumber(props.sai.tub.mat.times(100)).toFixed(3) }%</span>
             </div>
             <div>
               <strong>Liq. Penalty</strong>
-              <span>{ props.toNumber(web3.toBigNumber(web3.fromWei(props.sai.tub.axe)).times(100)).toFixed(3) }%</span>
+              <span>{ props.toNumber(props.sai.tub.axe.times(100)).toFixed(3) }%</span>
             </div>
             <div>
               <strong>Debt Ceiling</strong>
@@ -71,10 +70,6 @@ const SystemStatus = (props) => {
             <div>
               <strong>Fix</strong>
               <span>{ props.sai.tub.off ? props.toNumber(props.sai.tub.fix).toFixed(3) : '-' }</span>
-            </div>
-            <div>
-              <strong>Fit</strong>
-              <span>{ props.sai.tub.off ? props.toNumber(props.sai.tub.fit).toFixed(3) : '-' }</span>
             </div>
           </div>
         </div>

@@ -11,4 +11,8 @@ export function toBytes32(x) {
   y = '0x' + y;
   return y;
 }
-window.toBytes32 = toBytes32;
+
+export function fromRaytoWad(x) {
+  const y = web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9))
+  return y;
+}
