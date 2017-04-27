@@ -5,6 +5,7 @@
   "homepage": "http://makerdao.github.io/sai-explorer",
   "dependencies": {
     "import": "0.0.6",
+    "prop-types": "^15.5.8",
     "raf": "^3.3.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
