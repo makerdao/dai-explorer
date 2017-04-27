@@ -666,29 +666,15 @@ class App extends Component {
   }
 
   renderMain() {
-    const actions = [];
-    if (this.state.sai.tub.off) {
-      if(this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)) {
-        actions.push('cash');
-      }
-      if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
-        actions.push('exit');
-      }
-    } else if(this.state.sai.tub.off === false) {
-      actions.push('open');
-      if (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) {
-        actions.push('join');
-      }
-      if (this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0)) {
-        actions.push('exit');
-      }
-      if (this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0)) {
-        actions.push('boom');
-      }
-      if (this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)) {
-        actions.push('bust');
-      }
-    }
+    const actions = {
+      cash: this.state.sai.tub.off && this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0),
+      open: this.state.sai.tub.off === false,
+      join: this.state.sai.tub.off === false && this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0),
+      exit: this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0),
+      boom: this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+      bust: this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
+    };
+
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -728,7 +714,10 @@ class App extends Component {
                       <div className="col-md-12">
                         {
                           Object.keys(actions).map(key =>
-                            <span key={ key }><a href="#" data-method={ actions[key] } onClick={ this.handleOpenModal }>{ actions[key] }</a> / </span>
+                            <span key={ key }>
+                              { actions[key] ? <a href="#" data-method={ key } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                              <span> / </span>
+                            </span>
                           )
                         }
                       </div>

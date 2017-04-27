@@ -2,35 +2,25 @@ import React from 'react';
 import web3 from '../web3';
 
 const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
-  const actions = [];
-  if (off && cup.lad === defaultAccount) {
-    actions.push('bail');
-  } else if (off === false) {
-    if (cup.lad === defaultAccount) {
-      if (lock) {
-        actions.push('lock');
-      }
-      if (cup.ink.gt(0) && cup.safe) {
-        actions.push('free');
-        actions.push('draw');
-      }
-      if (cup.art.gt(0)) {
-        actions.push('wipe');
-      }
-      actions.push('shut');
-      actions.push('give');
-    }
-
-    if (cup.safe === false) {
-      actions.push('bite');
-    }
-  }
+  const actions = {
+    bail: off && cup.lad === defaultAccount,
+    lock: off === false && cup.lad === defaultAccount && lock,
+    free: off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    draw: off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: off === false && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: off === false && cup.lad === defaultAccount,
+    give: off === false && cup.lad === defaultAccount,
+    bite: off === false && cup.safe === false
+  };
   
   return (
     <span>
       {
         Object.keys(actions).map(key =>
-          <span key={ key }><a href="#" data-method={ actions[key] } data-cup={ cupId } onClick={ handleOpenModal }>{ actions[key] }</a> / </span>
+          <span key={ key }>
+            { actions[key] ? <a href="#" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal }>{ key }</a> : key }
+            <span> / </span>
+          </span>
         )
       }
     </span>
