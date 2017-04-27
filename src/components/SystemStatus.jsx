@@ -1,5 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
+import { toNumber } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -12,27 +13,27 @@ const SystemStatus = (props) => {
           <div className="col-md-12 system-status">
             <div>
               <strong>Status</strong>
-              <span>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
+              <span style={ props.sai.tub.off ? { 'backgroundColor': 'red' } : { 'backgroundColor': 'green' }}>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
             </div>
             <div>
               <strong>ETH/SKR</strong>
-              <span>{ props.toNumber(props.sai.tub.per).toFixed(3) }</span>
+              <span title={ toNumber(props.sai.tub.per) }>{ toNumber(props.sai.tub.per).toFixed(3) }</span>
             </div>
             <div>
               <strong>USD/ETH</strong>
-              <span>{ props.toNumber(props.sai.tub.tag).toFixed(3) }</span>
+              <span title={ toNumber(props.sai.tub.tag) }>{ toNumber(props.sai.tub.tag).toFixed(3) }</span>
             </div>
             <div>
               <strong>Liq. Ratio</strong>
-              <span>{ props.toNumber(props.sai.tub.mat.times(100)).toFixed(3) }%</span>
+              <span title={ toNumber(props.sai.tub.mat.times(100)) }>{ toNumber(props.sai.tub.mat.times(100)).toFixed(3) }%</span>
             </div>
             <div>
               <strong>Liq. Penalty</strong>
-              <span>{ props.toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))).toFixed(3) }%</span>
+              <span title={ toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))).toFixed(3) }%</span>
             </div>
             <div>
               <strong>Debt Ceiling</strong>
-              <span>{ props.toNumber(props.sai.tub.hat).toFixed(3) }</span>
+              <span title={ toNumber(props.sai.tub.hat) }>{ toNumber(props.sai.tub.hat).toFixed(3) }</span>
             </div>
             <div>
               <strong>Deficit</strong>
@@ -48,8 +49,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.off === false
                   ? <span>
-                      Sell { props.toNumber(props.sai.tub.avail_boom_sai).toFixed(3) } SKR<br />
-                      Buy { props.toNumber(props.sai.tub.avail_boom_skr).toFixed(3) } SAI
+                      Sell <span title={ toNumber(props.sai.tub.avail_boom_sai) }>{ toNumber(props.sai.tub.avail_boom_sai).toFixed(3) }</span> SKR<br />
+                      Buy <span title={ toNumber(props.sai.tub.avail_boom_skr) }>{ toNumber(props.sai.tub.avail_boom_skr).toFixed(3) }</span> SAI
                     </span>
                   : '-'
                 }
@@ -61,8 +62,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.off === false
                   ? <span>
-                      Sell { props.toNumber(props.sai.tub.avail_bust_sai).toFixed(3) } SAI<br />
-                      Buy { props.toNumber(props.sai.tub.avail_bust_skr).toFixed(3) } SKR
+                      Sell <span title={ toNumber(props.sai.tub.avail_bust_sai) }>{ toNumber(props.sai.tub.avail_bust_sai).toFixed(3) }</span> SAI<br />
+                      Buy <span title={ toNumber(props.sai.tub.avail_bust_skr) }>{ toNumber(props.sai.tub.avail_bust_skr).toFixed(3) }</span> SKR
                     </span>
                   : '-'
                 }
@@ -70,7 +71,7 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Fix</strong>
-              <span>{ props.sai.tub.off ? props.toNumber(props.sai.tub.fix).toFixed(3) : '-' }</span>
+              <span title={ toNumber(props.sai.tub.fix) }>{ props.sai.tub.off ? toNumber(props.sai.tub.fix).toFixed(3) : '-' }</span>
             </div>
           </div>
         </div>

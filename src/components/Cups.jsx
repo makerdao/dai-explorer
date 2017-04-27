@@ -1,5 +1,6 @@
 import React from 'react';
 import web3 from '../web3';
+import { toNumber } from '../helpers';
 
 const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
@@ -58,32 +59,38 @@ const Cups = (props) => {
                         {key}
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].art).toFixed(3) }
+                        <span title={ toNumber(props.sai.tub.cups[key].art).toFixed(3) }>{ toNumber(props.sai.tub.cups[key].art).toFixed(3) }</span>
                       </td>
                       <td>
-                        { props.toNumber(props.sai.tub.cups[key].ink).toFixed(3) }
+                        <span title={ toNumber(props.sai.tub.cups[key].ink) }>{ toNumber(props.sai.tub.cups[key].ink).toFixed(3) }</span>
                       </td>
                       <td>
                         {
                           props.sai.skr.totalSupply
-                            ? props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3)
-                            : '0.000'
+                            ? <span title={ props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(100).toNumber() }>
+                                { props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(100).toNumber().toFixed(3) }
+                              </span>
+                            : <span title="0">0.000</span>
                         }%
                       </td>
                       <td>
                         {
                           props.sai.tub.off === false
                             ? (props.sai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
-                              ? `${ props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].art).times(100).toNumber().toFixed(3) }%`
-                              : 'N/A')
+                              ? <span>
+                                  <span title={ props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].art).times(100).valueOf() }>
+                                    { props.sai.tub.cups[key].pro.div(props.sai.tub.cups[key].art).times(100).toNumber().toFixed(3) }
+                                  </span>%
+                                </span>
+                              : '-')
                             : '-'
                         }
                       </td>
                       <td>
-                        { props.sai.tub.off === false ? props.toNumber(props.sai.tub.cups[key].avail_sai).toFixed(3) : '-' }
+                        { props.sai.tub.off === false ? <span title={ toNumber(props.sai.tub.cups[key].avail_sai) }>{ toNumber(props.sai.tub.cups[key].avail_sai).toFixed(3) }</span> : '-' }
                       </td>
                       <td>
-                        { props.sai.tub.off === false ? props.toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) : '-' }
+                        { props.sai.tub.off === false ? <span title={ toNumber(props.sai.tub.cups[key].avail_skr) }>{ toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) }</span> : '-' }
                       </td>
                       <td className="text-left" style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {

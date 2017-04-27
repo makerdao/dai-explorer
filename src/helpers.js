@@ -12,6 +12,10 @@ export function toBytes32(x) {
   return y;
 }
 
+export function toNumber(obj) {
+  return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj)) : 0;
+}
+
 export function fromRaytoWad(x) {
   const y = web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9))
   return y;

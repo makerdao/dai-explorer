@@ -418,10 +418,6 @@ class App extends Component {
     return web3.sha3(method).substring(0, 10)
   }
 
-  toNumber = (obj) => {
-    return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj)) : 0;
-  }
-
   handleOpenModal = (e) => {
     e.preventDefault();
     const method = e.target.getAttribute('data-method');
@@ -695,14 +691,14 @@ class App extends Component {
               </div>
             </div>
             <div className="row">
-              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='gem' color='' />
-              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='skr' color='bg-aqua' />
-              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='sai' color='bg-green' />
-              <Token toNumber={ this.toNumber } sai={ this.state.sai } token='sin' color='bg-red' />
+              <Token sai={ this.state.sai } token='gem' color='' />
+              <Token sai={ this.state.sai } token='skr' color='bg-aqua' />
+              <Token sai={ this.state.sai } token='sai' color='bg-green' />
+              <Token sai={ this.state.sai } token='sin' color='bg-red' />
             </div>
             <div className="row">
               <div className="col-md-9">
-                <SystemStatus toNumber={ this.toNumber } sai={ this.state.sai } />
+                <SystemStatus sai={ this.state.sai } />
               </div>
               <div className="col-md-3">
                 <div className="box">
@@ -733,7 +729,7 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9">
-                <Cups toNumber={ this.toNumber } sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
+                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
