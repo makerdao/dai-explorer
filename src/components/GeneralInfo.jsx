@@ -1,4 +1,5 @@
 import React from 'react';
+import Faucet from './Faucet';
 
 const GeneralInfo = (props) => {
   return (
@@ -13,6 +14,7 @@ const GeneralInfo = (props) => {
             <div><strong>Contract:</strong> { props.contract }</div>
             <div><strong>Account:</strong> { props.account }</div>
           </div>
+          {props.network === 'kovan' && <Faucet account={props.account} gem={props.gem} />}
         </div>
       </div>
     </div>

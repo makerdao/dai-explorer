@@ -704,7 +704,8 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
+                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
+                  gem={ this.state.sai.gem.address } />
               </div>
             </div>
             <div className="row">
