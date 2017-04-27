@@ -12,7 +12,7 @@ const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount
     give: off === false && cup.lad === defaultAccount,
     bite: off === false && cup.safe === false
   };
-  
+
   return (
     <span>
       {
@@ -36,7 +36,7 @@ const Cups = (props) => {
       <div className="box-body">
         <div className="row">
           <div className="col-md-12">
-            <table>
+            <table className="text-right">
               <thead>
                 <tr>
                   <th>Cup</th>
@@ -85,7 +85,7 @@ const Cups = (props) => {
                       <td>
                         { props.sai.tub.off === false ? props.toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) : '-' }
                       </td>
-                      <td style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
+                      <td className="text-left" style={props.sai.tub.cups[key].safe ? { 'backgroundColor': 'green' } : { 'backgroundColor': 'red' }}>
                         {
                           props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
                           ? 'Closed'
@@ -94,7 +94,7 @@ const Cups = (props) => {
                             : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
                         }
                       </td>
-                      <td>
+                      <td className="text-left">
                         { renderCupActions(props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
