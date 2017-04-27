@@ -1,6 +1,6 @@
 import React from 'react';
+import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
-import { toNumber } from '../helpers';
 
 const Token = (props) => {
   return (
@@ -11,16 +11,16 @@ const Token = (props) => {
         </span>
         <div className="info-box-content">
           <span className="info-box-number">
-            <span>Total</span><AnimatedNumber value={toNumber(props.sai[props.token].totalSupply)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
+            <span>Total</span><AnimatedNumber value={web3.fromWei(props.sai[props.token].totalSupply)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Mine</span><AnimatedNumber value={toNumber(props.sai[props.token].myBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
+            <span>Mine</span><AnimatedNumber value={web3.fromWei(props.sai[props.token].myBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Tub</span><AnimatedNumber value={toNumber(props.sai[props.token].tubBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
+            <span>Tub</span><AnimatedNumber value={web3.fromWei(props.sai[props.token].tubBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
           <span className="info-box-number">
-            <span>Pot</span><AnimatedNumber value={toNumber(props.sai[props.token].potBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
+            <span>Pot</span><AnimatedNumber value={web3.fromWei(props.sai[props.token].potBalance)} stepPrecision={4} formatValue={ n => n.toFixed(3) } />
           </span>
         </div>
       </div>

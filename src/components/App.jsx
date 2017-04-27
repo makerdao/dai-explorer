@@ -41,28 +41,28 @@ class App extends Component {
         cups: {}
       },
       gem: {
-        totalSupply: 0,
-        myBalance: 0,
-        tubBalance: 0,
-        potBalance: 0,
+        totalSupply: web3.toBigNumber(0),
+        myBalance: web3.toBigNumber(0),
+        tubBalance: web3.toBigNumber(0),
+        potBalance: web3.toBigNumber(0),
       },
       skr: {
-        totalSupply: 0,
-        myBalance: 0,
-        tubBalance: 0,
-        potBalance: 0,
+        totalSupply: web3.toBigNumber(0),
+        myBalance: web3.toBigNumber(0),
+        tubBalance: web3.toBigNumber(0),
+        potBalance: web3.toBigNumber(0),
       },
       sai: {
-        totalSupply: 0,
-        myBalance: 0,
-        tubBalance: 0,
-        potBalance: 0,
+        totalSupply: web3.toBigNumber(0),
+        myBalance: web3.toBigNumber(0),
+        tubBalance: web3.toBigNumber(0),
+        potBalance: web3.toBigNumber(0),
       },
       sin: {
-        totalSupply: 0,
-        myBalance: 0,
-        tubBalance: 0,
-        potBalance: 0,
+        totalSupply: web3.toBigNumber(0),
+        myBalance: web3.toBigNumber(0),
+        tubBalance: web3.toBigNumber(0),
+        potBalance: web3.toBigNumber(0),
       },
       pot: {}
     },
@@ -253,7 +253,7 @@ class App extends Component {
 
   setFiltersTub = (address) => {
     // Get open cups by address (or all)
-    
+
     let conditions = {};
     if (address) {
       conditions = { lad: address }

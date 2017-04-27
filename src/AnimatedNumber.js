@@ -4,15 +4,25 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _raf = require('raf');
 
 var _raf2 = _interopRequireDefault(_raf);
+
+var _bignumber = require('bignumber.js');
+
+var _bignumber2 = _interopRequireDefault(_bignumber);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30,7 +40,7 @@ var AnimatedNumber = function (_Component) {
     function AnimatedNumber() {
         _classCallCheck(this, AnimatedNumber);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(AnimatedNumber).call(this));
+        var _this = _possibleConstructorReturn(this, (AnimatedNumber.__proto__ || Object.getPrototypeOf(AnimatedNumber)).call(this));
 
         _this.state = {
             currentValue: 0
@@ -46,7 +56,6 @@ var AnimatedNumber = function (_Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-
             if (this.state.currentValue === nextProps.value) {
                 return;
             }
@@ -75,8 +84,9 @@ var AnimatedNumber = function (_Component) {
         key: 'endTween',
         value: function endTween() {
             _raf2.default.cancel(this.tweenHandle);
+            var value = _typeof(this.props.value) === 'object' ? this.props.value.toNumber() : this.props.value;
             this.setState(_extends({}, this.state, {
-                currentValue: this.props.value
+                currentValue: value
             }));
         }
     }, {
@@ -96,9 +106,11 @@ var AnimatedNumber = function (_Component) {
                 return;
             }
 
-            var _props = this.props;
-            var value = _props.value;
-            var duration = _props.duration;
+            var duration = this.props.duration;
+            var value = this.props.value;
+
+            value = (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' ? value.toNumber() : value;
+
             var currentValue = this.state.currentValue;
 
             var currentTime = timestamp;
@@ -127,15 +139,15 @@ var AnimatedNumber = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var formatValue = _props2.formatValue;
-            var value = _props2.value;
-            var className = _props2.className;
-            var frameStyle = _props2.frameStyle;
-            var stepPrecision = _props2.stepPrecision;
-            var _state = this.state;
-            var currentValue = _state.currentValue;
-            var fromValue = _state.fromValue;
+            var _props = this.props,
+                formatValue = _props.formatValue,
+                value = _props.value,
+                className = _props.className,
+                frameStyle = _props.frameStyle,
+                stepPrecision = _props.stepPrecision;
+            var _state = this.state,
+                currentValue = _state.currentValue,
+                fromValue = _state.fromValue;
             var style = this.props.style;
 
             var adjustedValue = currentValue;
@@ -161,7 +173,9 @@ var AnimatedNumber = function (_Component) {
                 style = currStyle;
             }
 
-            return _react2.default.createElement(this.props.component, _extends({}, filterKnownProps(this.props), { className: className, style: style }), formatValue(adjustedValue));
+            var title = _typeof(this.props.value) === 'object' ? this.props.value.valueOf() : this.props.value;
+
+            return _react2.default.createElement(this.props.component, _extends({}, filterKnownProps(this.props), { className: className, style: style, title: title }), formatValue(adjustedValue));
         }
     }]);
 
@@ -169,14 +183,14 @@ var AnimatedNumber = function (_Component) {
 }(_react.Component);
 
 AnimatedNumber.propTypes = {
-    component: _react.PropTypes.any,
-    formatValue: _react.PropTypes.func,
-    value: _react.PropTypes.number.isRequired,
-    duration: _react.PropTypes.number,
-    frameStyle: _react.PropTypes.func,
-    stepPrecision: _react.PropTypes.number,
-    style: _react.PropTypes.object,
-    className: _react.PropTypes.string
+    component: _propTypes2.default.any,
+    formatValue: _propTypes2.default.func,
+    value: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.instanceOf(_bignumber2.default)]),
+    duration: _propTypes2.default.number,
+    frameStyle: _propTypes2.default.func,
+    stepPrecision: _propTypes2.default.number,
+    style: _propTypes2.default.object,
+    className: _propTypes2.default.string
 };
 AnimatedNumber.defaultProps = {
     component: 'span',
