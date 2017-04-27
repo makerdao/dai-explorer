@@ -1,8 +1,10 @@
 {
   "private": {
-    "tub": ""
+    "tub": "",
+    "faucet": ""
   },
   "kovan": {
-    "tub": "0xa08c860b03d5cf314e253c001044ca863fb4e0cc"
+    "tub": "0xa08c860b03d5cf314e253c001044ca863fb4e0cc",
+    "faucet": "0xBC692ACeD5dE16668BF241eDA3a04e289E598F84"
   }
 }
