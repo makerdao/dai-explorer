@@ -3,6 +3,7 @@ import NoConnection from './NoConnection';
 import Modal from './Modal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
+import Faucet from './Faucet';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
@@ -704,8 +705,7 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
-                  gem={ this.state.sai.gem.address } />
+                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
               </div>
             </div>
             <div className="row">
@@ -731,6 +731,11 @@ class App extends Component {
                             <span key={ key }><a href="#" data-method={ actions[key] } onClick={ this.handleOpenModal }>{ actions[key] }</a> / </span>
                           )
                         }
+                      </div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          { this.state.network.network === 'kovan' && <Faucet account={ this.state.network.defaultAccount } gem={ this.state.sai.gem.address } /> }
+                        </div>
                       </div>
                     </div>
                   </div>
