@@ -1,4 +1,5 @@
 import React from 'react';
+import web3 from  '../web3';
 
 const SystemStatus = (props) => {
   return (
@@ -27,7 +28,7 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Liq. Penalty</strong>
-              <span>{ props.toNumber(props.sai.tub.axe.times(100)).toFixed(3) }%</span>
+              <span>{ props.toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))).toFixed(3) }%</span>
             </div>
             <div>
               <strong>Debt Ceiling</strong>
