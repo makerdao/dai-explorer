@@ -146,3 +146,15 @@ p.error {
   display: block;
   margin: 10px;
 }
+
+.error {
+  color: #dd4b39;
+}
+
+.warning {
+  color: #f39c12;
+}
+
+.success {
+  color: #00a65a;
+}

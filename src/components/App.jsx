@@ -401,6 +401,7 @@ class App extends Component {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
     sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
+    sai.tub.cups[id].ratio = cup.pro.div(cup.art);
     sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(sai.tub.mat)).minus(cup.art);
     sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
     this.setState({ sai });

@@ -13,7 +13,7 @@ const SystemStatus = (props) => {
           <div className="col-md-12 system-status">
             <div>
               <strong>Status</strong>
-              <span style={ props.sai.tub.off ? { 'backgroundColor': 'red' } : { 'backgroundColor': 'green' }}>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
+              <span className={ props.sai.tub.off ? 'error' : 'success' }>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
             </div>
             <div>
               <strong>ETH/SKR</strong>
