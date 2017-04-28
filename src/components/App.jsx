@@ -367,8 +367,10 @@ class App extends Component {
       } else if (dif.lt(0)) {
         sai.tub.avail_bust_sai = dif.abs();
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).times(web3.toBigNumber(10).pow(36));
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).times(web3.toBigNumber(10).pow(36));
+      window.avail_bust_sai = sai.tub.avail_bust_sai;
+      window.state = this.state;
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
+      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
       this.setState({ sai });
     }
   }
@@ -400,7 +402,7 @@ class App extends Component {
     const cup = sai.tub.cups[id];
     sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
     sai.tub.cups[id].avail_sai = sai.tub.cups[id].pro.div(web3.fromWei(sai.tub.mat)).minus(cup.art);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.div(sai.tub.per.times(sai.tub.tag)).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)));
+    sai.tub.cups[id].avail_skr = cup.ink.minus(cup.art.times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
     this.setState({ sai });
 
     this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
