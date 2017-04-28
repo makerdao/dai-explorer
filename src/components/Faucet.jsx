@@ -20,7 +20,7 @@ class Faucet extends React.Component {
   }
 
   claim = () => {
-    this.faucet.give({from: this.props.account}, (error, res) => {
+    this.faucet.give({}, (error, res) => {
       if (!error) {
         this.setState({ claimed: true });
       }
