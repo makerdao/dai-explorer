@@ -76,7 +76,7 @@ const Cups = (props) => {
                       <td className={ props.sai.tub.off === false && props.sai.tub.cups[key].ratio && props.sai.tub.cups[key].art.gt(web3.toBigNumber(0))
                                       ? (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.1))
                                         ? 'error'
-                                        : (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.5)) ? 'warning' : 'success'))
+                                        : (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
                                       : '' }>
                         {
                           props.sai.tub.off === false
@@ -96,7 +96,7 @@ const Cups = (props) => {
                       <td>
                         { props.sai.tub.off === false ? <span title={ toNumber(props.sai.tub.cups[key].avail_skr) }>{ toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) }</span> : '-' }
                       </td>
-                      <td className="text-left" className={ props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success' : 'error') : 'warning' }>
+                      <td className={ `text-lef ${ props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color' }` }>
                         {
                           props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
                           ? 'Closed'
