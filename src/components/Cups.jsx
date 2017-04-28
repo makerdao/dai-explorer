@@ -96,7 +96,7 @@ const Cups = (props) => {
                       <td>
                         { props.sai.tub.off === false ? <span title={ toNumber(props.sai.tub.cups[key].avail_skr) }>{ toNumber(props.sai.tub.cups[key].avail_skr).toFixed(3) }</span> : '-' }
                       </td>
-                      <td className={ `text-lef ${ props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color' }` }>
+                      <td className={ `text-center ${ props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color' }` }>
                         {
                           props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
                           ? 'Closed'
