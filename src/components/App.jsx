@@ -31,6 +31,7 @@ class App extends Component {
     network: {},
     sai: {
       tub: {
+        address: null,
         per: web3.toBigNumber(0),
         tag: web3.toBigNumber(0),
         axe: web3.toBigNumber(0),
@@ -41,30 +42,39 @@ class App extends Component {
         cups: {}
       },
       gem: {
+        address: null,
         totalSupply: web3.toBigNumber(0),
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
       },
       skr: {
+        address: null,
         totalSupply: web3.toBigNumber(0),
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
       },
       sai: {
+        address: null,
         totalSupply: web3.toBigNumber(0),
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
       },
       sin: {
+        address: null,
         totalSupply: web3.toBigNumber(0),
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
       },
-      pot: {}
+      pot: {
+        address: null,
+      },
+      tag: {
+        address: null,
+      }
     },
     transactions: {},
     modal: {
@@ -183,8 +193,7 @@ class App extends Component {
     this.setState({ sai });
 
     window.tubObj = this.tubObj = this.loadObject(tub.abi, addrs['tub']);
-    this.getParameters();
-    this.getParametersInterval = setInterval(this.getParameters, 10000);
+    this.initializeSystemStatus();
 
     this.setUpPot();
     this.setUpToken('gem');
@@ -193,6 +202,8 @@ class App extends Component {
     this.setUpToken('sin');
 
     this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+
+    this.setFilterTag();
 
     // This is necessary to finish transactions that failed after signing
     this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
@@ -282,7 +293,7 @@ class App extends Component {
       'shut(bytes32)',
       'bail(bytes32)',
       'give(bytes32,address)',
-    ].map((v) => this.methodSig(v))
+    ].map((v) => this.methodSig(v));
 
     if (address) {
       conditions = { guy: address }
@@ -293,9 +304,37 @@ class App extends Component {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           this.getCup(r.args.foo, address);
+        } else if (r.args.sig === this.methodSig('cage(uint128)')) {
+          this.getParameterFromTub('off');
+          this.getParameterFromTub('fix', true);
+          this.getParameterFromTub('par', true);
+        } else if (r.args.sig === this.methodSig('chop(uint128)')) {
+          this.getParameterFromTub('axe', true);
+        } else if (r.args.sig === this.methodSig('cuff(uint128)')) {
+          this.getParameterFromTub('mat', true);
+        } else if (r.args.sig === this.methodSig('cork(uint128)')) {
+          this.getParameterFromTub('hat');
         }
       }
     });
+  }
+
+  setFilterTag = () => {
+    this.tubObj._tag((e, r) => {
+      if (!e) {
+        window.tagObj = this.tagObj = this.loadObject(dsvalue.abi, r);
+        const sai = { ...this.state.sai };
+        sai.tag.address = r;
+        this.setState({ sai });
+        this.tagObj.LogNote({ sig: this.methodSig('poke(bytes32)') }, {}, (e) => {
+          if (!e) {
+            this.getParameterFromTub('tag');
+            this.getParameterFromTub('eek');
+            this.getParameterFromTub('safe');
+          }
+        });
+      }
+    })
   }
 
   getDataFromToken = (token) => {
@@ -306,6 +345,11 @@ class App extends Component {
     if (token === 'sai' || token === 'sin') {
       this.getBoomBustValues();
     }
+    if (token === 'gem' || token === 'skr') {
+      this.getParameterFromTub('per', true);
+    }
+    this.getParameterFromTub('eek');
+    this.getParameterFromTub('safe');
   }
 
   getTotalSupply = (name) => {
@@ -328,7 +372,7 @@ class App extends Component {
     })
   }
 
-  getParameters = () => {
+  initializeSystemStatus = () => {
     this.getParameterFromTub('off');
     this.getParameterFromTub('per', true);
     this.getParameterFromTub('tag');
