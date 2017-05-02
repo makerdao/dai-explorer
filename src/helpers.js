@@ -20,8 +20,20 @@ export function toBytes12(x) {
   return y;
 }
 
-export function toNumber(obj) {
-  return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj)) : 0;
+export function formatNumber(obj, decimals = false, isWei = true) {
+  let object = typeof obj === 'object' ? obj : web3.toBigNumber(0);
+
+  if (isWei) object = web3.fromWei(object);
+
+  if (decimals) {
+    const d = web3.toBigNumber(10).pow(decimals);
+    object = object.mul(d).trunc().div(d).toFixed(decimals);
+  } else {
+    object = object.valueOf();
+  }
+
+  const parts = object.toString().split('.');
+  return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? `.${parts[1]}` : '');
 }
 
 export function fromRaytoWad(x) {

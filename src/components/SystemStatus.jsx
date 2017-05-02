@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { toNumber } from '../helpers';
+import { formatNumber } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -17,23 +17,23 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>ETH/SKR</strong>
-              <span title={ toNumber(props.sai.tub.per) }>{ toNumber(props.sai.tub.per).toFixed(3) }</span>
+              <span title={ formatNumber(props.sai.tub.per) }>{ formatNumber(props.sai.tub.per, 3) }</span>
             </div>
             <div>
               <strong>USD/ETH</strong>
-              <span title={ toNumber(props.sai.tub.tag) }>{ toNumber(props.sai.tub.tag).toFixed(3) }</span>
+              <span title={ formatNumber(props.sai.tub.tag) }>{ formatNumber(props.sai.tub.tag, 3) }</span>
             </div>
             <div>
               <strong>Liq. Ratio</strong>
-              <span title={ toNumber(props.sai.tub.mat.times(100)) }>{ toNumber(props.sai.tub.mat.times(100)).toFixed(3) }%</span>
+              <span title={ formatNumber(props.sai.tub.mat.times(100)) }>{ formatNumber(props.sai.tub.mat.times(100), 3) }%</span>
             </div>
             <div>
               <strong>Liq. Penalty</strong>
-              <span title={ toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ toNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))).toFixed(3) }%</span>
+              <span title={ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100)), 3) }%</span>
             </div>
             <div>
               <strong>Debt Ceiling</strong>
-              <span title={ toNumber(props.sai.tub.hat) }>{ toNumber(props.sai.tub.hat).toFixed(3) }</span>
+              <span title={ formatNumber(props.sai.tub.hat) }>{ formatNumber(props.sai.tub.hat, 3) }</span>
             </div>
             <div>
               <strong>Deficit</strong>
@@ -49,8 +49,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.off === false
                   ? <span>
-                      Sell <span title={ toNumber(props.sai.tub.avail_boom_sai) }>{ toNumber(props.sai.tub.avail_boom_sai).toFixed(3) }</span> SKR<br />
-                      Buy <span title={ toNumber(props.sai.tub.avail_boom_skr) }>{ toNumber(props.sai.tub.avail_boom_skr).toFixed(3) }</span> SAI
+                      Sell <span title={ formatNumber(props.sai.tub.avail_boom_sai) }>{ formatNumber(props.sai.tub.avail_boom_sai, 3) }</span> SKR<br />
+                      Buy <span title={ formatNumber(props.sai.tub.avail_boom_skr) }>{ formatNumber(props.sai.tub.avail_boom_skr, 3) }</span> SAI
                     </span>
                   : '-'
                 }
@@ -62,8 +62,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.off === false
                   ? <span>
-                      Sell <span title={ toNumber(props.sai.tub.avail_bust_sai) }>{ toNumber(props.sai.tub.avail_bust_sai).toFixed(3) }</span> SAI<br />
-                      Buy <span title={ toNumber(props.sai.tub.avail_bust_skr) }>{ toNumber(props.sai.tub.avail_bust_skr).toFixed(3) }</span> SKR
+                      Sell <span title={ formatNumber(props.sai.tub.avail_bust_sai) }>{ formatNumber(props.sai.tub.avail_bust_sai, 3) }</span> SAI<br />
+                      Buy <span title={ formatNumber(props.sai.tub.avail_bust_skr) }>{ formatNumber(props.sai.tub.avail_bust_skr, 3) }</span> SKR
                     </span>
                   : '-'
                 }
@@ -71,7 +71,7 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Fix</strong>
-              <span title={ toNumber(props.sai.tub.fix) }>{ props.sai.tub.off ? toNumber(props.sai.tub.fix).toFixed(3) : '-' }</span>
+              <span title={ formatNumber(props.sai.tub.fix) }>{ props.sai.tub.off ? formatNumber(props.sai.tub.fix, 3) : '-' }</span>
             </div>
           </div>
         </div>
