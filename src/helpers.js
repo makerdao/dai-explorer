@@ -12,6 +12,14 @@ export function toBytes32(x) {
   return y;
 }
 
+export function toBytes12(x) {
+  let y = web3.toHex(x);
+  y = y.replace('0x', '');
+  y = padLeft(y, 24);
+  y = '0x' + y;
+  return y;
+}
+
 export function toNumber(obj) {
   return (typeof obj === 'object') ? web3.toDecimal(web3.fromWei(obj)) : 0;
 }

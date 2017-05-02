@@ -7,6 +7,7 @@ import Faucet from './Faucet';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
+import Tag from './Tag';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { toBytes32, fromRaytoWad } from '../helpers';
@@ -779,6 +780,9 @@ class App extends Component {
                   </div>
                 </div>
               </div>
+              {this.state.sai.tag.address &&
+                <Tag address={this.state.sai.tag.address} tag={this.state.sai.tub.tag} />
+              }
             </div>
             <div className="row">
               <div className="col-md-9">
