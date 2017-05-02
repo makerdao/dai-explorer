@@ -30,11 +30,12 @@
 
 .info-box-number >span {
   display: block;
-  float: left;
+  float: right;
 }
 
 .info-box-number >span:first-child {
   clear: left;
+  float: left;
   width: 55px;
 }
 
