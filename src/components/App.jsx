@@ -326,11 +326,16 @@ class App extends Component {
         const sai = { ...this.state.sai };
         sai.tag.address = r;
         this.setState({ sai });
-        this.tagObj.LogNote({ sig: this.methodSig('poke(bytes32)') }, {}, (e) => {
+        this.tagObj.LogNote({}, {}, (e, r) => {
           if (!e) {
-            this.getParameterFromTub('tag');
-            this.getParameterFromTub('eek');
-            this.getParameterFromTub('safe');
+            if (
+              r.args.sig === this.methodSig('poke(bytes32)') ||
+              r.args.sig === this.methodSig('poke()')
+            ) {
+              this.getParameterFromTub('tag');
+              this.getParameterFromTub('eek');
+              this.getParameterFromTub('safe');
+            }
           }
         });
       }
