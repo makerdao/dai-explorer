@@ -20,8 +20,8 @@ export function toBytes12(x) {
   return y;
 }
 
-export function formatNumber(obj, decimals = false, isWei = true) {
-  let object = typeof obj === 'object' ? obj : web3.toBigNumber(0);
+export function formatNumber(number, decimals = false, isWei = true) {
+  let object = typeof number === 'object' ? number : web3.toBigNumber(number);
 
   if (isWei) object = web3.fromWei(object);
 
