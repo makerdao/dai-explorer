@@ -14,34 +14,30 @@ const Token = (props) => {
           <span className="info-box-number">
             <span>Total</span>
             <AnimatedNumber
-              value={ web3.fromWei(props.sai[props.token].totalSupply) }
+              value={ props.sai[props.token].totalSupply }
               title={ formatNumber(props.sai[props.token].totalSupply) }
-              stepPrecision={4}
-              formatValue={ n => formatNumber(n, 3, false) } />
+              formatValue={ n => formatNumber(n, 3) } />
           </span>
           <span className="info-box-number">
             <span>Mine</span>
             <AnimatedNumber
-              value={ web3.fromWei(props.sai[props.token].myBalance) }
+              value={ props.sai[props.token].myBalance }
               title={ formatNumber(props.sai[props.token].myBalance) }
-              stepPrecision={4}
-              formatValue={ n => formatNumber(n, 3, false) } />
+              formatValue={ n => formatNumber(n, 3) } />
           </span>
           <span className="info-box-number">
             <span>Tub</span>
             <AnimatedNumber
-              value={ web3.fromWei(props.sai[props.token].tubBalance) }
+              value={ props.sai[props.token].tubBalance }
               title={ formatNumber(props.sai[props.token].tubBalance) }
-              stepPrecision={4}
-              formatValue={ n => formatNumber(n, 3, false) } />
+              formatValue={ n => formatNumber(n, 3) } />
           </span>
           <span className="info-box-number">
             <span>Pot</span>
             <AnimatedNumber
-              value={ web3.fromWei(props.sai[props.token].potBalance) }
+              value={ props.sai[props.token].potBalance }
               title={ formatNumber(props.sai[props.token].potBalance) }
-              stepPrecision={4}
-              formatValue={ n => formatNumber(n, 3, false) } />
+              formatValue={ n => formatNumber(n, 3) } />
           </span>
         </div>
       </div>
