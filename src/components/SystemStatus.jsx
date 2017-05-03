@@ -49,8 +49,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.off === false
                   ? <span>
-                      Sell <span title={ formatNumber(props.sai.tub.avail_boom_sai) }>{ formatNumber(props.sai.tub.avail_boom_sai, 3) }</span> SKR<br />
-                      Buy <span title={ formatNumber(props.sai.tub.avail_boom_skr) }>{ formatNumber(props.sai.tub.avail_boom_skr, 3) }</span> SAI
+                      Sell <span title={ formatNumber(props.sai.tub.avail_boom_skr) }>{ formatNumber(props.sai.tub.avail_boom_skr, 3) }</span> SKR<br />
+                      Buy <span title={ formatNumber(props.sai.tub.avail_boom_sai) }>{ formatNumber(props.sai.tub.avail_boom_sai, 3) }</span> SAI
                     </span>
                   : '-'
                 }
