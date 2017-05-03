@@ -13,24 +13,32 @@ class DSValue extends React.Component {
 
   componentWillMount() {
     this.v = web3.eth.contract(dsvalue.abi).at(this.props.address);
+    this.filter = this.v.LogNote({}, (e,r) => {
+      this.update();
+    })
+    this.update();
+  }
+
+  componentWillUnmount() {
+    this.filter.stopWatching();
+  }
+
+  update = () => {
     this.v.peek((error, res) => {
       if (!error) {
         this.setState({
-          value: web3.toDecimal(res[0]),
+          value: res[0],
           valid: res[1]
         })
       }
     });
   }
 
-  componentWillUnmount() {
-
-  }
-
   render() {
     return(
       <div>
-        {this.state.value} {this.state.valid ? 'true' : 'false'}
+        <span className={`label label-${this.state.valid ? 'success' : 'danger'}`}> </span>&nbsp;
+        <AnimatedNumber value={web3.toDecimal(this.state.value)} title={this.state.value} />
       </div>
     );
   }

@@ -79,7 +79,7 @@ class Tag extends React.Component {
                   Min: {this.state.min} Last: {this.state.last}
                 </p>
                 <p>
-                  Value: <AnimatedNumber value={this.props.tag} />
+                  <AnimatedNumber value={this.props.tag} />
                 </p>
                 {this.state.values.map(x => <DSValue key={x} address={x} />)}
               </div>
