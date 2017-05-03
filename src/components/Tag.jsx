@@ -76,13 +76,13 @@ class Tag extends React.Component {
             <div className="row">
               <div className="col-md-12">
                 <p>
-                  Min: {this.state.min} Last: {this.state.last}
-                </p>
-                <p>
-                  <AnimatedNumber
+                  Current Value: <strong><AnimatedNumber
                     value={this.props.tag}
                     title={formatNumber(this.props.tag)}
-                    formatValue={ n => formatNumber(n, 3) } />
+                    formatValue={ n => formatNumber(n, 3) } /></strong> USD/ETH
+                </p>
+                <p>
+                  Minimun Valid Sources: <strong>{this.state.min}</strong> Total: <strong>{this.state.last}</strong>
                 </p>
                 {this.state.values.map(x => <DSValue key={x} address={x} />)}
               </div>
