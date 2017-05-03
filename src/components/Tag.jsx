@@ -2,7 +2,7 @@ import React from 'react';
 import DSValue from './DSValue';
 import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
-import { toBytes12 } from '../helpers';
+import { toBytes12, formatNumber } from '../helpers';
 
 const medianizer = require('../config/medianizer');
 
@@ -16,7 +16,7 @@ class Tag extends React.Component {
     };
   }
   componentWillMount() {
-    this.m = web3.eth.contract(medianizer.abi).at('0xba615defd68867e8e5bca8822d55d4c16bd12ead');
+    this.m = web3.eth.contract(medianizer.abi).at(this.props.address);
     window.m = this.m;
     this.get(this.m, 'next')
       .then(r => {
@@ -79,7 +79,10 @@ class Tag extends React.Component {
                   Min: {this.state.min} Last: {this.state.last}
                 </p>
                 <p>
-                  <AnimatedNumber value={this.props.tag} />
+                  <AnimatedNumber
+                    value={this.props.tag}
+                    title={formatNumber(this.props.tag)}
+                    formatValue={ n => formatNumber(n, 3) } />
                 </p>
                 {this.state.values.map(x => <DSValue key={x} address={x} />)}
               </div>
