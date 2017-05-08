@@ -67,24 +67,25 @@ class Tag extends React.Component {
 
   render() {
     return(
-      <div className="col-md-3">
-        <div className="box">
-          <div className="box-header with-border">
-            <h3 className="box-title">Tag Sources</h3>
-          </div>
-          <div className="box-body">
-            <div className="row">
-              <div className="col-md-12">
+      <div className="box">
+        <div className="box-header with-border">
+          <h3 className="box-title">Tag Sources</h3>
+        </div>
+        <div className="box-body">
+          <div className="row">
+            <div className="col-md-12">
+              <div>
                 <p>
                   Current Value: <strong><AnimatedNumber
-                    value={this.props.tag}
-                    title={formatNumber(this.props.tag)}
+                    value={ this.props.tag }
+                    title={ formatNumber(this.props.tag) }
                     formatValue={ n => formatNumber(n, 3) } /></strong> USD/ETH
                 </p>
                 <p>
-                  Minimun Valid Sources: <strong>{this.state.min}</strong> Total: <strong>{this.state.last}</strong>
+                  Minimun Valid Sources: <strong>{ this.state.min }</strong> Total: <strong>{ this.state.last }</strong>
                 </p>
-                {this.state.values.map(x => <DSValue key={x} address={x} />)}
+                { this.state.values.map(x => <DSValue key={ x } address={ x } />) }
+                <a target="_blank" href={ `/terra/#${this.props.address}` }>Details</a>
               </div>
             </div>
           </div>

@@ -37,18 +37,18 @@ class DSValue extends React.Component {
 
   render() {
     return(
-      <div>
-        <span className={`label label-${this.state.valid ? 'success' : 'danger'}`}>
-          {this.state.valid ? 'VALID' : 'INVALID'}
+      <p>
+        <span className={ `label label-${typeof this.state.valid === 'boolean' ? (this.state.valid ? 'success' : 'danger') : 'warning'}` }>
+          { typeof this.state.valid === 'boolean' ? (this.state.valid ? 'VALID' : 'INVALID') : 'N/A' }
         </span>
         &nbsp;
         <strong>
           <AnimatedNumber
-            value={web3.toBigNumber(this.state.value)}
-            title={formatNumber(this.state.value)}
+            value={ web3.toBigNumber(this.state.value) }
+            title={ formatNumber(this.state.value) }
             formatValue={ n => formatNumber(n, 3) } />
         </strong>
-      </div>
+      </p>
     );
   }
 }

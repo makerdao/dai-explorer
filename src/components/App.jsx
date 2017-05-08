@@ -780,15 +780,16 @@ class App extends Component {
                   </div>
                 </div>
               </div>
-              {this.state.sai.tag.address &&
-                <Tag address={this.state.sai.tag.address} tag={this.state.sai.tub.tag} />
-              }
             </div>
             <div className="row">
               <div className="col-md-9">
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
+                {
+                  this.state.sai.tag.address &&
+                  <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.tub.tag } />
+                }
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
               </div>
             </div>

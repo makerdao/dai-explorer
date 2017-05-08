@@ -23,6 +23,14 @@
   to { transform: rotate(360deg); }
 }
 
+div#cups {
+  overflow-x: auto;
+}
+
+div#cups .row {
+  margin-right: 0px;
+}
+
 .info-box-number {
   font-size: 14px;
   overflow: hidden;

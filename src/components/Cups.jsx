@@ -34,7 +34,7 @@ const Cups = (props) => {
       <div className="box-header with-border">
         <h3 className="box-title">{ props.all ? 'All' : 'My' } Cups</h3>
       </div>
-      <div className="box-body">
+      <div className="box-body" id="cups">
         <div className="row">
           <div className="col-md-12">
             <table className="text-right">
