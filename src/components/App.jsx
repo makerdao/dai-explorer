@@ -750,7 +750,7 @@ class App extends Component {
               <Token sai={ this.state.sai } token='sai' color='bg-green' />
               <Token sai={ this.state.sai } token='sin' color='bg-red' />
             </div>
-            <div className="row">
+            <div className="row flex">
               <div className="col-md-9">
                 <SystemStatus sai={ this.state.sai } />
               </div>

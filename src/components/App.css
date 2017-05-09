@@ -167,3 +167,16 @@ p.error {
 .success-color {
   color: #00a65a;
 }
+
+@media (min-width: 992px) {
+  .row.flex {
+    align-items: stretch;
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .row.flex .box {
+    height: 100%;
+    margin-bottom: 0px;
+  }
+}
