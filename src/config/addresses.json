@@ -4,7 +4,11 @@
     "faucet": ""
   },
   "kovan": {
-    "tub": "0x409fdde4acac020a2a096e1d03b5f945e1ab7b7e",
+    "tub": "0x8e716d0471ddb24e314a93b8a75c45f2edd52048",
+    "faucet": "0xc4a8b068020fd970bee6ef6c47a5abb1953e572d"
+  },
+  "live": {
+    "tub": "0x6f53e152b532f14594c97262c532ab0a59497473",
     "faucet": ""
   }
 }
