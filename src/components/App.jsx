@@ -186,28 +186,80 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  initContracts = () => {
-    const addrs = addresses[this.state.network.network];
+  initContracts = (address) => {
+    web3.reset(true);
+    this.setState({
+      sai: {
+        tub: {
+          address: null,
+          per: web3.toBigNumber(0),
+          tag: web3.toBigNumber(0),
+          axe: web3.toBigNumber(0),
+          mat: web3.toBigNumber(0),
+          hat: web3.toBigNumber(0),
+          fix: web3.toBigNumber(0),
+          par: web3.toBigNumber(0),
+          cups: {}
+        },
+        gem: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        skr: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        sai: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        sin: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        pot: {
+          address: null,
+        },
+        tag: {
+          address: null,
+        }
+      },
+    }, () => {
 
-    const sai = { ...this.state.sai };
-    sai['tub'].address = addrs['tub'];
-    this.setState({ sai });
+      const addrs = addresses[this.state.network.network];
+      const sai = { ...this.state.sai };
 
-    window.tubObj = this.tubObj = this.loadObject(tub.abi, addrs['tub']);
-    this.initializeSystemStatus();
+      sai['tub'].address = address ? address : addrs['tub'];
+      this.setState({ sai });
 
-    this.setUpPot();
-    this.setUpToken('gem');
-    this.setUpToken('skr');
-    this.setUpToken('sai');
-    this.setUpToken('sin');
+      window.tubObj = this.tubObj = this.loadObject(tub.abi, sai['tub'].address);
+      this.initializeSystemStatus();
 
-    this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+      this.setUpPot();
+      this.setUpToken('gem');
+      this.setUpToken('skr');
+      this.setUpToken('sai');
+      this.setUpToken('sin');
 
-    this.setFilterTag();
+      this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
 
-    // This is necessary to finish transactions that failed after signing
-    this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+      this.setFilterTag();
+
+      // This is necessary to finish transactions that failed after signing
+      this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+    });
   }
 
   setUpPot = () => {
@@ -741,7 +793,8 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
+                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
+                  initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
