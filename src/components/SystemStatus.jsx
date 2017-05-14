@@ -70,7 +70,11 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Fix</strong>
+              <strong>Cage Price (USD/ETH)</strong>
+              <span title={ formatNumber(props.sai.tub.cage_price) }>{ props.sai.tub.off ? formatNumber(props.sai.tub.cage_price, 3) : '-' }</span>
+            </div>
+            <div>
+              <strong>Fix (ETH/USD)</strong>
               <span title={ formatNumber(props.sai.tub.fix) }>{ props.sai.tub.off ? formatNumber(props.sai.tub.fix, 3) : '-' }</span>
             </div>
           </div>

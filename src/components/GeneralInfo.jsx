@@ -18,7 +18,7 @@ class GeneralInfo extends Component {
             <div className="col-md-12 general-info">
               <form ref={(input) => this.form = input} onSubmit={this.changeTub} className="form-horizontal">
                 <div className="input-group">
-                  <input ref={(input) => this.tub = input} type="text" placeholder="Enter a valid tub address" type="text" className="form-control" />
+                  <input ref={(input) => this.tub = input} type="text" placeholder="Enter a valid tub address" className="form-control" />
                   <span className="input-group-btn">
                     <button className="btn btn-primary" type="submit">Change Tub</button>
                   </span>

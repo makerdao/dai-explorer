@@ -199,6 +199,7 @@ class App extends Component {
           hat: web3.toBigNumber(0),
           fix: web3.toBigNumber(0),
           par: web3.toBigNumber(0),
+          cage_price: web3.toBigNumber(0),
           cups: {}
         },
         gem: {
@@ -431,7 +432,7 @@ class App extends Component {
   }
 
   initializeSystemStatus = () => {
-    this.getParameterFromTub('off');
+    this.getParameterFromTub('off', false, this.getCagePriceFromTub);
     this.getParameterFromTub('per', true);
     this.getParameterFromTub('tag');
     this.getParameterFromTub('axe', true);
@@ -443,7 +444,7 @@ class App extends Component {
     this.getParameterFromTub('par', true);
   }
 
-  getParameterFromTub = (field, ray = false) => {
+  getParameterFromTub = (field, ray = false, callback = false) => {
     this.tubObj[field]((e, value) => {
       if (!e) {
         const sai = { ...this.state.sai };
@@ -455,8 +456,24 @@ class App extends Component {
         Object.keys(sai.tub.cups).map(key =>
           this.updateCup(key)
         );
+
+        if (callback) {
+          callback(value);
+        }
       }
     });
+  }
+
+  getCagePriceFromTub = (value) => {
+    if (value) {
+      this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: 0 }, (e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.tub['cage_price'] = parseInt(r.args.foo, 16);
+          this.setState({ sai });
+        }
+      });
+    }
   }
 
   getBoomBustValues = () => {
