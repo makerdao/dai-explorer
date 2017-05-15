@@ -324,14 +324,14 @@ class App extends Component {
     if (address) {
       conditions = { lad: address }
     }
-    this.tubObj.LogNewCup(conditions, { fromBlock: 0 }, (e, r) => {
+    this.tubObj.LogNewCup(conditions, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
       if (!e) {
         this.getCup(r.args['cup'], address);
       }
     });
     if (address) {
       // Get cups given to address (only if not seeing all cups).
-      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: 0 }, (e, r) => {
+      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
         if (!e) {
           this.getCup(r.args.foo, address);
         }
@@ -466,10 +466,10 @@ class App extends Component {
 
   getCagePriceFromTub = (value) => {
     if (value) {
-      this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: 0 }, (e, r) => {
+      this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
         if (!e) {
           const sai = { ...this.state.sai };
-          sai.tub['cage_price'] = parseInt(r.args.foo, 16);
+          sai.tub['cage_price'] = web3.toBigNumber(r.args.foo);
           this.setState({ sai });
         }
       });
