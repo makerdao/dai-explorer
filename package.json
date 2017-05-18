@@ -2,7 +2,7 @@
   "name": "sai-explorer",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://makerdao.github.io/sai-explorer",
+  "homepage": "http://this.is.not.sai.surge.sh",
   "dependencies": {
     "import": "0.0.6",
     "prop-types": "^15.5.8",
