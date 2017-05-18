@@ -10,7 +10,7 @@ import Transfer from './Transfer';
 import Tag from './Tag';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad } from '../helpers';
+import { toBytes32, fromRaytoWad, formatNumber } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -25,6 +25,9 @@ window.dstoken = dstoken;
 
 const dsvalue = require('../config/dsvalue');
 window.dsvalue = dsvalue;
+
+const lpc = require('../config/sailpc');
+window.lpc = lpc;
 
 
 class App extends Component {
@@ -48,6 +51,7 @@ class App extends Component {
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
+        lpcBalance: web3.toBigNumber(0),
       },
       skr: {
         address: null,
@@ -62,6 +66,7 @@ class App extends Component {
         myBalance: web3.toBigNumber(0),
         tubBalance: web3.toBigNumber(0),
         potBalance: web3.toBigNumber(0),
+        lpcBalance: web3.toBigNumber(0),
       },
       sin: {
         address: null,
@@ -75,6 +80,14 @@ class App extends Component {
       },
       tag: {
         address: null,
+      },
+      lpc: {
+        address: null,
+      },
+      lps: {
+        address: null,
+        totalSupply: web3.toBigNumber(0),
+        myBalance: web3.toBigNumber(0),
       }
     },
     transactions: {},
@@ -235,6 +248,14 @@ class App extends Component {
         },
         tag: {
           address: null,
+        },
+        lpc: {
+          address: null,
+        },
+        lps: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
         }
       },
     }, () => {
@@ -243,12 +264,15 @@ class App extends Component {
       const sai = { ...this.state.sai };
 
       sai['tub'].address = address ? address : addrs['tub'];
+      sai['lpc'].address = addrs['lpc'];
       this.setState({ sai });
 
-      window.tubObj = this.tubObj = this.loadObject(tub.abi, sai['tub'].address);
+      window.tubObj = this.tubObj = this.loadObject(tub.abi, sai.tub.address);
+      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, sai.lpc.address);
       this.initializeSystemStatus();
 
       this.setUpPot();
+      this.setUpLPS();
       this.setUpToken('gem');
       this.setUpToken('skr');
       this.setUpToken('sai');
@@ -269,6 +293,20 @@ class App extends Component {
         const sai = { ...this.state.sai };
         sai.pot.address = r;
         this.setState({ sai });
+      }
+    })
+  }
+
+  setUpLPS = () => {
+    this.lpcObj.lps((e, r) => {
+      if (!e) {
+        const sai = { ...this.state.sai };
+        sai.lps.address = r;
+        window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, sai.lps.address);
+        this.setState({ sai }, () => {
+          this.getDataFromToken('lps');
+          this.setFilterToken('lps');
+        });
       }
     })
   }
@@ -374,7 +412,7 @@ class App extends Component {
   }
 
   setFilterTag = () => {
-    this.tubObj._tag((e, r) => {
+    this.tubObj.tip((e, r) => {
       if (!e) {
         window.tagObj = this.tagObj = this.loadObject(dsvalue.abi, r);
         const sai = { ...this.state.sai };
@@ -399,8 +437,17 @@ class App extends Component {
   getDataFromToken = (token) => {
     this.getTotalSupply(token);
     this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
-    this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
-    this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
+    
+    if (token !== 'lps') {
+      this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
+      this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
+      this.getParameterFromLPC('pie');
+      this.getParameterFromLPC('gap');
+      this.getParameterFromLPC('per', true);
+    }
+    if (token === 'sai' || token === 'gem') {
+      this.getBalanceOf(token, this.state.sai.lpc.address, 'lpcBalance');
+    }
     if (token === 'sai' || token === 'sin') {
       this.getBoomBustValues();
     }
@@ -442,6 +489,9 @@ class App extends Component {
     this.getParameterFromTub('safe');
     this.getParameterFromTub('fix', true);
     this.getParameterFromTub('par', true);
+    this.getParameterFromLPC('pie');
+    this.getParameterFromLPC('gap');
+    this.getParameterFromLPC('per', true);
   }
 
   getParameterFromTub = (field, ray = false, callback = false) => {
@@ -460,6 +510,16 @@ class App extends Component {
         if (callback) {
           callback(value);
         }
+      }
+    });
+  }
+
+  getParameterFromLPC = (field, ray = false) => {
+    this.lpcObj[field]((e, value) => {
+      if (!e) {
+        const sai = { ...this.state.sai };
+        sai.lpc[field] = ray ? fromRaytoWad(value) : value;
+        this.setState({ sai });
       }
     });
   }
@@ -591,7 +651,9 @@ class App extends Component {
 
       const c = transactions[tx].callback;
       if (c.method) {
-        if (c.cup && c.value) {
+        if(c.method.indexOf('lpc-') !== -1) {
+          this.executeLPCMethod(c.method, c.token, c.value);
+        } else if (c.cup && c.value) {
           this.executeMethodCupValue(c.method, c.cup, c.value);
         } else if (c.value) {
           this.executeMethodValue(c.method, c.value);
@@ -670,7 +732,33 @@ class App extends Component {
     });
   }
 
-  updateValue = (value) => {
+  executeLPCMethod = (method, token, value) => {
+    const cleanMethod = method.replace('lpc-', '');
+    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 4000000 }, (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
+      } else {
+        console.log(e);
+      }
+    });
+  }
+
+  lpcAllowance = (tokenMethod, tokenAllowance, method, value, valueAllowance) => {
+    this[`${tokenAllowance}Obj`].allowance(this.state.network.defaultAccount, this.lpcObj.address, (e, r) => {
+      if (!e) {
+        const valueObj = web3.toBigNumber(valueAllowance);
+        if (r.lt(valueObj)) {
+          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 4000000 }, (e, tx) => {
+            this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
+          });
+        } else {
+          this.executeLPCMethod(method, tokenMethod, value);
+        }
+      }
+    });
+  }
+
+  updateValue = (value, token) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
     const valueWei = web3.toWei(value);
@@ -761,6 +849,61 @@ class App extends Component {
       case 'cash':
         this.tubAllowance('sai', method, false, web3.fromWei(this.state.sai.sai.myBalance));
         break;
+      case 'lpc-pool':
+        if (token === 'sai' && this.state.sai.sai.myBalance.lt(valueWei)) {
+          error = `Not enough balance to pool ${value} SAI.`;
+        } else if (token === 'gem' && this.state.sai.gem.myBalance.lt(valueWei)) {
+          error = `Not enough balance to pool ${value} GEM.`;
+        } else {
+          this.lpcAllowance(token, token, method, value, web3.toWei(value));
+        }
+        break;
+      case 'lpc-exit':
+        if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
+          error = `Not enough balance in LPC to exit ${value} GEM.`;
+        } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
+          error = `Not enough balance in LPC to exit ${value} SAI.`;
+        } else {
+          let lpsEq = null;
+          if (token === 'gem') {
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
+          } else {
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
+          }
+          if (lpsEq.lt(this.state.sai.lpc.pie)) {
+            lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+          }
+
+          if (this.state.sai.lps.myBalance.lt(lpsEq)) {
+            error = `Not enough balance in LPS to exit ${value} TOKEN.`.replace('TOKEN', token.toUpperCase());
+          } else {
+            this.lpcAllowance(token, 'lps', method, value, lpsEq.ceil());
+          }
+        }
+        break;
+      case 'lpc-take':
+        if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
+          error = `Not enough balance in LPC to take ${value} GEM.`;
+        } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
+          error = `Not enough balance in LPC to take ${value} SAI.`;
+        } else {
+          if (token === 'gem') {
+            const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+            if (this.state.sai.sai.myBalance.lt(valueSai)) {
+              error = `Not enough balance in SAI to take ${value} GEM.`;
+            } else {
+              this.lpcAllowance(token, 'sai', method, value, valueSai.ceil());
+            }
+          } else if (token === 'sai') {
+            const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag);
+            if (this.state.sai.gem.myBalance.lt(valueGem)) {
+              error = `Not enough balance in GEM to take ${value} SAI.`;
+            } else {
+              this.lpcAllowance(token, 'gem', method, value, valueGem.ceil());
+            }
+          }
+        }
+        break;
       default:
         break;
     }
@@ -794,6 +937,12 @@ class App extends Component {
       bust: this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };
 
+    const lpcActions = {
+      pool: (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) || (this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)),
+      exit: this.state.sai.lps.myBalance && this.state.sai.lps.myBalance.gt(0),
+      take: (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) || (this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)),
+    };
+
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -815,14 +964,16 @@ class App extends Component {
               </div>
             </div>
             <div className="row">
-              <Token sai={ this.state.sai } token='gem' color='' />
-              <Token sai={ this.state.sai } token='skr' color='bg-aqua' />
-              <Token sai={ this.state.sai } token='sai' color='bg-green' />
-              <Token sai={ this.state.sai } token='sin' color='bg-red' />
-            </div>
-            <div className="row flex">
               <div className="col-md-9">
+                <div className="row">
+                  <Token sai={ this.state.sai } token='gem' color='' />
+                  <Token sai={ this.state.sai } token='skr' color='bg-aqua' />
+                  <Token sai={ this.state.sai } token='sai' color='bg-green' />
+                  <Token sai={ this.state.sai } token='sin' color='bg-red' />
+                  <Token sai={ this.state.sai } token='lps' color='bg-blue' />
+                </div>
                 <SystemStatus sai={ this.state.sai } />
+                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
                 <div className="box">
@@ -849,15 +1000,37 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-9">
-                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
-              </div>
-              <div className="col-md-3">
+                <div className="box">
+                  <div className="box-header with-border">
+                    <h3 className="box-title">LPC Actions</h3>
+                  </div>
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        {
+                          Object.keys(lpcActions).map(key =>
+                            <span key={ key }>
+                              { lpcActions[key] ? <a href="#" data-method={ `lpc-${key}` } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                              <span> / </span>
+                            </span>
+                          )
+                        }
+                        <div className="system-status">
+                          <div>
+                            <strong>LPS/SAI</strong>
+                            <span title={ formatNumber(this.state.sai.lpc.per) }>{ formatNumber(this.state.sai.lpc.per, 3) }</span>
+                          </div>
+                          <div>
+                            <strong>T. Funds (worth in SAI)</strong>
+                            <span title={ formatNumber(this.state.sai.lpc.pie) }>{ formatNumber(this.state.sai.lpc.pie, 3) }</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {
-                  this.state.sai.tag.address &&
+                  this.state.sai.tag.address && this.state.network.network !== 'private' &&
                   <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.tub.tag } />
                 }
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />

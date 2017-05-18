@@ -4,7 +4,7 @@ import { formatNumber } from '../helpers';
 
 const Token = (props) => {
   return (
-    <div className="col-md-3 col-sm-6 col-xs-12">
+    <div className="col-md-4 col-sm-6 col-xs-12">
       <div className="info-box">
         <span className={`info-box-icon ${props.color}`}>
           {props.token}
@@ -24,20 +24,45 @@ const Token = (props) => {
               title={ formatNumber(props.sai[props.token].myBalance) }
               formatValue={ n => formatNumber(n, 3) } />
           </span>
-          <span className="info-box-number">
-            <span>Tub</span>
-            <AnimatedNumber
-              value={ props.sai[props.token].tubBalance }
-              title={ formatNumber(props.sai[props.token].tubBalance) }
-              formatValue={ n => formatNumber(n, 3) } />
-          </span>
-          <span className="info-box-number">
-            <span>Pot</span>
-            <AnimatedNumber
-              value={ props.sai[props.token].potBalance }
-              title={ formatNumber(props.sai[props.token].potBalance) }
-              formatValue={ n => formatNumber(n, 3) } />
-          </span>
+          {
+            props.sai[props.token].tubBalance
+            ?
+              <span className="info-box-number">
+                <span>Tub</span>
+                <AnimatedNumber
+                  value={ props.sai[props.token].tubBalance }
+                  title={ formatNumber(props.sai[props.token].tubBalance) }
+                  formatValue={ n => formatNumber(n, 3) } />
+              </span>
+            :
+              ''
+          }
+          {
+            props.sai[props.token].tubBalance
+            ?
+              <span className="info-box-number">
+                <span>Pot</span>
+                <AnimatedNumber
+                  value={ props.sai[props.token].potBalance }
+                  title={ formatNumber(props.sai[props.token].potBalance) }
+                  formatValue={ n => formatNumber(n, 3) } />
+              </span>
+            :
+              ''
+          }
+          {
+            props.sai[props.token].lpcBalance
+            ?
+              <span className="info-box-number">
+                <span>Lpc</span>
+                <AnimatedNumber
+                  value={ props.sai[props.token].lpcBalance }
+                  title={ formatNumber(props.sai[props.token].lpcBalance) }
+                  formatValue={ n => formatNumber(n, 3) } />
+              </span>
+            :
+              ''
+          }
         </div>
       </div>
     </div>

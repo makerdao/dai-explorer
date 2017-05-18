@@ -5,8 +5,9 @@ class Modal extends Component {
   updateValue = (e) => {
     e.preventDefault();
     const value = this.updateVal !== 'undefined' && this.updateVal && typeof this.updateVal.value !== 'undefined' ? this.updateVal.value : false;
+    const token = this.token !== 'undefined' && this.token && typeof this.token.value !== 'undefined' ? this.token.value : false;
 
-    this.props.updateValue(value);
+    this.props.updateValue(value, token);
 
     if (typeof this.updateValueForm !== 'undefined' && this.updateValueForm) {
       this.updateValueForm.reset();
@@ -25,6 +26,19 @@ class Modal extends Component {
   renderInputForm = (type) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
+        <input ref={(input) => this.updateVal = input} type={type} required step="0.000000000000000001" />
+        <input type="submit" />
+      </form>
+    )
+  }
+
+  renderLPCForm = (type) => {
+    return (
+      <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
+        <select ref={(input) => this.token = input} >
+          <option value="gem">GEM</option>
+          <option value="sai">SAI</option>
+        </select>
         <input ref={(input) => this.updateVal = input} type={type} required step="0.000000000000000001" />
         <input type="submit" />
       </form>
@@ -140,6 +154,18 @@ class Modal extends Component {
         text = `Are you sure you want to bail Cup ${modal.cup}?`;
         type = 'yesno';
         break;
+      case 'lpc-pool':
+        text = `Please set the coin and amount you want to deposit in exchange of LPS`;
+        type = 'lpc';
+        break;
+      case 'lpc-exit':
+        text = `Please set the coin and amount you want to exit`;
+        type = 'lpc';
+        break;
+      case 'lpc-take':
+        text = `Please set the coin and amount you want to take`;
+        type = 'lpc';
+        break;
       default:
         break;
     }
@@ -153,7 +179,7 @@ class Modal extends Component {
         <br />
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
-          { type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type) }
+          { type === 'lpc' ? this.renderLPCForm() : (type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type)) }
           { modal.error ? this.renderError(modal.error) : '' }
         </div>
       </ReactModal>

@@ -31,6 +31,15 @@ div#cups .row {
   margin-right: 0px;
 }
 
+.info-box {
+  min-height: 110px;
+}
+
+.info-box-icon {
+  height: 100%;
+  line-height: 110px;
+}
+
 .info-box-number {
   font-size: 14px;
   overflow: hidden;
@@ -81,6 +90,11 @@ tr th, tr td {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 9998;
+}
+
+.ReactModal__Overlay {
+  z-index: 9999;
 }
  
 .notify-item {

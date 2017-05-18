@@ -1,17 +1,20 @@
 {
   "private": {
-    "tub": "",
+    "tub": "0xccf27643fa6c4fc844a8945b7c2f8bd562153649",
     "faucet": "",
+    "lpc": "0x49de73cab6e369f1f97def0b95b558cd77c5d6a2",
     "fromBlock": 0
   },
   "kovan": {
     "tub": "0x8e716d0471ddb24e314a93b8a75c45f2edd52048",
     "faucet": "0xc4a8b068020fd970bee6ef6c47a5abb1953e572d",
+    "lpc": "",
     "fromBlock": 1359854
   },
   "live": {
     "tub": "0xFbCd7cd9737A79FA86173cd9ee2a41cCfe2D23A4",
     "faucet": "",
+    "lpc": "",
     "fromBlock": 3696721
   }
 }
