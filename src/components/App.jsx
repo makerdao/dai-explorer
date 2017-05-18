@@ -1017,19 +1017,31 @@ class App extends Component {
                         }
                         <div className="system-status">
                           <div>
-                            <strong>LPS/SAI</strong>
+                            <strong>SAI/LPS</strong>
                             {
                               this.state.sai.lpc.per
                               ?
-                                <span title={ formatNumber(this.state.sai.lpc.per) }>
-                                  { formatNumber(this.state.sai.lpc.per, 3) }
+                                <span title={ formatNumber(web3.toBigNumber(10).pow(36).div(this.state.sai.lpc.per)) }>
+                                  { formatNumber(web3.toBigNumber(10).pow(36).div(this.state.sai.lpc.per), 3) }
                                 </span>
                               :
                                 <span>Loading...</span>
                             }
                           </div>
                           <div>
-                            <strong>Funds in SAI</strong>
+                            <strong>ETH/LPS</strong>
+                            {
+                              this.state.sai.lpc.per
+                              ?
+                                <span title={ formatNumber(web3.toBigNumber(10).pow(54).div(this.state.sai.tub.tag).div(this.state.sai.lpc.per)) }>
+                                  { formatNumber(web3.toBigNumber(10).pow(54).div(this.state.sai.tub.tag).div(this.state.sai.lpc.per), 3) }
+                                </span>
+                              :
+                                <span>Loading...</span>
+                            }
+                          </div>
+                          <div>
+                            <strong>Funds worth in SAI</strong>
                             {
                               this.state.sai.lpc.pie
                               ?
@@ -1041,7 +1053,19 @@ class App extends Component {
                             }
                           </div>
                           <div>
-                            <strong>GAP</strong>
+                            <strong>Funds worth in ETH</strong>
+                            {
+                              this.state.sai.lpc.pie
+                              ?
+                                <span title={ formatNumber(this.state.sai.lpc.pie) }>
+                                  { formatNumber(this.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag), 3) }
+                                </span>
+                              :
+                               <span>Loading...</span>
+                            }
+                          </div>
+                          <div>
+                            <strong>Tax</strong>
                             {
                               this.state.sai.lpc.gap
                               ?

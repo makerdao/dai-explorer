@@ -46,7 +46,7 @@ class Transfer extends Component {
                 <form className="transfer" ref={(input) => this.transferForm = input} onSubmit={(e) => this.transfer(e)}>
                   <label>Token</label>
                   <select ref={(input) => this.token = input} >
-                    <option value="gem">GEM</option>
+                    <option value="gem">WETH</option>
                     <option value="skr">SKR</option>
                     <option value="sai">SAI</option>
                   </select>

@@ -36,6 +36,7 @@ div#cups .row {
 }
 
 .info-box-icon {
+  font-size: 32px;
   height: 100%;
   line-height: 110px;
 }

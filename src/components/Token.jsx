@@ -7,7 +7,7 @@ const Token = (props) => {
     <div className="col-md-4 col-sm-6 col-xs-12">
       <div className="info-box">
         <span className={`info-box-icon ${props.color}`}>
-          {props.token}
+          { props.token === 'gem' ? 'WETH' : props.token }
         </span>
         <div className="info-box-content">
           <span className="info-box-number">
