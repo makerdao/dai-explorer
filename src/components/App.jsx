@@ -1018,11 +1018,39 @@ class App extends Component {
                         <div className="system-status">
                           <div>
                             <strong>LPS/SAI</strong>
-                            <span title={ formatNumber(this.state.sai.lpc.per) }>{ formatNumber(this.state.sai.lpc.per, 3) }</span>
+                            {
+                              this.state.sai.lpc.per
+                              ?
+                                <span title={ formatNumber(this.state.sai.lpc.per) }>
+                                  { formatNumber(this.state.sai.lpc.per, 3) }
+                                </span>
+                              :
+                                <span>Loading...</span>
+                            }
                           </div>
                           <div>
-                            <strong>T. Funds (worth in SAI)</strong>
-                            <span title={ formatNumber(this.state.sai.lpc.pie) }>{ formatNumber(this.state.sai.lpc.pie, 3) }</span>
+                            <strong>Funds in SAI</strong>
+                            {
+                              this.state.sai.lpc.pie
+                              ?
+                                <span title={ formatNumber(this.state.sai.lpc.pie) }>
+                                  { formatNumber(this.state.sai.lpc.pie, 3) }
+                                </span>
+                              :
+                               <span>Loading...</span>
+                            }
+                          </div>
+                          <div>
+                            <strong>GAP</strong>
+                            {
+                              this.state.sai.lpc.gap
+                              ?
+                                <span title={ formatNumber(this.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }>
+                                  { formatNumber(this.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)), 3) }%
+                                </span>
+                              :
+                                <span>Loading...</span>
+                            }
                           </div>
                         </div>
                       </div>

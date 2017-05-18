@@ -17,31 +17,61 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>ETH/SKR</strong>
-              <span title={ formatNumber(props.sai.tub.per) }>{ formatNumber(props.sai.tub.per, 3) }</span>
+              {
+                props.sai.tub.per.gt(0)
+                ?
+                  <span title={ formatNumber(props.sai.tub.per) }>{ formatNumber(props.sai.tub.per, 3) }</span>
+                :
+                  <span>Loading...</span>
+              }
             </div>
             <div>
               <strong>USD/ETH</strong>
-              <span title={ formatNumber(props.sai.tub.tag) }>{ formatNumber(props.sai.tub.tag, 3) }</span>
+              {
+                props.sai.tub.tag.gt(0)
+                ?
+                  <span title={ formatNumber(props.sai.tub.tag) }>{ formatNumber(props.sai.tub.tag, 3) }</span>
+                :
+                  <span>Loading...</span>
+              }
             </div>
             <div>
               <strong>Liq. Ratio</strong>
-              <span title={ formatNumber(props.sai.tub.mat.times(100)) }>{ formatNumber(props.sai.tub.mat.times(100), 3) }%</span>
+              {
+                props.sai.tub.mat.gt(0)
+                ?
+                  <span title={ formatNumber(props.sai.tub.mat.times(100)) }>{ formatNumber(props.sai.tub.mat.times(100), 3) }%</span>
+                :
+                  <span>Loading...</span>
+              }
             </div>
             <div>
               <strong>Liq. Penalty</strong>
-              <span title={ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100)), 3) }%</span>
+              {
+                props.sai.tub.axe.gt(0)
+                ?
+                  <span title={ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100)), 3) }%</span>
+                :
+                  <span>Loading...</span>
+              }
             </div>
             <div>
               <strong>Debt Ceiling</strong>
-              <span title={ formatNumber(props.sai.tub.hat) }>{ formatNumber(props.sai.tub.hat, 3) }</span>
+              {
+                props.sai.tub.hat.gt(0)
+                ?
+                  <span title={ formatNumber(props.sai.tub.hat) }>{ formatNumber(props.sai.tub.hat, 3) }</span>
+                :
+                  <span>Loading...</span>
+              }
             </div>
             <div>
               <strong>Deficit</strong>
-              <span>{ props.sai.tub.off === false ? (props.sai.tub.eek ? 'YES' : 'NO') : '-' }</span>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...' }</span>
             </div>
             <div>
               <strong>Safe</strong>
-              <span>{ props.sai.tub.off === false ? (props.sai.tub.safe ? 'YES' : 'NO') : '-' }</span>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...' }</span>
             </div>
             <div>
               <strong>Avail. Boom</strong>
