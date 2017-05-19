@@ -177,7 +177,9 @@ class App extends Component {
     networkState['latestBlock'] = 0;
     this.setState({ network: networkState });
 
-    this.initContracts();
+    const addrs = addresses[this.state.network.network];
+
+    this.initContracts(addrs['tub'], addrs['lpc']);
   }
 
   checkAccounts = () => {
@@ -213,19 +215,24 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
+  validateContracts = (tubAddress, lpcAddress) => {
+    return web3.isAddress(tubAddress) && web3.isAddress(lpcAddress);
+  }
+
   initContracts = (tubAddress, lpcAddress) => {
-    console.log(tubAddress, lpcAddress)
+    if (!this.validateContracts(tubAddress, lpcAddress)) {
+      return;
+    }
     web3.reset(true);
     const initialState = this.getInitialState();
     this.setState({
       ...initialState
     }, () => {
 
-      const addrs = addresses[this.state.network.network];
       const sai = { ...this.state.sai };
 
-      sai['tub'].address = tubAddress ? tubAddress : addrs['tub'];
-      sai['lpc'].address = lpcAddress ? lpcAddress : addrs['lpc'];
+      sai['tub'].address = tubAddress;
+      sai['lpc'].address = lpcAddress;
       this.setState({ sai });
 
       window.tubObj = this.tubObj = this.loadObject(tub.abi, sai.tub.address);

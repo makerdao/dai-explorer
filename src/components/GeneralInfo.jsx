@@ -7,6 +7,7 @@ class GeneralInfo extends Component {
     const tub = this.tub.value;
     const lpc = this.lpc.value;
     if (tub && lpc) {
+      //this.form.reset();
       this.props.initContracts(tub, lpc);
     }
   }
