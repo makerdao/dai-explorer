@@ -939,7 +939,7 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo contract={ this.state.sai.tub.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
+                <GeneralInfo tub={ this.state.sai.tub.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
                   initContracts={this.initContracts} />
               </div>
             </div>

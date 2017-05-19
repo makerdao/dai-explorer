@@ -1,8 +1,8 @@
 {
   "private": {
-    "tub": "0x306e693ed7fb75386ae0396f549c78547f45b348",
+    "tub": "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7",
     "faucet": "",
-    "lpc": "0x86818b1929ab9a81dbb158c346988ce615393fbb",
+    "lpc": "0x5f8e26facc23fa4cbd87b8d9dbbd33d5047abde1",
     "fromBlock": 0
   },
   "kovan": {
