@@ -213,7 +213,8 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  initContracts = (address) => {
+  initContracts = (tubAddress, lpcAddress) => {
+    console.log(tubAddress, lpcAddress)
     web3.reset(true);
     const initialState = this.getInitialState();
     this.setState({
@@ -223,8 +224,8 @@ class App extends Component {
       const addrs = addresses[this.state.network.network];
       const sai = { ...this.state.sai };
 
-      sai['tub'].address = address ? address : addrs['tub'];
-      sai['lpc'].address = addrs['lpc'];
+      sai['tub'].address = tubAddress ? tubAddress : addrs['tub'];
+      sai['lpc'].address = lpcAddress ? lpcAddress : addrs['lpc'];
       this.setState({ sai });
 
       window.tubObj = this.tubObj = this.loadObject(tub.abi, sai.tub.address);

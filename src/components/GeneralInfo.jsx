@@ -4,9 +4,11 @@ class GeneralInfo extends Component {
 
   changeTub = (e) => {
     e.preventDefault();
-    console.log(this.tub.value);
-    console.log(this.lpc.value);
-    //this.props.initContracts(this.tub.value);
+    const tub = this.tub.value;
+    const lpc = this.lpc.value;
+    if (tub && lpc) {
+      this.props.initContracts(tub, lpc);
+    }
   }
 
   render() {
@@ -26,15 +28,15 @@ class GeneralInfo extends Component {
               </div>
               <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="inputEmail3" className="col-sm-2 control-label">Tub Address</label>
+                  <label htmlFor="tubInput" className="col-sm-2 control-label">Tub Address</label>
                   <div className="col-sm-10">
-                    <input type="email" className="form-control" id="inputEmail3" placeholder="Email" />
+                    <input ref={(input) => this.tub = input} id="tubInput" type="text" className="form-control" placeholder="Enter a valid tub address" />
                   </div>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="inputEmail3" className="col-sm-2 control-label">LPC Address</label>
+                  <label htmlFor="lpcInput" className="col-sm-2 control-label">LPC Address</label>
                   <div className="col-sm-10">
-                    <input type="email" className="form-control" id="inputEmail3" placeholder="Email" />
+                    <input ref={(input) => this.lpc = input} id="lpcInput" type="text" className="form-control" placeholder="Enter a valid lpc address" />
                   </div>
                 </div>
               </div>
