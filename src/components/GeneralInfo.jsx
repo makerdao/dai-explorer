@@ -15,19 +15,29 @@ class GeneralInfo extends Component {
         </div>
         <div className="box-body">
           <div className="row">
-            <div className="col-md-12 general-info">
-              <form ref={(input) => this.form = input} onSubmit={this.changeTub} className="form-horizontal">
+            <form ref={(input) => this.form = input} onSubmit={this.changeTub} className="form-horizontal">
+              <div className="col-md-6 general-info">
                 <div className="input-group">
                   <input ref={(input) => this.tub = input} type="text" placeholder="Enter a valid tub address" className="form-control" />
                   <span className="input-group-btn">
                     <button className="btn btn-primary" type="submit">Change Tub</button>
                   </span>
                 </div>
-              </form>
-              <div><strong>Network:</strong> { this.props.network }</div>
-              <div><strong>Contract:</strong> { this.props.contract }</div>
-              <div><strong>Account:</strong> { this.props.account }</div>
-            </div>
+              </div>
+              <div className="col-md-6 general-info">
+                <div className="input-group">
+                  <input ref={(input) => this.lpc = input} type="text" placeholder="Enter a valid lpc address" className="form-control" />
+                  <span className="input-group-btn">
+                    <button className="btn btn-primary" type="submit">Change LPC</button>
+                  </span>
+                </div>
+              </div>
+              <div className="col-md-12 general-info">
+                <div><strong>Network:</strong> { this.props.network }</div>
+                <div><strong>Contract:</strong> { this.props.contract }</div>
+                <div><strong>Account:</strong> { this.props.account }</div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
