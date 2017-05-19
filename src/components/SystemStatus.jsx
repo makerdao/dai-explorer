@@ -75,11 +75,11 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Deficit</strong>
-              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...' }</span>
+              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek !== 'undefined' ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
               <strong>Safe</strong>
-              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...' }</span>
+              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
               <strong>Avail. Boom</strong>

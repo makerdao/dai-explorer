@@ -50,44 +50,48 @@ class App extends Component {
       sai: {
         tub: {
           address: null,
+          eek: 'undefined',
+          safe: 'undefined',
           reg: web3.toBigNumber(-1),
-          per: web3.toBigNumber(0),
-          tag: web3.toBigNumber(0),
-          axe: web3.toBigNumber(0),
-          mat: web3.toBigNumber(0),
-          hat: web3.toBigNumber(0),
-          fix: web3.toBigNumber(0),
-          par: web3.toBigNumber(0),
-          cage_price: web3.toBigNumber(0),
+          per: web3.toBigNumber(-1),
+          tag: web3.toBigNumber(-1),
+          axe: web3.toBigNumber(-1),
+          mat: web3.toBigNumber(-1),
+          hat: web3.toBigNumber(-1),
+          fix: web3.toBigNumber(-1),
+          par: web3.toBigNumber(-1),
+          cage_price: web3.toBigNumber(-1),
           cups: {}
         },
         gem: {
           address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          potBalance: web3.toBigNumber(-1),
+          lpcBalance: web3.toBigNumber(-1),
         },
         skr: {
           address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          potBalance: web3.toBigNumber(-1),
         },
         sai: {
           address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          potBalance: web3.toBigNumber(-1),
+          lpcBalance: web3.toBigNumber(-1),
         },
         sin: {
           address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          potBalance: web3.toBigNumber(-1),
         },
         pot: {
           address: null,
@@ -100,8 +104,8 @@ class App extends Component {
         },
         lps: {
           address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
         }
       },
     };
@@ -381,8 +385,6 @@ class App extends Component {
               r.args.sig === this.methodSig('poke()')
             ) {
               this.getParameterFromTub('tag');
-              this.getParameterFromTub('eek');
-              this.getParameterFromTub('safe');
             }
           }
         });
@@ -410,8 +412,6 @@ class App extends Component {
     if (token === 'gem' || token === 'skr') {
       this.getParameterFromTub('per', true);
     }
-    this.getParameterFromTub('eek');
-    this.getParameterFromTub('safe');
   }
 
   getTotalSupply = (name) => {
@@ -419,7 +419,11 @@ class App extends Component {
       if (!e) {
         const sai = { ...this.state.sai };
         sai[name].totalSupply = r;
-        this.setState({ sai });
+        this.setState({ sai }, () => {
+          if (name === 'sin') {
+            this.calculateSafetyAndDeficit();
+          }
+        });
       }
     })
   }
@@ -429,7 +433,11 @@ class App extends Component {
       if (!e) {
         const sai = { ...this.state.sai };
         sai[name][field] = r;
-        this.setState({ sai });
+        this.setState({ sai }, () => {
+          if (name === 'skr' && field === 'potBalance') {
+            this.calculateSafetyAndDeficit();
+          }
+        });
       }
     })
   }
@@ -437,17 +445,33 @@ class App extends Component {
   initializeSystemStatus = () => {
     this.getParameterFromTub('reg', false, this.getCagePriceFromTub);
     this.getParameterFromTub('per', true);
-    this.getParameterFromTub('tag');
+    this.getParameterFromTub('tag', false, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('axe', true);
-    this.getParameterFromTub('mat', true);
+    this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
-    this.getParameterFromTub('eek');
-    this.getParameterFromTub('safe');
     this.getParameterFromTub('fix', true);
     this.getParameterFromTub('par', true);
     this.getParameterFromLPC('pie');
     this.getParameterFromLPC('gap');
-    this.getParameterFromLPC('per', true);
+    this.getParameterFromLPC('per', true, this.calculateSafetyAndDeficit);
+  }
+
+  calculateSafetyAndDeficit = () => {
+    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.tub.per.gte(0)
+        && this.state.sai.tub.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+      const jam = this.state.sai.skr.potBalance.times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(18));
+      const pro = jam.times(this.state.sai.tub.tag).div(web3.toBigNumber(10).pow(18));
+      const con = this.state.sai.sin.totalSupply;
+
+      const sai = { ...this.state.sai };
+      sai.tub.eek = pro.lt(con);
+
+      if (this.state.sai.tub.mat.gte(0)) {
+        const min = con.times(this.state.sai.tub.mat).div(web3.toBigNumber(10).pow(18));
+        sai.tub.safe = pro.gte(min);
+      }
+      this.setState({ sai });
+    }
   }
 
   getParameterFromTub = (field, ray = false, callback = false) => {
@@ -455,17 +479,17 @@ class App extends Component {
       if (!e) {
         const sai = { ...this.state.sai };
         sai.tub[field] = ray ? fromRaytoWad(value) : value;
-        this.setState({ sai });
+        this.setState({ sai }, () => {
+          this.getBoomBustValues();
 
-        this.getBoomBustValues();
+          Object.keys(sai.tub.cups).map(key =>
+            this.updateCup(key)
+          );
 
-        Object.keys(sai.tub.cups).map(key =>
-          this.updateCup(key)
-        );
-
-        if (callback) {
-          callback(value);
-        }
+          if (callback) {
+            callback(value);
+          }
+        });
       }
     });
   }
@@ -503,8 +527,6 @@ class App extends Component {
       } else if (dif.lt(0)) {
         sai.tub.avail_bust_sai = dif.abs();
       }
-      window.avail_bust_sai = sai.tub.avail_bust_sai;
-      window.state = this.state;
       sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
       sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
       this.setState({ sai });
