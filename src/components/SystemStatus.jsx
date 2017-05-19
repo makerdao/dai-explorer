@@ -13,7 +13,15 @@ const SystemStatus = (props) => {
           <div className="col-md-12 system-status">
             <div>
               <strong>Status</strong>
-              <span className={ props.sai.tub.off ? 'error-color' : 'success-color' }>{ typeof props.sai.tub.off !== 'undefined' ? (props.sai.tub.off ? 'Off' : 'On') : 'Loading...' }</span>
+              <span className={ props.sai.tub.reg.gt(0) ? 'error-color' : 'success-color' }>
+                {
+                  typeof props.sai.tub.reg.lt(0)
+                  ?
+                    (props.sai.tub.reg.eq(0) ? 'Usual' : (props.sai.tub.reg.eq(1) ? 'Caged' : 'Empty'))
+                  :
+                    'Loading...'
+                }
+              </span>
             </div>
             <div>
               <strong>ETH/SKR</strong>
@@ -67,17 +75,17 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Deficit</strong>
-              <span>{ props.sai.tub.off === false ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...' }</span>
+              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...' }</span>
             </div>
             <div>
               <strong>Safe</strong>
-              <span>{ props.sai.tub.off === false ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...' }</span>
+              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...' }</span>
             </div>
             <div>
               <strong>Avail. Boom</strong>
               <span>
                 {
-                  props.sai.tub.off === false
+                  props.sai.tub.reg.eq(0)
                   ? <span>
                       Sell <span title={ formatNumber(props.sai.tub.avail_boom_skr) }>{ formatNumber(props.sai.tub.avail_boom_skr, 3) }</span> SKR<br />
                       Buy <span title={ formatNumber(props.sai.tub.avail_boom_sai) }>{ formatNumber(props.sai.tub.avail_boom_sai, 3) }</span> SAI
@@ -90,7 +98,7 @@ const SystemStatus = (props) => {
               <strong>Avail. Bust</strong>
               <span>
                 {
-                  props.sai.tub.off === false
+                  props.sai.tub.reg.eq(0)
                   ? <span>
                       Sell <span title={ formatNumber(props.sai.tub.avail_bust_sai) }>{ formatNumber(props.sai.tub.avail_bust_sai, 3) }</span> SAI<br />
                       Buy <span title={ formatNumber(props.sai.tub.avail_bust_skr) }>{ formatNumber(props.sai.tub.avail_bust_skr, 3) }</span> SKR
@@ -101,11 +109,11 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Cage Price (USD/ETH)</strong>
-              <span title={ formatNumber(props.sai.tub.cage_price) }>{ props.sai.tub.off ? (props.sai.tub.cage_price.gt(0) ? formatNumber(props.sai.tub.cage_price, 3) : '-') : '-' }</span>
+              <span title={ formatNumber(props.sai.tub.cage_price) }>{ props.sai.tub.reg.gt(0) ? (props.sai.tub.cage_price.gt(0) ? formatNumber(props.sai.tub.cage_price, 3) : '-') : '-' }</span>
             </div>
             <div>
               <strong>Fix (ETH/USD)</strong>
-              <span title={ formatNumber(props.sai.tub.fix) }>{ props.sai.tub.off ? (props.sai.tub.fix.gt(0) ? formatNumber(props.sai.tub.fix, 3) : '-') : '-' }</span>
+              <span title={ formatNumber(props.sai.tub.fix) }>{ props.sai.tub.reg.gt(0) ? (props.sai.tub.fix.gt(0) ? formatNumber(props.sai.tub.fix, 3) : '-') : '-' }</span>
             </div>
           </div>
         </div>

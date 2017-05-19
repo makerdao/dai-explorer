@@ -36,6 +36,7 @@ class App extends Component {
     sai: {
       tub: {
         address: null,
+        reg: web3.toBigNumber(-1),
         per: web3.toBigNumber(0),
         tag: web3.toBigNumber(0),
         axe: web3.toBigNumber(0),
@@ -205,6 +206,7 @@ class App extends Component {
       sai: {
         tub: {
           address: null,
+          reg: web3.toBigNumber(-1),
           per: web3.toBigNumber(0),
           tag: web3.toBigNumber(0),
           axe: web3.toBigNumber(0),
@@ -397,7 +399,7 @@ class App extends Component {
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           this.getCup(r.args.foo, address);
         } else if (r.args.sig === this.methodSig('cage(uint128)')) {
-          this.getParameterFromTub('off');
+          this.getParameterFromTub('reg');
           this.getParameterFromTub('fix', true);
           this.getParameterFromTub('par', true);
         } else if (r.args.sig === this.methodSig('chop(uint128)')) {
@@ -479,7 +481,7 @@ class App extends Component {
   }
 
   initializeSystemStatus = () => {
-    this.getParameterFromTub('off', false, this.getCagePriceFromTub);
+    this.getParameterFromTub('reg', false, this.getCagePriceFromTub);
     this.getParameterFromTub('per', true);
     this.getParameterFromTub('tag');
     this.getParameterFromTub('axe', true);
@@ -524,8 +526,8 @@ class App extends Component {
     });
   }
 
-  getCagePriceFromTub = (value) => {
-    if (value) {
+  getCagePriceFromTub = (reg) => {
+    if (reg.gt(0)) {
       this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
         if (!e) {
           const sai = { ...this.state.sai };
@@ -781,7 +783,9 @@ class App extends Component {
         }
         break;
       case 'exit':
-        if (this.state.sai.tub.off) {
+        if (this.state.sai.tub.reg.eq(1)) {
+          error = 'Exit can not be executed in this system state.';
+        } else if (this.state.sai.tub.reg.eq(2)) {
           this.tubAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
         } else {
           if (this.state.sai.skr.myBalance.lt(valueWei)) {
@@ -929,12 +933,12 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      cash: this.state.sai.tub.off && this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0),
-      open: this.state.sai.tub.off === false,
-      join: this.state.sai.tub.off === false && this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0),
+      cash: this.state.sai.tub.reg.gt(0)  && this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0),
+      open: this.state.sai.tub.reg.eq(0),
+      join: this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0),
       exit: this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0),
-      boom: this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
-      bust: this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
+      boom: this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+      bust: this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };
 
     const lpcActions = {
@@ -951,7 +955,7 @@ class App extends Component {
             <small>Version 1.0{/*<button onClick={this.toggle}>Toggle to connect or disconnect</button>*/}</small>
           </h1>
           <ol className="breadcrumb">
-            <li><a href="#"><i className="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#action"><i className="fa fa-dashboard"></i> Home</a></li>
             <li className="active">Dashboard</li>
           </ol>
         </section>
@@ -986,7 +990,7 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key }>
-                              { actions[key] ? <a href="#" data-method={ key } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal }>{ key }</a> : key }
                               <span> / </span>
                             </span>
                           )
@@ -1010,7 +1014,7 @@ class App extends Component {
                         {
                           Object.keys(lpcActions).map(key =>
                             <span key={ key }>
-                              { lpcActions[key] ? <a href="#" data-method={ `lpc-${key}` } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                              { lpcActions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ this.handleOpenModal }>{ key }</a> : key }
                               <span> / </span>
                             </span>
                           )
@@ -1089,7 +1093,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.sai.tub.off } />
+          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

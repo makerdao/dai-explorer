@@ -96,7 +96,7 @@ class Modal extends Component {
         style.content.height = '220px';
         break;
       case 'exit':
-        if (this.props.off) {
+        if (this.props.reg.eq(2)) {
           text = 'Are you sure you want to exit all your SKR?<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
@@ -175,7 +175,7 @@ class Modal extends Component {
           isOpen={ modal.show }
           contentLabel="Action Modal"
           style={ style } >
-        <a href="#" className="close" onClick={ this.props.handleCloseModal }>X</a>
+        <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
         <br />
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
