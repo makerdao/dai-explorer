@@ -82,7 +82,7 @@ class Tag extends React.Component {
                     formatValue={ n => formatNumber(n, 3) } /></strong> USD/ETH
                 </p>
                 <p>
-                  Minimun Valid Sources: <strong>{ this.state.min }</strong> Total: <strong>{ this.state.last }</strong>
+                  Minimum Valid Sources: <strong>{ this.state.min }</strong> Total: <strong>{ this.state.last }</strong>
                 </p>
                 { this.state.values.map(x => <DSValue key={ x } address={ x } />) }
                 <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/terra/#${this.props.address}` }>Details</a>
