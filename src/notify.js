@@ -1,6 +1,7 @@
 var React = require('react');
+var createReactClass = require('create-react-class');
 
-var Item = React.createClass({
+var Item = createReactClass({
   displayName: "Item",
   hideNotification: function () {
     this.props.hideNotification(this.props.id);
@@ -16,7 +17,7 @@ var Item = React.createClass({
   }
 });
 
-var Notify = React.createClass({
+var Notify = createReactClass({
   displayName: "Notify",
   key: 0,
   getInitialState: function () {
