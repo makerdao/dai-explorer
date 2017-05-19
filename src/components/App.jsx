@@ -31,72 +31,81 @@ window.lpc = lpc;
 
 
 class App extends Component {
-  state = {
-    network: {},
-    sai: {
-      tub: {
-        address: null,
-        reg: web3.toBigNumber(-1),
-        per: web3.toBigNumber(0),
-        tag: web3.toBigNumber(0),
-        axe: web3.toBigNumber(0),
-        mat: web3.toBigNumber(0),
-        hat: web3.toBigNumber(0),
-        fix: web3.toBigNumber(0),
-        par: web3.toBigNumber(0),
-        cups: {}
+  constructor() {
+    super();
+    const initialState = this.getInitialState();
+    this.state = {
+      ...initialState,
+      network: {},
+      transactions: {},
+      modal: {
+        show: false
       },
-      gem: {
-        address: null,
-        totalSupply: web3.toBigNumber(0),
-        myBalance: web3.toBigNumber(0),
-        tubBalance: web3.toBigNumber(0),
-        potBalance: web3.toBigNumber(0),
-        lpcBalance: web3.toBigNumber(0),
-      },
-      skr: {
-        address: null,
-        totalSupply: web3.toBigNumber(0),
-        myBalance: web3.toBigNumber(0),
-        tubBalance: web3.toBigNumber(0),
-        potBalance: web3.toBigNumber(0),
-      },
+      params: ''
+    }
+  }
+
+  getInitialState = () => {
+    return {
       sai: {
-        address: null,
-        totalSupply: web3.toBigNumber(0),
-        myBalance: web3.toBigNumber(0),
-        tubBalance: web3.toBigNumber(0),
-        potBalance: web3.toBigNumber(0),
-        lpcBalance: web3.toBigNumber(0),
+        tub: {
+          address: null,
+          reg: web3.toBigNumber(-1),
+          per: web3.toBigNumber(0),
+          tag: web3.toBigNumber(0),
+          axe: web3.toBigNumber(0),
+          mat: web3.toBigNumber(0),
+          hat: web3.toBigNumber(0),
+          fix: web3.toBigNumber(0),
+          par: web3.toBigNumber(0),
+          cage_price: web3.toBigNumber(0),
+          cups: {}
+        },
+        gem: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        skr: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        sai: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        sin: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+          tubBalance: web3.toBigNumber(0),
+          potBalance: web3.toBigNumber(0),
+        },
+        pot: {
+          address: null,
+        },
+        tag: {
+          address: null,
+        },
+        lpc: {
+          address: null,
+        },
+        lps: {
+          address: null,
+          totalSupply: web3.toBigNumber(0),
+          myBalance: web3.toBigNumber(0),
+        }
       },
-      sin: {
-        address: null,
-        totalSupply: web3.toBigNumber(0),
-        myBalance: web3.toBigNumber(0),
-        tubBalance: web3.toBigNumber(0),
-        potBalance: web3.toBigNumber(0),
-      },
-      pot: {
-        address: null,
-      },
-      tag: {
-        address: null,
-      },
-      lpc: {
-        address: null,
-      },
-      lps: {
-        address: null,
-        totalSupply: web3.toBigNumber(0),
-        myBalance: web3.toBigNumber(0),
-      }
-    },
-    transactions: {},
-    modal: {
-      show: false
-    },
-    params: ''
-  };
+    };
+  }
 
   checkNetwork = () => {
     web3.version.getNode((error) => {
@@ -202,64 +211,9 @@ class App extends Component {
 
   initContracts = (address) => {
     web3.reset(true);
+    const initialState = this.getInitialState();
     this.setState({
-      sai: {
-        tub: {
-          address: null,
-          reg: web3.toBigNumber(-1),
-          per: web3.toBigNumber(0),
-          tag: web3.toBigNumber(0),
-          axe: web3.toBigNumber(0),
-          mat: web3.toBigNumber(0),
-          hat: web3.toBigNumber(0),
-          fix: web3.toBigNumber(0),
-          par: web3.toBigNumber(0),
-          cage_price: web3.toBigNumber(0),
-          cups: {}
-        },
-        gem: {
-          address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
-        },
-        skr: {
-          address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
-        },
-        sai: {
-          address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
-        },
-        sin: {
-          address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-          tubBalance: web3.toBigNumber(0),
-          potBalance: web3.toBigNumber(0),
-        },
-        pot: {
-          address: null,
-        },
-        tag: {
-          address: null,
-        },
-        lpc: {
-          address: null,
-        },
-        lps: {
-          address: null,
-          totalSupply: web3.toBigNumber(0),
-          myBalance: web3.toBigNumber(0),
-        }
-      },
+      ...initialState
     }, () => {
 
       const addrs = addresses[this.state.network.network];
@@ -439,7 +393,7 @@ class App extends Component {
   getDataFromToken = (token) => {
     this.getTotalSupply(token);
     this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
-    
+
     if (token !== 'lps') {
       this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
       this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
