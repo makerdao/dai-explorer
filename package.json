@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "http://this.is.not.sai.surge.sh",
   "dependencies": {
+    "create-react-class": "^15.5.3",
     "import": "0.0.6",
     "prop-types": "^15.5.8",
     "raf": "^3.3.0",
