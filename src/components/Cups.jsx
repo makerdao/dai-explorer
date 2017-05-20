@@ -96,13 +96,21 @@ const Cups = (props) => {
                       <td>
                         { props.sai.tub.reg.eq(0) ? <span title={ formatNumber(props.sai.tub.cups[key].avail_skr) }>{ formatNumber(props.sai.tub.cups[key].avail_skr, 3) }</span> : '-' }
                       </td>
-                      <td className={ `text-center ${ props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color' }` }>
+                      <td className={ `text-center ${ props.sai.tub.reg.eq(0) ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                         {
-                          props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
-                          ? 'Closed'
-                          : (props.sai.tub.cups[key].safe === 'N/A'
-                            ? 'N/A'
-                            : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
+                          props.sai.tub.reg.eq(0)
+                          ?
+                            (
+                            props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
+                            ?
+                              'Closed'
+                            :
+                              (props.sai.tub.cups[key].safe === 'N/A'
+                              ? 'N/A'
+                              : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
+                            )
+                          :
+                            '-'
                         }
                       </td>
                       <td className="text-left">

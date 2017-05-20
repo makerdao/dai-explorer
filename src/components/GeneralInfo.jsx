@@ -22,10 +22,11 @@ class GeneralInfo extends Component {
         <div className="box-body">
           <div className="row">
             <div className="col-md-8">
-              <div><strong>Network:</strong> {this.props.network}</div>
-              <div><strong>Tub:</strong> {this.props.tub}</div>
-              <div><strong>LPC:</strong> {this.props.lpc}</div>
-              <div><strong>Account:</strong> {this.props.account}</div>
+              <div><strong>Network:</strong> { this.props.network }</div>
+              <div><strong>Tub:</strong> { this.props.tub }</div>
+              <div><strong>LPC:</strong> { this.props.lpc }</div>
+              <div><strong>Account:</strong> { this.props.account }</div>
+              <div><strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }</div>
             </div>
             <div className="col-md-4">
               <div className="box-group" id="accordion">
