@@ -19,7 +19,7 @@ const Lpc = (props) => {
             {
               Object.keys(lpcActions).map(key =>
                 <span key={ key }>
-                  { lpcActions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                  { lpcActions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ props.handleOpenModal }>{ key }</a> : key }
                   <span> / </span>
                 </span>
               )
@@ -66,7 +66,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    <span title={ formatNumber(props.state.sai.lpc.pie) }>
+                    <span title={ formatNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
                       { formatNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
                     </span>
                   :

@@ -746,7 +746,11 @@ class App extends Component {
         const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
           this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), { gas: 4000000 }, (e, tx) => {
-            this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
+            if (!e) {
+              this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
+            } else {
+              console.log(e);
+            }
           });
         } else {
           cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value);
@@ -772,7 +776,11 @@ class App extends Component {
         const valueObj = web3.toBigNumber(valueAllowance);
         if (r.lt(valueObj)) {
           this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 4000000 }, (e, tx) => {
-            this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
+            if (!e) {
+              this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
+            } else {
+              console.log(e);
+            }
           });
         } else {
           this.executeLPCMethod(method, tokenMethod, value);
@@ -1023,7 +1031,7 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <Lpc state={ this.state } isUser={ this.isUser } />
+                <Lpc state={ this.state } isUser={ this.isUser } handleOpenModal={ this.handleOpenModal } />
                 {
                   this.state.sai.tag.address && this.state.network.network !== 'private' &&
                   <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.tub.tag } />
