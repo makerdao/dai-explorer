@@ -28,7 +28,7 @@ const Lpc = (props) => {
               )
             }
             <div className="system-status">
-              <div>
+              {/*<div>
                 <strong>SAI/LPS</strong>
                 {
                   props.state.sai.lpc.per
@@ -51,8 +51,56 @@ const Lpc = (props) => {
                   :
                     <span>Loading...</span>
                 }
+              </div>*/}
+              <div>
+                <strong>LPC Funds of SAI</strong>
+                {
+                  props.state.sai.lpc.pie
+                  ?
+                    <span title={ formatNumber(props.state.sai.sai.lpcBalance) }>
+                      { formatNumber(props.state.sai.sai.lpcBalance, 3) }
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
               </div>
               <div>
+                <strong>LPC Funds of ETH</strong>
+                {
+                  props.state.sai.lpc.pie
+                  ?
+                    <span title={ formatNumber(props.state.sai.gem.lpcBalance) }>
+                      { formatNumber(props.state.sai.gem.lpcBalance, 3) }
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
+              </div>
+              <div>
+                <strong>Avail. to exit (in SAI)</strong>
+                {
+                  maxClaimSai
+                  ?
+                    <span title={ formatNumber(maxClaimSai) }>
+                      { formatNumber(maxClaimSai, 3) }
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
+              </div>
+              <div>
+                <strong>Avail. to exit (in ETH)</strong>
+                {
+                  maxClaimSai && props.state.sai.tub.tag.gt(0)
+                  ?
+                    <span title={ formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
+                      { formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
+              </div>
+              {/*<div>
                 <strong>Funds worth in SAI</strong>
                 {
                   props.state.sai.lpc.pie
@@ -75,38 +123,14 @@ const Lpc = (props) => {
                   :
                     <span>Loading...</span>
                 }
-              </div>
+              </div>*/}
               <div>
-                <strong>Tax</strong>
+                <strong>Fee</strong>
                 {
                   props.state.sai.lpc.gap
                   ?
                     <span title={ formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }>
                       { formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)), 3) }%
-                    </span>
-                  :
-                    <span>Loading...</span>
-                }
-              </div>
-              <div>
-                <strong>Max claim of SAI</strong>
-                {
-                  maxClaimSai
-                  ?
-                    <span title={ formatNumber(maxClaimSai) }>
-                      { formatNumber(maxClaimSai, 3) }
-                    </span>
-                  :
-                    <span>Loading...</span>
-                }
-              </div>
-              <div>
-                <strong>Max claim of ETH</strong>
-                {
-                  maxClaimSai && props.state.sai.tub.tag.gt(0)
-                  ?
-                    <span title={ formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
-                      { formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
                     </span>
                   :
                     <span>Loading...</span>
