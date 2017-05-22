@@ -26,12 +26,11 @@ window.dstoken = dstoken;
 const dsvalue = require('../config/dsvalue');
 window.dsvalue = dsvalue;
 
+const dsroles = require('../config/dsroles');
+window.dsroles = dsroles;
+
 const lpc = require('../config/sailpc');
 window.lpc = lpc;
-
-const mom = require('../config/saimom');
-window.mom = mom;
-
 
 class App extends Component {
   constructor() {
@@ -261,23 +260,23 @@ class App extends Component {
     });
   }
 
-  loadMom = (value) => {
+  loadRoles = (value) => {
     this.tubObj.authority((e, r) => {
-      window.momObj = this.momObj = this.loadObject(mom.abi, r);
+      window.rolesObj = this.rolesObj = this.loadObject(dsroles.abi, r);
       this.checkUserAuth();
     });
   }
 
   checkUserAuth = () => {
-    if (this.state.network && this.state.network.defaultAccount !== null && typeof this.momObj !== 'undefined') {
-      this.momObj.isUserRoot(this.state.network.defaultAccount, (e, r) => {
+    if (this.state.network && this.state.network.defaultAccount !== null && typeof this.rolesObj !== 'undefined') {
+      this.rolesObj.isUserRoot(this.state.network.defaultAccount, (e, r) => {
         const sai = { ...this.state.sai };
         if (!e) {
           if (r) {
             sai.tub.role = 'root';
             this.setState({ sai });
           } else {
-             this.momObj.isUser(this.state.network.defaultAccount, (e2, r2) => {
+             this.rolesObj.hasUserRole(this.state.network.defaultAccount, 1, (e2, r2) => {
                if (!e2) {
                 sai.tub.role = r2 ? 'user' : 'none';
                 this.setState({ sai });
@@ -487,7 +486,7 @@ class App extends Component {
   }
 
   initializeSystemStatus = () => {
-    this.getParameterFromTub('authority', false, this.loadMom());
+    this.getParameterFromTub('authority', false, this.loadRoles());
     this.getParameterFromTub('reg', false, this.getCagePriceFromTub);
     this.getParameterFromTub('per', true);
     this.getParameterFromTub('tag', false, this.calculateSafetyAndDeficit);
@@ -958,18 +957,18 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      cash: this.isUser() && this.state.sai.tub.reg.gt(0)  && this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0),
+      cash: this.isUser() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
       open: this.isUser() && this.state.sai.tub.reg.eq(0),
-      join: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0),
-      exit: this.isUser() && this.state.sai.skr.myBalance && this.state.sai.skr.myBalance.gt(0),
+      join: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
+      exit: this.isUser() && this.state.sai.skr.myBalance.gt(0),
       boom: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };
 
     const lpcActions = {
-      pool: this.isUser() && (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) || (this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)),
+      pool: this.isUser() && (this.state.sai.gem.myBalance.gt(0) || this.state.sai.sai.myBalance.gt(0)),
       exit: this.isUser() && this.state.sai.lps.myBalance && this.state.sai.lps.myBalance.gt(0),
-      take: this.isUser() && (this.state.sai.gem.myBalance && this.state.sai.gem.myBalance.gt(0)) || (this.state.sai.sai.myBalance && this.state.sai.sai.myBalance.gt(0)),
+      take: this.isUser() && (this.state.sai.gem.myBalance.gt(0) || this.state.sai.sai.myBalance.gt(0)),
     };
 
     return (
