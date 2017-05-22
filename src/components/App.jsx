@@ -893,9 +893,9 @@ class App extends Component {
         break;
       case 'lpc-exit':
         if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough balance in LPC to exit ${value} GEM.`;
+          error = `Not enough funds in LPC to exit ${value} GEM.`;
         } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough balance in LPC to exit ${value} SAI.`;
+          error = `Not enough funds in LPC to exit ${value} SAI.`;
         } else {
           let lpsEq = null;
           if (token === 'gem') {

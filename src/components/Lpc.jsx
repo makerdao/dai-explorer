@@ -8,6 +8,9 @@ const Lpc = (props) => {
     exit: props.isUser() && props.state.sai.lps.myBalance && props.state.sai.lps.myBalance.gt(0),
     take: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
   };
+  const maxClaimSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
+                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap))
+                    : false;
   return (
     <div className="box">
       <div className="box-header with-border">
@@ -80,6 +83,30 @@ const Lpc = (props) => {
                   ?
                     <span title={ formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }>
                       { formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)), 3) }%
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
+              </div>
+              <div>
+                <strong>Max claim of SAI</strong>
+                {
+                  maxClaimSai
+                  ?
+                    <span title={ formatNumber(maxClaimSai) }>
+                      { formatNumber(maxClaimSai, 3) }
+                    </span>
+                  :
+                    <span>Loading...</span>
+                }
+              </div>
+              <div>
+                <strong>Max claim of ETH</strong>
+                {
+                  maxClaimSai && props.state.sai.tub.tag.gt(0)
+                  ?
+                    <span title={ formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
+                      { formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
                     </span>
                   :
                     <span>Loading...</span>
