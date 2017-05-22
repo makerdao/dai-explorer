@@ -1,3 +1,4 @@
+import React from 'react';
 import web3 from './web3';
 
 var padLeft = function (string, chars, sign) {
@@ -39,4 +40,19 @@ export function formatNumber(number, decimals = false, isWei = true) {
 export function fromRaytoWad(x) {
   const y = web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9))
   return y;
+}
+
+export function copyToClipboard(e) {
+  const value = e.target.title.replace(',', '');
+  var aux = document.createElement("input");
+  aux.setAttribute('value', value);
+  document.body.appendChild(aux);
+  aux.select();
+  document.execCommand("copy");
+  document.body.removeChild(aux);
+  console.log(`${value} copied`)
+}
+
+export function printNumber(number) {
+  return <span className="printedNumber" onClick={ copyToClipboard } title={ formatNumber(number) }>{ formatNumber(number, 3) }</span>
 }

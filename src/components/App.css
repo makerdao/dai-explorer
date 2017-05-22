@@ -88,7 +88,7 @@ tr th, tr td {
   justify-content: flex-end;
   align-items: flex-start;
   align-content: flex-start;
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   z-index: 9998;
@@ -181,6 +181,10 @@ p.error {
 
 .success-color {
   color: #00a65a;
+}
+
+.printedNumber {
+  cursor: pointer;
 }
 
 @media (min-width: 992px) {

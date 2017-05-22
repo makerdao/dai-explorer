@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { formatNumber } from '../helpers';
+import { printNumber } from '../helpers';
 
 const Lpc = (props) => {
   const lpcActions = {
@@ -33,9 +33,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.per
                   ?
-                    <span title={ formatNumber(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per)) }>
-                      { formatNumber(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per), 3) }
-                    </span>
+                    printNumber(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per))
                   :
                     <span>Loading...</span>
                 }
@@ -45,9 +43,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.per
                   ?
-                    <span title={ formatNumber(web3.toBigNumber(10).pow(54).div(props.state.sai.tub.tag).div(props.state.sai.lpc.per)) }>
-                      { formatNumber(web3.toBigNumber(10).pow(54).div(props.state.sai.tub.tag).div(props.state.sai.lpc.per), 3) }
-                    </span>
+                    printNumber(web3.toBigNumber(10).pow(54).div(props.state.sai.tub.tag).div(props.state.sai.lpc.per))
                   :
                     <span>Loading...</span>
                 }
@@ -57,9 +53,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    <span title={ formatNumber(props.state.sai.sai.lpcBalance) }>
-                      { formatNumber(props.state.sai.sai.lpcBalance, 3) }
-                    </span>
+                    printNumber(props.state.sai.sai.lpcBalance)
                   :
                     <span>Loading...</span>
                 }
@@ -69,9 +63,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    <span title={ formatNumber(props.state.sai.gem.lpcBalance) }>
-                      { formatNumber(props.state.sai.gem.lpcBalance, 3) }
-                    </span>
+                    printNumber(props.state.sai.gem.lpcBalance)
                   :
                     <span>Loading...</span>
                 }
@@ -81,9 +73,7 @@ const Lpc = (props) => {
                 {
                   maxClaimSai
                   ?
-                    <span title={ formatNumber(maxClaimSai) }>
-                      { formatNumber(maxClaimSai, 3) }
-                    </span>
+                    printNumber(maxClaimSai)
                   :
                     <span>Loading...</span>
                 }
@@ -93,9 +83,7 @@ const Lpc = (props) => {
                 {
                   maxClaimSai && props.state.sai.tub.tag.gt(0)
                   ?
-                    <span title={ formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
-                      { formatNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
-                    </span>
+                    printNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag))
                   :
                     <span>Loading...</span>
                 }
@@ -105,9 +93,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    <span title={ formatNumber(props.state.sai.lpc.pie) }>
-                      { formatNumber(props.state.sai.lpc.pie, 3) }
-                    </span>
+                    printNumber(props.state.sai.lpc.pie)
                   :
                     <span>Loading...</span>
                 }
@@ -117,9 +103,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    <span title={ formatNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)) }>
-                      { formatNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), 3) }
-                    </span>
+                    printNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag))
                   :
                     <span>Loading...</span>
                 }
@@ -129,9 +113,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.gap
                   ?
-                    <span title={ formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }>
-                      { formatNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)), 3) }%
-                    </span>
+                    printNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)))
                   :
                     <span>Loading...</span>
                 }

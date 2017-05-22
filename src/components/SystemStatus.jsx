@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { formatNumber } from '../helpers';
+import { printNumber } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -28,7 +28,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tub.per.gt(0)
                 ?
-                  <span title={ formatNumber(props.sai.tub.per) }>{ formatNumber(props.sai.tub.per, 3) }</span>
+                  printNumber(props.sai.tub.per)
                 :
                   <span>Loading...</span>
               }
@@ -38,7 +38,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tub.tag.gt(0)
                 ?
-                  <span title={ formatNumber(props.sai.tub.tag) }>{ formatNumber(props.sai.tub.tag, 3) }</span>
+                  printNumber(props.sai.tub.tag)
                 :
                   <span>Loading...</span>
               }
@@ -48,7 +48,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tub.mat.gt(0)
                 ?
-                  <span title={ formatNumber(props.sai.tub.mat.times(100)) }>{ formatNumber(props.sai.tub.mat.times(100), 3) }%</span>
+                  <span>{ printNumber(props.sai.tub.mat.times(100)) }%</span>
                 :
                   <span>Loading...</span>
               }
@@ -58,7 +58,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tub.axe.gt(0)
                 ?
-                  <span title={ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }>{ formatNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100)), 3) }%</span>
+                  <span>{ printNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }%</span>
                 :
                   <span>Loading...</span>
               }
@@ -68,7 +68,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tub.hat.gt(0)
                 ?
-                  <span title={ formatNumber(props.sai.tub.hat) }>{ formatNumber(props.sai.tub.hat, 3) }</span>
+                  printNumber(props.sai.tub.hat)
                 :
                   <span>Loading...</span>
               }
@@ -87,8 +87,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>
-                      Sell <span title={ formatNumber(props.sai.tub.avail_boom_skr) }>{ formatNumber(props.sai.tub.avail_boom_skr, 3) }</span> SKR<br />
-                      Buy <span title={ formatNumber(props.sai.tub.avail_boom_sai) }>{ formatNumber(props.sai.tub.avail_boom_sai, 3) }</span> SAI
+                      Sell { printNumber(props.sai.tub.avail_boom_skr) } SKR<br />
+                      Buy { printNumber(props.sai.tub.avail_boom_sai) } SAI
                     </span>
                   : '-'
                 }
@@ -100,8 +100,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>
-                      Sell <span title={ formatNumber(props.sai.tub.avail_bust_sai) }>{ formatNumber(props.sai.tub.avail_bust_sai, 3) }</span> SAI<br />
-                      Buy <span title={ formatNumber(props.sai.tub.avail_bust_skr) }>{ formatNumber(props.sai.tub.avail_bust_skr, 3) }</span> SKR
+                      Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
+                      Buy { printNumber(props.sai.tub.avail_bust_skr) } SKR
                     </span>
                   : '-'
                 }
@@ -109,11 +109,23 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong>Cage Price (USD/ETH)</strong>
-              <span title={ formatNumber(props.sai.tub.cage_price) }>{ props.sai.tub.reg.gt(0) ? (props.sai.tub.cage_price.gt(0) ? formatNumber(props.sai.tub.cage_price, 3) : '-') : '-' }</span>
+              {
+                props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gt(0)
+                ?
+                  printNumber(props.sai.tub.cage_price)
+                :
+                  <span>-</span>
+              }
             </div>
             <div>
               <strong>Fix (ETH/USD)</strong>
-              <span title={ formatNumber(props.sai.tub.fix) }>{ props.sai.tub.reg.gt(0) ? (props.sai.tub.fix.gt(0) ? formatNumber(props.sai.tub.fix, 3) : '-') : '-' }</span>
+              {
+                props.sai.tub.reg.gt(0) && props.sai.tub.fix.gt(0)
+                ?
+                  printNumber(props.sai.tub.fix)
+                :
+                  <span>-</span>
+              }
             </div>
           </div>
         </div>

@@ -15,7 +15,6 @@ import { toBytes32, fromRaytoWad } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
-
 const addresses = require('../config/addresses');
 
 const tub = require('../config/tub');

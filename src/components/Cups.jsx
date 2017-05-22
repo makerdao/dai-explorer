@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from '../web3';
-import { formatNumber } from '../helpers';
+import { printNumber } from '../helpers';
 
 const renderCupActions = (reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
@@ -59,17 +59,15 @@ const Cups = (props) => {
                         {key}
                       </td>
                       <td>
-                        <span title={ formatNumber(props.sai.tub.cups[key].art) }>{ formatNumber(props.sai.tub.cups[key].art, 3) }</span>
+                        { printNumber(props.sai.tub.cups[key].art) }
                       </td>
                       <td>
-                        <span title={ formatNumber(props.sai.tub.cups[key].ink) }>{ formatNumber(props.sai.tub.cups[key].ink, 3) }</span>
+                        { printNumber(props.sai.tub.cups[key].ink) }
                       </td>
                       <td>
                         {
                           props.sai.skr.totalSupply
-                            ? <span title={ formatNumber(props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(100), false, false) }>
-                                { formatNumber(props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(100), 3, false) }
-                              </span>
+                            ? printNumber(props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(web3.toBigNumber(10).pow(20)))
                             : <span title="0">0.000</span>
                         }%
                       </td>
@@ -82,19 +80,17 @@ const Cups = (props) => {
                           props.sai.tub.reg.eq(0)
                             ? props.sai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
                               ? <span>
-                                  <span title={ formatNumber(props.sai.tub.cups[key].ratio.times(100), false, false) }>
-                                    { formatNumber(props.sai.tub.cups[key].ratio.times(100), 3, false) }
-                                  </span>%
+                                  { printNumber(props.sai.tub.cups[key].ratio.times(web3.toBigNumber(10).pow(20))) }%
                                 </span>
                               : '-'
                             : '-'
                         }
                       </td>
                       <td>
-                        { props.sai.tub.reg.eq(0) ? <span title={ formatNumber(props.sai.tub.cups[key].avail_sai) }>{ formatNumber(props.sai.tub.cups[key].avail_sai, 3) }</span> : '-' }
+                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_sai) : '-' }
                       </td>
                       <td>
-                        { props.sai.tub.reg.eq(0) ? <span title={ formatNumber(props.sai.tub.cups[key].avail_skr) }>{ formatNumber(props.sai.tub.cups[key].avail_skr, 3) }</span> : '-' }
+                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_skr) : '-' }
                       </td>
                       <td className={ `text-center ${ props.sai.tub.reg.eq(0) ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                         {
