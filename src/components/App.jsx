@@ -8,9 +8,10 @@ import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
 import Tag from './Tag';
+import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad, formatNumber } from '../helpers';
+import { toBytes32, fromRaytoWad } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -965,12 +966,6 @@ class App extends Component {
       bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };
 
-    const lpcActions = {
-      pool: this.isUser() && (this.state.sai.gem.myBalance.gt(0) || this.state.sai.sai.myBalance.gt(0)),
-      exit: this.isUser() && this.state.sai.lps.myBalance && this.state.sai.lps.myBalance.gt(0),
-      take: this.isUser() && (this.state.sai.gem.myBalance.gt(0) || this.state.sai.sai.myBalance.gt(0)),
-    };
-
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -1028,87 +1023,7 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <div className="box">
-                  <div className="box-header with-border">
-                    <h3 className="box-title">LPC Actions</h3>
-                  </div>
-                  <div className="box-body">
-                    <div className="row">
-                      <div className="col-md-12">
-                        {
-                          Object.keys(lpcActions).map(key =>
-                            <span key={ key }>
-                              { lpcActions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ this.handleOpenModal }>{ key }</a> : key }
-                              <span> / </span>
-                            </span>
-                          )
-                        }
-                        <div className="system-status">
-                          <div>
-                            <strong>SAI/LPS</strong>
-                            {
-                              this.state.sai.lpc.per
-                              ?
-                                <span title={ formatNumber(web3.toBigNumber(10).pow(36).div(this.state.sai.lpc.per)) }>
-                                  { formatNumber(web3.toBigNumber(10).pow(36).div(this.state.sai.lpc.per), 3) }
-                                </span>
-                              :
-                                <span>Loading...</span>
-                            }
-                          </div>
-                          <div>
-                            <strong>ETH/LPS</strong>
-                            {
-                              this.state.sai.lpc.per
-                              ?
-                                <span title={ formatNumber(web3.toBigNumber(10).pow(54).div(this.state.sai.tub.tag).div(this.state.sai.lpc.per)) }>
-                                  { formatNumber(web3.toBigNumber(10).pow(54).div(this.state.sai.tub.tag).div(this.state.sai.lpc.per), 3) }
-                                </span>
-                              :
-                                <span>Loading...</span>
-                            }
-                          </div>
-                          <div>
-                            <strong>Funds worth in SAI</strong>
-                            {
-                              this.state.sai.lpc.pie
-                              ?
-                                <span title={ formatNumber(this.state.sai.lpc.pie) }>
-                                  { formatNumber(this.state.sai.lpc.pie, 3) }
-                                </span>
-                              :
-                               <span>Loading...</span>
-                            }
-                          </div>
-                          <div>
-                            <strong>Funds worth in ETH</strong>
-                            {
-                              this.state.sai.lpc.pie
-                              ?
-                                <span title={ formatNumber(this.state.sai.lpc.pie) }>
-                                  { formatNumber(this.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag), 3) }
-                                </span>
-                              :
-                               <span>Loading...</span>
-                            }
-                          </div>
-                          <div>
-                            <strong>Tax</strong>
-                            {
-                              this.state.sai.lpc.gap
-                              ?
-                                <span title={ formatNumber(this.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }>
-                                  { formatNumber(this.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)), 3) }%
-                                </span>
-                              :
-                                <span>Loading...</span>
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Lpc state={ this.state } isUser={ this.isUser } />
                 {
                   this.state.sai.tag.address && this.state.network.network !== 'private' &&
                   <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.tub.tag } />
