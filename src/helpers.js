@@ -50,7 +50,7 @@ export function copyToClipboard(e) {
   aux.select();
   document.execCommand("copy");
   document.body.removeChild(aux);
-  console.log(`${value} copied`)
+  alert(`Value: "${value}" copied to clipboard`);
 }
 
 export function printNumber(number) {
