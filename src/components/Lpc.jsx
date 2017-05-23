@@ -8,12 +8,18 @@ const Lpc = (props) => {
     exit: props.isUser() && props.state.sai.lps.myBalance && props.state.sai.lps.myBalance.gt(0),
     take: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
   };
-  const maxClaimSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
-                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(36)).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap)
-                    : false;
-  const maxClaimETH = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap && props.state.sai.tub.tag.gt(0)
-                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(54)).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap).div(props.state.sai.tub.tag)
-                    : false;
+
+  let maxClaimEqSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
+                      ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.lpc.per)
+                      : false;
+
+  maxClaimEqSai = !props.state.sai.lps.myBalance.eq(props.state.sai.lps.totalSupply)
+                  ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.lpc.gap)
+                  : maxClaimEqSai;
+
+  let maxClaimEqETH = maxClaimEqSai && props.state.sai.tub.tag.gt(0)
+                      ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)
+                      : false;
   return (
     <div className="box">
       <div className="box-header with-border">
@@ -74,9 +80,9 @@ const Lpc = (props) => {
               <div>
                 <strong>Avail. to exit (in SAI)</strong>
                 {
-                  maxClaimSai
+                  maxClaimEqSai
                   ?
-                    printNumber(web3.BigNumber.min(maxClaimSai, props.state.sai.sai.lpcBalance))
+                    printNumber(web3.BigNumber.min(maxClaimEqSai, props.state.sai.sai.lpcBalance))
                   :
                     <span>Loading...</span>
                 }
@@ -84,9 +90,9 @@ const Lpc = (props) => {
               <div>
                 <strong>Avail. to exit (in ETH)</strong>
                 {
-                  maxClaimETH
+                  maxClaimEqETH
                   ?
-                    printNumber(web3.BigNumber.min(maxClaimETH, props.state.sai.gem.lpcBalance))
+                    printNumber(web3.BigNumber.min(maxClaimEqETH, props.state.sai.gem.lpcBalance))
                   :
                     <span>Loading...</span>
                 }

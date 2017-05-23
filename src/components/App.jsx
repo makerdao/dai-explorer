@@ -898,10 +898,11 @@ class App extends Component {
         } else {
           let lpsEq = null;
           if (token === 'gem') {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18)).round(0);
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
           } else {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per).round(0);
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
           }
+          lpsEq = lpsEq.round(0);
           if (lpsEq.lt(this.state.sai.lpc.pie)) {
             lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
           }
@@ -909,7 +910,7 @@ class App extends Component {
           if (this.state.sai.lps.myBalance.lt(lpsEq)) {
             error = `Not enough balance in LPS to exit ${value} TOKEN.`.replace('TOKEN', token.toUpperCase());
           } else {
-            this.lpcAllowance(token, 'lps', method, value, lpsEq.ceil());
+            this.lpcAllowance(token, 'lps', method, value, lpsEq);
           }
         }
         break;
@@ -920,18 +921,18 @@ class App extends Component {
           error = `Not enough balance in LPC to take ${value} SAI.`;
         } else {
           if (token === 'gem') {
-            const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+            const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
             if (this.state.sai.sai.myBalance.lt(valueSai)) {
               error = `Not enough balance in SAI to take ${value} GEM.`;
             } else {
-              this.lpcAllowance(token, 'sai', method, value, valueSai.ceil());
+              this.lpcAllowance(token, 'sai', method, value, valueSai);
             }
           } else if (token === 'sai') {
-            const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag);
+            const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
             if (this.state.sai.gem.myBalance.lt(valueGem)) {
               error = `Not enough balance in GEM to take ${value} SAI.`;
             } else {
-              this.lpcAllowance(token, 'gem', method, value, valueGem.ceil());
+              this.lpcAllowance(token, 'gem', method, value, valueGem);
             }
           }
         }
