@@ -898,9 +898,9 @@ class App extends Component {
         } else {
           let lpsEq = null;
           if (token === 'gem') {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18)).round(0);
           } else {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
+            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per).round(0);
           }
           if (lpsEq.lt(this.state.sai.lpc.pie)) {
             lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
