@@ -9,7 +9,10 @@ const Lpc = (props) => {
     take: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
   };
   const maxClaimSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
-                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap))
+                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(36)).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap)
+                    : false;
+  const maxClaimETH = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap && props.state.sai.tub.tag.gt(0)
+                    ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(54)).div(props.state.sai.lpc.per).div(props.state.sai.lpc.gap).div(props.state.sai.tub.tag)
                     : false;
   return (
     <div className="box">
@@ -81,9 +84,9 @@ const Lpc = (props) => {
               <div>
                 <strong>Avail. to exit (in ETH)</strong>
                 {
-                  maxClaimSai && props.state.sai.tub.tag.gt(0)
+                  maxClaimETH
                   ?
-                    printNumber(web3.BigNumber.min(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), props.state.sai.gem.lpcBalance))
+                    printNumber(web3.BigNumber.min(maxClaimETH, props.state.sai.gem.lpcBalance))
                   :
                     <span>Loading...</span>
                 }

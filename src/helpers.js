@@ -1,6 +1,7 @@
 import React from 'react';
 import web3 from './web3';
 
+
 var padLeft = function (string, chars, sign) {
   return new Array(chars - string.length + 1).join(sign ? sign : "0") + string;
 };
@@ -22,9 +23,11 @@ export function toBytes12(x) {
 }
 
 export function formatNumber(number, decimals = false, isWei = true) {
-  let object = typeof number === 'object' ? number : web3.toBigNumber(number);
+  web3.BigNumber.config({ ROUNDING_MODE: 4 });
 
-  if (isWei) object = web3.fromWei(object);
+  let object = web3.toBigNumber(number);
+
+  if (isWei) object = web3.fromWei(object.round(0));
 
   if (decimals) {
     const d = web3.toBigNumber(10).pow(decimals);
@@ -54,5 +57,5 @@ export function copyToClipboard(e) {
 }
 
 export function printNumber(number) {
-  return <span className="printedNumber" onClick={ copyToClipboard } title={ formatNumber(number) }>{ formatNumber(number, 3) }</span>
+  return <span className="printedNumber" onClick={ copyToClipboard } title={ formatNumber(number, 18) }>{ formatNumber(number, 3) }</span>
 }

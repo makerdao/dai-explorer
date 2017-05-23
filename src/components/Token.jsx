@@ -14,7 +14,7 @@ const Token = (props) => {
             <span>Total</span>
             <AnimatedNumber
               value={ props.sai[props.token].totalSupply }
-              title={ formatNumber(props.sai[props.token].totalSupply) }
+              title={ formatNumber(props.sai[props.token].totalSupply, 18) }
               formatValue={ n => formatNumber(n, 3) }
               className="printedNumber"
               onClick = { copyToClipboard } />
@@ -23,7 +23,7 @@ const Token = (props) => {
             <span>Mine</span>
             <AnimatedNumber
               value={ props.sai[props.token].myBalance }
-              title={ formatNumber(props.sai[props.token].myBalance) }
+              title={ formatNumber(props.sai[props.token].myBalance, 18) }
               formatValue={ n => formatNumber(n, 3) }
               className="printedNumber"
               onClick = { copyToClipboard } />
@@ -35,7 +35,7 @@ const Token = (props) => {
                 <span>Tub</span>
                 <AnimatedNumber
                   value={ props.sai[props.token].tubBalance }
-                  title={ formatNumber(props.sai[props.token].tubBalance) }
+                  title={ formatNumber(props.sai[props.token].tubBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
@@ -50,7 +50,7 @@ const Token = (props) => {
                 <span>Pot</span>
                 <AnimatedNumber
                   value={ props.sai[props.token].potBalance }
-                  title={ formatNumber(props.sai[props.token].potBalance) }
+                  title={ formatNumber(props.sai[props.token].potBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
@@ -65,7 +65,7 @@ const Token = (props) => {
                 <span>Lpc</span>
                 <AnimatedNumber
                   value={ props.sai[props.token].lpcBalance }
-                  title={ formatNumber(props.sai[props.token].lpcBalance) }
+                  title={ formatNumber(props.sai[props.token].lpcBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
