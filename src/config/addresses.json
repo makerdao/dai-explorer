@@ -12,9 +12,9 @@
     "fromBlock": 1563459
   },
   "live": {
-    "tub": "0xFbCd7cd9737A79FA86173cd9ee2a41cCfe2D23A4",
+    "tub": "0x9fcb310dbbe5667f0fe7b0ea0947f365a335be6a",
     "faucet": "",
-    "lpc": "",
-    "fromBlock": 3696721
+    "lpc": "0x20bdda5f938b3b7661776e158e5b91457d9a55b7",
+    "fromBlock": 3754915
   }
 }
