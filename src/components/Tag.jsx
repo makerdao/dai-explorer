@@ -2,7 +2,7 @@ import React from 'react';
 import DSValue from './DSValue';
 import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
-import { toBytes12, formatNumber } from '../helpers';
+import { toBytes12, formatNumber, copyToClipboard } from '../helpers';
 
 const medianizer = require('../config/medianizer');
 
@@ -76,10 +76,15 @@ class Tag extends React.Component {
             <div className="col-md-12">
               <div>
                 <p>
-                  Current Value: <strong><AnimatedNumber
+                  Current Value:
+                  <strong>
+                    <AnimatedNumber
                     value={ this.props.tag }
                     title={ formatNumber(this.props.tag) }
-                    formatValue={ n => formatNumber(n, 3) } /></strong> USD/ETH
+                    formatValue={ n => formatNumber(n, 3) }
+                    className="printedNumber"
+                    onClick = { copyToClipboard } />
+                  </strong> USD/ETH
                 </p>
                 <p>
                   Minimum Valid Sources: <strong>{ this.state.min }</strong> Total: <strong>{ this.state.last }</strong>

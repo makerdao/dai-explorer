@@ -1,6 +1,6 @@
 import React from 'react';
 import AnimatedNumber from '../AnimatedNumber';
-import { formatNumber } from '../helpers';
+import { formatNumber, copyToClipboard } from '../helpers';
 
 const Token = (props) => {
   return (
@@ -15,14 +15,18 @@ const Token = (props) => {
             <AnimatedNumber
               value={ props.sai[props.token].totalSupply }
               title={ formatNumber(props.sai[props.token].totalSupply) }
-              formatValue={ n => formatNumber(n, 3) } />
+              formatValue={ n => formatNumber(n, 3) }
+              className="printedNumber"
+              onClick = { copyToClipboard } />
           </span>
           <span className="info-box-number">
             <span>Mine</span>
             <AnimatedNumber
               value={ props.sai[props.token].myBalance }
               title={ formatNumber(props.sai[props.token].myBalance) }
-              formatValue={ n => formatNumber(n, 3) } />
+              formatValue={ n => formatNumber(n, 3) }
+              className="printedNumber"
+              onClick = { copyToClipboard } />
           </span>
           {
             props.sai[props.token].tubBalance
@@ -32,7 +36,9 @@ const Token = (props) => {
                 <AnimatedNumber
                   value={ props.sai[props.token].tubBalance }
                   title={ formatNumber(props.sai[props.token].tubBalance) }
-                  formatValue={ n => formatNumber(n, 3) } />
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
               </span>
             :
               ''
@@ -45,7 +51,9 @@ const Token = (props) => {
                 <AnimatedNumber
                   value={ props.sai[props.token].potBalance }
                   title={ formatNumber(props.sai[props.token].potBalance) }
-                  formatValue={ n => formatNumber(n, 3) } />
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
               </span>
             :
               ''
@@ -58,7 +66,9 @@ const Token = (props) => {
                 <AnimatedNumber
                   value={ props.sai[props.token].lpcBalance }
                   title={ formatNumber(props.sai[props.token].lpcBalance) }
-                  formatValue={ n => formatNumber(n, 3) } />
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
               </span>
             :
               ''

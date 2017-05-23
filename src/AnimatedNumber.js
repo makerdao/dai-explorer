@@ -175,7 +175,9 @@ var AnimatedNumber = function (_Component) {
 
             var title = _props.title ? _props.title : (_typeof(this.props.value) === 'object' ? this.props.value.valueOf() : this.props.value);
 
-            return _react2.default.createElement(this.props.component, _extends({}, filterKnownProps(this.props), { className: className, style: style, title: title }), formatValue(adjustedValue));
+            var onClick = _props.onClick ? _props.onClick : null;
+
+            return _react2.default.createElement(this.props.component, _extends({}, filterKnownProps(this.props), { className: className, style: style, title: title, onClick: onClick }), formatValue(adjustedValue));
         }
     }]);
 

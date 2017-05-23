@@ -1,7 +1,7 @@
 import React from 'react';
 import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
-import { formatNumber } from '../helpers';
+import { formatNumber, copyToClipboard } from '../helpers';
 
 var dsvalue = require('../config/dsvalue');
 
@@ -46,7 +46,9 @@ class DSValue extends React.Component {
           <AnimatedNumber
             value={ web3.toBigNumber(this.state.value) }
             title={ formatNumber(this.state.value) }
-            formatValue={ n => formatNumber(n, 3) } />
+            formatValue={ n => formatNumber(n, 3) }
+            className="printedNumber"
+            onClick = { copyToClipboard } />
         </strong>
       </p>
     );
