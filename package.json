@@ -2,7 +2,7 @@
   "name": "sai-explorer",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://this.is.not.sai.surge.sh",
+  "homepage": "https://this-is-not-sai.surge.sh",
   "dependencies": {
     "create-react-class": "^15.5.3",
     "import": "0.0.6",
