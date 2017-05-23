@@ -73,7 +73,7 @@ const Lpc = (props) => {
                 {
                   maxClaimSai
                   ?
-                    printNumber(maxClaimSai)
+                    printNumber(web3.BigNumber.min(maxClaimSai, props.state.sai.sai.lpcBalance))
                   :
                     <span>Loading...</span>
                 }
@@ -83,7 +83,7 @@ const Lpc = (props) => {
                 {
                   maxClaimSai && props.state.sai.tub.tag.gt(0)
                   ?
-                    printNumber(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag))
+                    printNumber(web3.BigNumber.min(maxClaimSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag), props.state.sai.gem.lpcBalance))
                   :
                     <span>Loading...</span>
                 }
