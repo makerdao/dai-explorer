@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
+import web3 from  '../web3';
 
 class Modal extends Component {
   updateValue = (e) => {
@@ -14,6 +15,66 @@ class Modal extends Component {
     }
   }
 
+  setMax = (e) => {
+    e.preventDefault();
+    let value = web3.toBigNumber(0);
+    switch(this.props.modal.method) {
+      case 'join':
+        value = this.props.sai.gem.myBalance;
+        break;
+      case 'exit':
+      case 'lock':
+        value = this.props.sai.skr.myBalance;
+        break;
+      case 'free':
+        value = this.props.sai.tub.cups[this.props.modal.cup].avail_skr;
+        break;
+      case 'draw':
+        value = this.props.sai.tub.cups[this.props.modal.cup].avail_sai;
+        break;
+      case 'wipe':
+        value = web3.BigNumber.min(this.props.sai.sai.myBalance, this.props.sai.tub.cups[this.props.modal.cup].art);
+        break;
+      case 'boom':
+        value = this.props.sai.tub.avail_boom_skr;
+        break;
+      case 'bust':
+        value = this.props.sai.tub.avail_bust_skr;
+        break;
+      case 'lpc-pool':
+        value = this.props.sai[document.getElementById('selectToken').value].myBalance;
+        break;
+      case 'lpc-exit':
+        value = this.props.sai.lps.myBalance && this.props.sai.lpc.per && this.props.sai.lpc.gap
+                ? this.props.sai.lps.myBalance.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.lpc.per)
+                : value;
+        value = !this.props.sai.lps.myBalance.eq(this.props.sai.lps.totalSupply)
+                ? value.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.lpc.gap)
+                : value;
+        if (document.getElementById('selectToken').value === 'sai') {
+          value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
+        } else if (document.getElementById('selectToken').value === 'gem') {
+          value = this.props.sai.tub.tag.gt(0)
+                  ? value.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.tub.tag)
+                  : value;
+          value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
+        }
+        break;
+      case 'lpc-take':
+        if (document.getElementById('selectToken').value === 'sai') {
+          value = this.props.sai.gem.myBalance.times(this.props.sai.tub.tag).div(this.props.sai.lpc.gap).round(0);
+          value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
+        } else if (document.getElementById('selectToken').value === 'gem') {
+          value = this.props.sai.sai.myBalance.times(web3.toBigNumber(10).pow(36)).div(this.props.sai.tub.tag).div(this.props.sai.lpc.gap).round(0);
+          value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
+        }
+        break;
+      default:
+        break;
+    }
+    document.getElementById('inputValue').value = web3.fromWei(value).valueOf();
+  }
+
   renderYesNoForm = () => {
     return (
       <form className="yesno">
@@ -26,7 +87,9 @@ class Modal extends Component {
   renderInputForm = (type) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <input ref={(input) => this.updateVal = input} type={type} required step="0.000000000000000001" />
+        <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" />
+        <a href="#action" onClick={ this.setMax }>Set max</a>
+        <br /><br />
         <input type="submit" />
       </form>
     )
@@ -35,11 +98,13 @@ class Modal extends Component {
   renderLPCForm = (type) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <select ref={(input) => this.token = input} >
+        <select ref={(input) => this.token = input} id="selectToken">
           <option value="gem">GEM</option>
           <option value="sai">SAI</option>
         </select>
-        <input ref={(input) => this.updateVal = input} type={type} required step="0.000000000000000001" />
+        <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" />
+        <a href="#action" onClick={ this.setMax }>Set max</a>
+        <br /><br />
         <input type="submit" />
       </form>
     )

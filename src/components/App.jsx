@@ -1040,7 +1040,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <Modal modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } />
+          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

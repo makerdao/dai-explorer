@@ -17,7 +17,7 @@ const Lpc = (props) => {
                   ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.lpc.gap)
                   : maxClaimEqSai;
 
-  let maxClaimEqETH = maxClaimEqSai && props.state.sai.tub.tag.gt(0)
+  const maxClaimEqETH = maxClaimEqSai && props.state.sai.tub.tag.gt(0)
                       ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)
                       : false;
   return (
