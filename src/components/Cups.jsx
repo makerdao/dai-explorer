@@ -47,6 +47,7 @@ const Cups = (props) => {
                   <th>% Ratio</th>
                   <th>Avail. SAI (to draw)</th>
                   <th>Avail. SKR (to free)</th>
+                  <th>Liquidation price</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -91,6 +92,9 @@ const Cups = (props) => {
                       </td>
                       <td>
                         { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_skr) : '-' }
+                      </td>
+                      <td>
+                        { props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].liq_price && props.sai.tub.cups[key].liq_price.gt(0) ? printNumber(props.sai.tub.cups[key].liq_price) : '-' }
                       </td>
                       <td className={ `text-center ${ props.sai.tub.reg.eq(0) ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                         {
