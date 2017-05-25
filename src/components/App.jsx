@@ -208,11 +208,19 @@ class App extends Component {
     this.checkNetwork();
     this.checkAccounts();
 
-    const params = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
-    this.setState({ params });
+    this.setHashParams();
+    window.onhashchange = () => {
+      this.setHashParams();
+      this.initContracts(this.state.sai.tub.address, this.state.sai.lpc.address);
+    }
 
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+  }
+
+  setHashParams = () => {
+    const params = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
+    this.setState({ params });
   }
 
   loadObject = (abi, address) => {
