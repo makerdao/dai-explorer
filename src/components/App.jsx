@@ -425,10 +425,6 @@ class App extends Component {
   }
 
   setFiltersLPC = () => {
-    const signatures = [
-      'jump(uint128)',
-    ].map((v) => this.methodSig(v));
-
     this.lpcObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
