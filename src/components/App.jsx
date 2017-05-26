@@ -261,6 +261,8 @@ class App extends Component {
 
       this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
 
+      this.setFiltersLPC();
+
       this.setFilterTag();
 
       // This is necessary to finish transactions that failed after signing
@@ -417,6 +419,21 @@ class App extends Component {
           this.getParameterFromTub('hat');
         } else if (r.args.sig === this.methodSig('vent()')) {
           this.getParameterFromTub('reg');
+        }
+      }
+    });
+  }
+
+  setFiltersLPC = () => {
+    const signatures = [
+      'jump(uint128)',
+    ].map((v) => this.methodSig(v));
+
+    this.lpcObj.LogNote({}, {}, (e, r) => {
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        if (r.args.sig === this.methodSig('jump(uint128)')) {
+          this.getParameterFromLPC('gap');
         }
       }
     });

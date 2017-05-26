@@ -122,7 +122,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.gap
                   ?
-                    printNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20)))
+                    <span>{ printNumber(props.state.sai.lpc.gap.times(100).minus(web3.toBigNumber(10).pow(20))) }%</span>
                   :
                     <span>Loading...</span>
                 }
