@@ -60,7 +60,7 @@ const Cups = (props) => {
                         {key}
                       </td>
                       <td>
-                        { printNumber(props.sai.tub.cups[key].art) }
+                        { printNumber(props.tab(props.sai.tub.cups[key].art)) }
                       </td>
                       <td>
                         { printNumber(props.sai.tub.cups[key].ink) }
