@@ -604,8 +604,8 @@ class App extends Component {
       } else if (dif.lt(0)) {
         sai.tub.avail_bust_sai = dif.abs();
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).round(0);
+      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).round(0);
       this.setState({ sai });
     }
   }
@@ -641,19 +641,22 @@ class App extends Component {
     const cup = sai.tub.cups[id];
     sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
     sai.tub.cups[id].ratio = cup.pro.div(this.tab(cup.art));
+    const oneMinuteTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60); // This is to give a window margin to get the maximum as this is dynamic value per second
     sai.tub.cups[id].avail_sai = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art));
+    sai.tub.cups[id].avail_sai_one_minute = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(oneMinuteTax));
     sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
+    sai.tub.cups[id].avail_skr_one_minute = cup.ink.minus(this.tab(cup.art).times(oneMinuteTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
     sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per).div(cup.ink) : web3.toBigNumber(0);
-    this.setState({ sai });
-
-    this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        if (sai.tub.cups[id]) {
-          sai.tub.cups[id]['safe'] = safe;
-          this.setState({ sai });
+    this.setState({ sai }, () => {
+      this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          if (sai.tub.cups[id]) {
+            sai.tub.cups[id]['safe'] = safe;
+            this.setState({ sai });
+          }
         }
-      }
+      });
     });
   }
 
@@ -829,7 +832,6 @@ class App extends Component {
   updateValue = (value, token) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
-    const valueWei = web3.toWei(value);
     let error = false;
 
     switch(method) {
@@ -842,76 +844,31 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        if (this.state.sai.gem.myBalance.lt(valueWei)) {
-          error = `Not enough balance to join ${value} GEM.`;
-        } else {
-          this.tubAllowance('gem', method, false, value);
-        }
+        this.tubAllowance('gem', method, false, value);
         break;
       case 'exit':
-        if (this.state.sai.tub.reg.eq(1)) {
-          error = 'Exit can not be executed in this system state.';
-        } else if (this.state.sai.tub.reg.eq(2)) {
+        if (this.state.sai.tub.reg.eq(2)) {
           this.tubAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
-        } else {
-          if (this.state.sai.skr.myBalance.lt(valueWei)) {
-            error = `Not enough balance to exit ${value} SKR.`;
-          } else {
-            this.tubAllowance('skr', method, false, value);
-          }
-        }
-        break;
-      case 'boom':
-        if (this.state.sai.tub.avail_boom_skr.lt(valueWei)) {
-          error = `Not enough SKR in the system to boom ${value} SKR.`;
-        } if (this.state.sai.skr.myBalance.lt(valueWei)) {
-          error = `Not enough balance of SKR to boom ${value} SKR.`;
-        } else {
+        } else if (this.state.sai.tub.reg.eq(0)) {
           this.tubAllowance('skr', method, false, value);
         }
         break;
+      case 'boom':
+        this.tubAllowance('skr', method, false, value);
+        break;
       case 'bust':
         const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(36));
-        const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
-        if (this.state.sai.tub.avail_bust_sai.lt(valueSAIWei)) {
-          error = `Not enough SAI in the system to bust ${value} SKR.`;
-        } else if (this.state.sai.sai.myBalance.lt(valueSAIWei)) {
-          error = `Not enough balance of SAI to bust ${value} SKR.`;
-        } else {
-          this.tubAllowance('sai', method, false, value, valueSAI);
-        }
+        this.tubAllowance('sai', method, false, value, valueSAI);
         break;
       case 'lock':
-        if (this.state.sai.skr.myBalance.lt(valueWei)) {
-          error = `Not enough balance to lock ${value} SKR.`;
-        } else {
-          this.tubAllowance('skr', method, cup, value);
-        }
+        this.tubAllowance('skr', method, cup, value);
         break;
       case 'free':
-        if (this.state.sai.tub.cups[cup].avail_skr.lt(valueWei)) {
-          error = `${value} SKR exceeds the maximum available to free.`;
-        } else {
-          this.executeMethodCupValue(method, cup, value);
-        }
-        break;
       case 'draw':
-        if (this.state.sai.sin.totalSupply.add(valueWei).gt(this.state.sai.tub.hat)) {
-          error = `${value} SAI exceeds the system deb ceiling.`;
-        } else if (this.state.sai.tub.cups[cup].avail_sai.lt(valueWei)) {
-          error = `${value} SAI exceeds the maximum available to draw.`;
-        } else {
-          this.executeMethodCupValue(method, cup, value);
-        }
+        this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        if (this.state.sai.sai.myBalance.lt(valueWei)) {
-          error = `Not enough balance to wipe ${value} SAI.`;
-        } else if(this.tab(this.state.sai.tub.cups[cup].art).lt(valueWei)) {
-          error = `Debt in CUP ${cup} is lower than ${value} SAI.`;
-        } else {
-          this.tubAllowance('sai', method, cup, value);
-        }
+        this.tubAllowance('sai', method, cup, value);
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
@@ -920,58 +877,40 @@ class App extends Component {
         this.tubAllowance('sai', method, false, web3.fromWei(this.state.sai.sai.myBalance));
         break;
       case 'lpc-pool':
-        if (token === 'sai' && this.state.sai.sai.myBalance.lt(valueWei)) {
-          error = `Not enough balance to pool ${value} SAI.`;
-        } else if (token === 'gem' && this.state.sai.gem.myBalance.lt(valueWei)) {
-          error = `Not enough balance to pool ${value} GEM.`;
-        } else {
-          this.lpcAllowance(token, token, method, value, web3.toWei(value));
-        }
+        this.lpcAllowance(token, token, method, value, web3.toWei(value));
         break;
       case 'lpc-exit':
-        if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough funds in LPC to exit ${value} GEM.`;
-        } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough funds in LPC to exit ${value} SAI.`;
+        let lpsEq = null;
+        if (token === 'gem') {
+          lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
         } else {
-          let lpsEq = null;
-          if (token === 'gem') {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
-          } else {
-            lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
-          }
-          lpsEq = lpsEq.round(0);
-          if (lpsEq.lt(this.state.sai.lpc.pie)) {
-            lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
-          }
+          lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
+        }
+        lpsEq = lpsEq.round(0);
+        if (lpsEq.lt(this.state.sai.lpc.pie)) {
+          lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+        }
 
-          if (this.state.sai.lps.myBalance.lt(lpsEq)) {
-            error = `Not enough balance in LPS to exit ${value} TOKEN.`.replace('TOKEN', token.toUpperCase());
-          } else {
-            this.lpcAllowance(token, 'lps', method, value, lpsEq);
-          }
+        if (this.state.sai.lps.myBalance.lt(lpsEq)) {
+          error = 'Not enough balance in LPS to exit this amount of TOKEN.'.replace('TOKEN', token.toUpperCase());
+        } else {
+          this.lpcAllowance(token, 'lps', method, value, lpsEq);
         }
         break;
       case 'lpc-take':
-        if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough balance in LPC to take ${value} GEM.`;
-        } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough balance in LPC to take ${value} SAI.`;
-        } else {
-          if (token === 'gem') {
-            const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
-            if (this.state.sai.sai.myBalance.lt(valueSai)) {
-              error = `Not enough balance in SAI to take ${value} GEM.`;
-            } else {
-              this.lpcAllowance(token, 'sai', method, value, valueSai);
-            }
-          } else if (token === 'sai') {
-            const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
-            if (this.state.sai.gem.myBalance.lt(valueGem)) {
-              error = `Not enough balance in GEM to take ${value} SAI.`;
-            } else {
-              this.lpcAllowance(token, 'gem', method, value, valueGem);
-            }
+        if (token === 'gem') {
+          const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
+          if (this.state.sai.sai.myBalance.lt(valueSai)) {
+            error = `Not enough balance in SAI to take ${value} GEM.`;
+          } else {
+            this.lpcAllowance(token, 'sai', method, value, valueSai);
+          }
+        } else if (token === 'sai') {
+          const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
+          if (this.state.sai.gem.myBalance.lt(valueGem)) {
+            error = `Not enough balance in GEM to take ${value} SAI.`;
+          } else {
+            this.lpcAllowance(token, 'gem', method, value, valueGem);
           }
         }
         break;
@@ -1007,7 +946,7 @@ class App extends Component {
       cash: this.isUser() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
       open: this.isUser() && this.state.sai.tub.reg.eq(0),
       join: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
-      exit: this.isUser() && this.state.sai.skr.myBalance.gt(0),
+      exit: this.isUser() && !this.state.sai.tub.reg.eq(1) && this.state.sai.skr.myBalance.gt(0),
       boom: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };
@@ -1078,7 +1017,7 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } />
+          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>
