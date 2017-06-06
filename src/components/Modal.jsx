@@ -154,14 +154,17 @@ class Modal extends Component {
       case 'open':
         text = 'Are you sure you want to open a new Cup?';
         type = 'yesno';
+        this.submitEnabled = true;
         break;
       case 'shut':
         text = `Are you sure you want to close Cup ${modal.cup}?`;
         type = 'yesno';
+        this.submitEnabled = true;
         break;
       case 'bite':
         text = `Are you sure you want to bite Cup ${modal.cup}?`;
         type = 'yesno';
+        this.submitEnabled = true;
         break;
       case 'join':
         text = 'Please set amount of GEM (W-ETH) you want to convert to collateral (SKR).<br />' + 
@@ -183,6 +186,7 @@ class Modal extends Component {
           text = 'Are you sure you want to exit all your SKR?<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
+          this.submitEnabled = true;
         } else {
           text = 'Please set amount of collateral (SKR) you want to convert to GEM (W-ETH).<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
@@ -225,6 +229,7 @@ class Modal extends Component {
         this.cond = (value) => {
           const valueSAI = web3.toBigNumber(value).times(this.props.sai.tub.tag).times(this.props.sai.tub.per).div(web3.toBigNumber(10).pow(36));
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
+
           let error = '';
           this.submitEnabled = true;
           if (this.props.sai.tub.avail_bust_sai.lt(valueSAIWei)) {
@@ -311,15 +316,18 @@ class Modal extends Component {
       case 'give':
         text = `Please set the new address to be owner of CUP ${modal.cup}`;
         type = 'text';
+        this.submitEnabled = true;
         break;
       case 'cash':
         text = 'Are you sure you want to cash?<br />'+
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'yesno';
+        this.submitEnabled = true;
         break;
       case 'bail':
         text = `Are you sure you want to bail Cup ${modal.cup}?`;
         type = 'yesno';
+        this.submitEnabled = true;
         break;
       case 'lpc-pool':
         text = `Please set the coin and amount you want to deposit in exchange of LPS`;
