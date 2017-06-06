@@ -26,7 +26,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>ETH/SKR</strong>
               {
-                props.sai.tub.per.gt(0)
+                props.sai.tub.per.gte(0)
                 ?
                   printNumber(props.sai.tub.per)
                 :
@@ -36,7 +36,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>USD/ETH</strong>
               {
-                props.sai.tub.tag.gt(0)
+                props.sai.tub.tag.gte(0)
                 ?
                   printNumber(props.sai.tub.tag)
                 :
@@ -46,7 +46,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>Liq. Ratio</strong>
               {
-                props.sai.tub.mat.gt(0)
+                props.sai.tub.mat.gte(0)
                 ?
                   <span>{ printNumber(props.sai.tub.mat.times(100)) }%</span>
                 :
@@ -56,7 +56,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>Liq. Penalty</strong>
               {
-                props.sai.tub.axe.gt(0)
+                props.sai.tub.axe.gte(0)
                 ?
                   <span>{ printNumber(props.sai.tub.axe.times(100).minus(web3.toWei(100))) }%</span>
                 :
@@ -66,7 +66,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>Debt Ceiling</strong>
               {
-                props.sai.tub.hat.gt(0)
+                props.sai.tub.hat.gte(0)
                 ?
                   printNumber(props.sai.tub.hat)
                 :
@@ -85,7 +85,7 @@ const SystemStatus = (props) => {
               <strong>Tax (30 days)</strong>
               <span>
                 {
-                  props.sai.tub.tax.gt(0)
+                  props.sai.tub.tax.gte(0)
                   ?
                     <span>{ printNumber(props.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 30).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
                   :
@@ -122,7 +122,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>Cage Price (USD/ETH)</strong>
               {
-                props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gt(0)
+                props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gte(0)
                 ?
                   printNumber(props.sai.tub.cage_price)
                 :
@@ -132,7 +132,7 @@ const SystemStatus = (props) => {
             <div>
               <strong>Fix (ETH/USD)</strong>
               {
-                props.sai.tub.reg.gt(0) && props.sai.tub.fix.gt(0)
+                props.sai.tub.reg.gt(0) && props.sai.tub.fix.gte(0)
                 ?
                   printNumber(props.sai.tub.fix)
                 :
