@@ -66,6 +66,8 @@ class App extends Component {
           par: web3.toBigNumber(-1),
           tax: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
+          rho: web3.toBigNumber(-1),
+          era: web3.toBigNumber(-1),
           cage_price: web3.toBigNumber(-1),
           cups: {}
         },
@@ -98,6 +100,9 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
           tubBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
+          // This field will keep an estimated value of new sin which is being generated due the 'stability/issuer fee'.
+          // It will return to zero each time 'drip' is called
+          issuerFee: web3.toBigNumber(0),
         },
         pot: {
           address: null,
@@ -267,16 +272,31 @@ class App extends Component {
 
       this.setFilterTag();
 
-      this.setChiInterval();
+      this.setIssuerFeeInterval();
 
       // This is necessary to finish transactions that failed after signing
       this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
     });
   }
 
-  setChiInterval = () => {
+  loadEraRho = () => {
+    const promises = [
+                        this.getParameterFromTub('rho'),
+                        this.getParameterFromTub('era')
+                       ];
+    Promise.all(promises).then((r) => {
+      if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
+        const sai = { ...this.state.sai };
+        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(this.state.sai.tub.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
+        this.setState({ sai });
+      }
+    });
+  }
+
+  setIssuerFeeInterval = () => {
     setInterval(() => {
       this.getParameterFromTub('chi', true);
+      this.loadEraRho();
     }, 5000);
   }
 
@@ -425,10 +445,12 @@ class App extends Component {
           this.getParameterFromTub('hat');
         } else if (r.args.sig === this.methodSig('vent()')) {
           this.getParameterFromTub('reg');
-        } else if (r.args.sig === this.methodSig('crop(uint128)')) {
-          this.getParameterFromTub('tax', true);
-        } else if (r.args.sig === this.methodSig('warp(uint64)') || r.args.sig === this.methodSig('drip()')) {
+        } else if (r.args.sig === this.methodSig('crop(uint128)') || r.args.sig === this.methodSig('warp(uint64)') || r.args.sig === this.methodSig('drip()')) {
+          if (r.args.sig === this.methodSig('crop(uint128)')) {
+            this.getParameterFromTub('tax', true);
+          }
           this.getParameterFromTub('chi', true);
+          this.loadEraRho();
         }
       }
     });
@@ -528,6 +550,7 @@ class App extends Component {
     this.getParameterFromTub('par', true);
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('chi', true);
+    this.loadEraRho();
     this.getParameterFromLPC('pie');
     this.getParameterFromLPC('gap');
     this.getParameterFromLPC('per', true, this.calculateSafetyAndDeficit);
@@ -552,23 +575,30 @@ class App extends Component {
   }
 
   getParameterFromTub = (field, ray = false, callback = false) => {
-    this.tubObj[field].call((e, value) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        sai.tub[field] = ray ? fromRaytoWad(value) : value;
-        this.setState({ sai }, () => {
-          this.getBoomBustValues();
+    const p = new Promise((resolve, reject) => {
+      this.tubObj[field].call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.tub[field] = ray ? fromRaytoWad(value) : value;
+          this.setState({ sai }, () => {
+            this.getBoomBustValues();
 
-          Object.keys(sai.tub.cups).map(key =>
-            this.updateCup(key)
-          );
+            Object.keys(sai.tub.cups).map(key =>
+              this.updateCup(key)
+            );
 
-          if (callback) {
-            callback(value);
-          }
-        });
-      }
+            if (callback) {
+              callback(value);
+            }
+
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
     });
+    return p;
   }
 
   getParameterFromLPC = (field, ray = false) => {
@@ -641,11 +671,12 @@ class App extends Component {
     const cup = sai.tub.cups[id];
     sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
     sai.tub.cups[id].ratio = cup.pro.div(this.tab(cup.art));
-    const oneMinuteTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60); // This is to give a window margin to get the maximum as this is dynamic value per second
+    // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
+    const marginTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60);
     sai.tub.cups[id].avail_sai = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art));
-    sai.tub.cups[id].avail_sai_one_minute = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(oneMinuteTax));
+    sai.tub.cups[id].avail_sai_with_margin = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(marginTax));
     sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
-    sai.tub.cups[id].avail_skr_one_minute = cup.ink.minus(this.tab(cup.art).times(oneMinuteTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
+    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(this.tab(cup.art).times(marginTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
     sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per).div(cup.ink) : web3.toBigNumber(0);
     this.setState({ sai }, () => {
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {

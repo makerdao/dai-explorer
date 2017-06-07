@@ -3,6 +3,8 @@ import AnimatedNumber from '../AnimatedNumber';
 import { formatNumber, copyToClipboard } from '../helpers';
 
 const Token = (props) => {
+  const tubBalance = props.token === 'sai' ? props.sai[props.token].tubBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].tubBalance;
+  const potBalance = props.token === 'sin' ? props.sai[props.token].potBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].potBalance;
   return (
     <div className="col-md-4 col-sm-6 col-xs-12">
       <div className="info-box">
@@ -34,8 +36,8 @@ const Token = (props) => {
               <span className="info-box-number">
                 <span>Tub</span>
                 <AnimatedNumber
-                  value={ props.sai[props.token].tubBalance }
-                  title={ formatNumber(props.sai[props.token].tubBalance, 18) }
+                  value={ tubBalance }
+                  title={ formatNumber(tubBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
@@ -49,8 +51,8 @@ const Token = (props) => {
               <span className="info-box-number">
                 <span>Pot</span>
                 <AnimatedNumber
-                  value={ props.sai[props.token].potBalance }
-                  title={ formatNumber(props.sai[props.token].potBalance, 18) }
+                  value={ potBalance }
+                  title={ formatNumber(potBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />

@@ -32,10 +32,10 @@ class Modal extends Component {
         value = this.props.sai.skr.myBalance;
         break;
       case 'free':
-        value = this.props.sai.tub.cups[this.props.modal.cup].avail_skr_one_minute;
+        value = this.props.sai.tub.cups[this.props.modal.cup].avail_skr_with_margin;
         break;
       case 'draw':
-        value = this.props.sai.tub.cups[this.props.modal.cup].avail_sai_one_minute;
+        value = this.props.sai.tub.cups[this.props.modal.cup].avail_sai_with_margin;
         break;
       case 'wipe':
         value = web3.BigNumber.min(this.props.sai.sai.myBalance, this.props.tab(this.props.sai.tub.cups[this.props.modal.cup].art));
@@ -228,6 +228,7 @@ class Modal extends Component {
         type = 'number';
         this.cond = (value) => {
           const valueSAI = web3.toBigNumber(value).times(this.props.sai.tub.tag).times(this.props.sai.tub.per).div(web3.toBigNumber(10).pow(36));
+          console.log(valueSAI.valueOf());
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
 
           let error = '';
