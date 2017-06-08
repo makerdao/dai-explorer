@@ -227,10 +227,8 @@ class Modal extends Component {
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
-          const valueSAI = web3.toBigNumber(value).times(this.props.sai.tub.tag).times(this.props.sai.tub.per).div(web3.toBigNumber(10).pow(36));
-          console.log(valueSAI.valueOf());
-          const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI));
-
+          const valueSAI = web3.toBigNumber(value).times(this.props.sai.tub.tag.times(this.props.sai.tub.per)).div(web3.toBigNumber(10).pow(36));
+          const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI)).floor();
           let error = '';
           this.submitEnabled = true;
           if (this.props.sai.tub.avail_bust_sai.lt(valueSAIWei)) {

@@ -626,16 +626,19 @@ class App extends Component {
   getBoomBustValues = () => {
     if (this.state.sai.sai.tubBalance && this.state.sai.sin.tubBalance) {
       const sai = { ...this.state.sai };
-      const dif = this.state.sai.sai.tubBalance.minus(this.state.sai.sin.tubBalance);
+      const dif = this.state.sai.sai.tubBalance.add(this.state.sai.sin.issuerFee).minus(this.state.sai.sin.tubBalance);
       sai.tub.avail_boom_sai = web3.toBigNumber(0);
       sai.tub.avail_bust_sai = web3.toBigNumber(0);
+
       if (dif.gt(0)) {
         sai.tub.avail_boom_sai = dif;
       } else if (dif.lt(0)) {
-        sai.tub.avail_bust_sai = dif.abs();
+        // This is a margin we need to take into account as bust quantity goes down per second
+        const futureFee = this.state.sai.sin.potBalance.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)).minus(this.state.sai.sin.potBalance).round(0)
+        sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).round(0);
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag)).round(0);
+      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
+      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
       this.setState({ sai });
     }
   }
@@ -663,20 +666,20 @@ class App extends Component {
   }
 
   tab = (art) => {
-    return art.times(this.state.sai.tub.chi).div(web3.toBigNumber(10).pow(18));
+    return art.times(this.state.sai.tub.chi).div(web3.toBigNumber(10).pow(18)).round(0);
   }
 
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).times(sai.tub.tag).div(web3.toBigNumber(10).pow(36));
+    sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).div(web3.toBigNumber(10).pow(18)).round(0).times(sai.tub.tag).div(web3.toBigNumber(10).pow(18)).round(0);
     sai.tub.cups[id].ratio = cup.pro.div(this.tab(cup.art));
     // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-    const marginTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60);
-    sai.tub.cups[id].avail_sai = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art));
-    sai.tub.cups[id].avail_sai_with_margin = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(marginTax));
-    sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
-    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(this.tab(cup.art).times(marginTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag)));
+    const marginTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120);
+    sai.tub.cups[id].avail_sai = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
+    sai.tub.cups[id].avail_sai_with_margin = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag))).round(0);
+    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(this.tab(cup.art).times(marginTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag))).round(0);
     sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per).div(cup.ink) : web3.toBigNumber(0);
     this.setState({ sai }, () => {
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
@@ -771,7 +774,7 @@ class App extends Component {
   }
 
   executeMethod = (method) => {
-    this.tubObj[method]({ gas: 4000000 }, (e, tx) => {
+    this.tubObj[method]({ gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method}`);
       } else {
@@ -781,7 +784,7 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), { gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
@@ -791,7 +794,7 @@ class App extends Component {
   }
 
   executeMethodValue = (method, value) => {
-    this.tubObj[method](web3.toWei(value), { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](web3.toWei(value), { gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
@@ -801,7 +804,7 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
@@ -816,7 +819,7 @@ class App extends Component {
         const valueAllowance = value2 ? value2 : value;
         const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), { gas: 4000000 }, (e, tx) => {
+          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), { gas: 500000 }, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
             } else {
@@ -832,7 +835,7 @@ class App extends Component {
 
   executeLPCMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 4000000 }, (e, tx) => {
+    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
       } else {
@@ -846,7 +849,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(valueAllowance);
         if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 4000000 }, (e, tx) => {
+          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 500000 }, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
             } else {
@@ -888,7 +891,7 @@ class App extends Component {
         this.tubAllowance('skr', method, false, value);
         break;
       case 'bust':
-        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(36));
+        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(36)).ceil();
         this.tubAllowance('sai', method, false, value, valueSAI);
         break;
       case 'lock':
@@ -959,7 +962,7 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    this[`${token}Obj`].transfer(to, web3.toWei(amount), { gas: 4000000 }, (e, tx) => {
+    this[`${token}Obj`].transfer(to, web3.toWei(amount), { gas: 500000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
       } else {
