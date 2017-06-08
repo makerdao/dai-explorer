@@ -3,6 +3,7 @@ import AnimatedNumber from '../AnimatedNumber';
 import { formatNumber, copyToClipboard } from '../helpers';
 
 const Token = (props) => {
+  const totalSupply = props.token === 'sai' || props.token === 'sin' ? props.sai[props.token].totalSupply.add(props.sai.sin.issuerFee) : props.sai[props.token].totalSupply;
   const tubBalance = props.token === 'sai' ? props.sai[props.token].tubBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].tubBalance;
   const potBalance = props.token === 'sin' ? props.sai[props.token].potBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].potBalance;
   return (
@@ -15,8 +16,8 @@ const Token = (props) => {
           <span className="info-box-number">
             <span>Total</span>
             <AnimatedNumber
-              value={ props.sai[props.token].totalSupply }
-              title={ formatNumber(props.sai[props.token].totalSupply, 18) }
+              value={ totalSupply }
+              title={ formatNumber(totalSupply, 18) }
               formatValue={ n => formatNumber(n, 3) }
               className="printedNumber"
               onClick = { copyToClipboard } />

@@ -992,10 +992,6 @@ class App extends Component {
             Sai Explorer
             <small>Version 1.0{/*<button onClick={this.toggle}>Toggle to connect or disconnect</button>*/}</small>
           </h1>
-          <ol className="breadcrumb">
-            <li><a href="#action"><i className="fa fa-dashboard"></i> Home</a></li>
-            <li className="active">Dashboard</li>
-          </ol>
         </section>
         <section className="content">
           <div>
