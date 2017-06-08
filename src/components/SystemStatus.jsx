@@ -82,12 +82,12 @@ const SystemStatus = (props) => {
               <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
-              <strong>Tax (30 days)</strong>
+              <strong>Tax (365 days)</strong>
               <span>
                 {
                   props.sai.tub.tax.gte(0)
                   ?
-                    <span>{ printNumber(props.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 30).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
+                    <span>{ printNumber(props.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 365).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }
