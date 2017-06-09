@@ -41,10 +41,10 @@ class Modal extends Component {
         value = web3.BigNumber.min(this.props.sai.sai.myBalance, this.props.tab(this.props.sai.tub.cups[this.props.modal.cup].art));
         break;
       case 'boom':
-        value = this.props.sai.tub.avail_boom_skr;
+        value = this.props.sai.tub.avail_boom_skr.floor();
         break;
       case 'bust':
-        value = this.props.sai.tub.avail_bust_skr;
+        value = this.props.sai.tub.avail_bust_skr.floor();
         break;
       case 'lpc-pool':
         value = this.props.sai[document.getElementById('selectToken').value].myBalance;
