@@ -750,6 +750,8 @@ class App extends Component {
       if (c.method) {
         if(c.method.indexOf('lpc-') !== -1) {
           this.executeLPCMethod(c.method, c.token, c.value);
+        } else if (c.method === 'shut') {
+          this.executeMethodCup(c.method, c.cup)
         } else if (c.cup && c.value) {
           this.executeMethodCupValue(c.method, c.cup, c.value);
         } else if (c.value) {
@@ -821,13 +823,13 @@ class App extends Component {
         if (r.lt(valueObj)) {
           this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
+              this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value });
             } else {
               console.log(e);
             }
           });
         } else {
-          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value);
+          method === 'shut' ? this.executeMethodCup(method, cup) : (cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value));
         }
       }
     });
@@ -867,12 +869,19 @@ class App extends Component {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
     let error = false;
-console.log(method);
     switch(method) {
       case 'open':
         this.executeMethod(method);
         break;
       case 'shut':
+        // We calculate debt with some margin before shutting cup (to avoid failures)
+        const debt = this.tab(this.state.sai.tub.cups[cup].art.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)));
+        if (this.state.sai.sai.myBalance.lt(debt)) {
+          error = `Not enough balance of SAI to shut CUP ${cup}.`;
+        } else {
+          this.tubAllowance('sai', method, cup, web3.fromWei(debt));
+        }
+        break;
       case 'bite':
       case 'bail':
         this.executeMethodCup(method, cup);

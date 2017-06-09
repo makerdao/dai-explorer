@@ -83,9 +83,14 @@ class Modal extends Component {
 
   renderYesNoForm = () => {
     return (
-      <form className="yesno">
-        <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
-        <button type="submit" onClick={(e) => this.props.handleCloseModal(e)}>No</button>
+      <form>
+        <p id="warningMessage" className="error">
+          { this.props.modal.error }
+        </p>
+        <div className="yesno">
+          <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
+          <button type="submit" onClick={(e) => this.props.handleCloseModal(e)}>No</button>
+        </div>
       </form>
     )
   }
@@ -157,7 +162,8 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'shut':
-        text = `Are you sure you want to close Cup ${modal.cup}?`;
+        text = `Are you sure you want to close Cup ${modal.cup}?.<br />` +
+               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'yesno';
         this.submitEnabled = true;
         break;
