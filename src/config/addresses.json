@@ -6,10 +6,10 @@
     "fromBlock": 0
   },
   "kovan": {
-    "tub": "0x56e45f19ad9633d4e1c73108301a34084ccdc82b",
+    "tub": "0x557f7e5e83da53e570032f05128483b09c316bdf",
     "faucet": "",
-    "lpc": "0x96086346bd651c907eed47ddb4301591f004ad30",
-    "fromBlock": 1959061
+    "lpc": "0x10e9b30978d7973f2d1dd3c1b31938ac95be5ca6",
+    "fromBlock": 2046588
   },
   "live": {
     "tub": "",
