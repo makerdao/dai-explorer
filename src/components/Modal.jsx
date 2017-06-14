@@ -127,7 +127,7 @@ class Modal extends Component {
         borderRadius: '4px',
         borderColor: '#d2d6de',
         bottom: 'auto',
-        height: '170px',  // set height
+        height: 'auto',  // set height
         left: '50%',
         padding: '2rem',
         position: 'fixed',
@@ -158,38 +158,32 @@ class Modal extends Component {
         text = 'Please set amount of GEM (W-ETH) you want to convert to collateral (SKR).<br />' + 
                'You might be requested for signing two transactions if there is not enough allowance in GEM to complete this transaction.';
         type = 'number';
-        style.content.height = '220px';
         break;
       case 'exit':
         if (this.props.reg.eq(2)) {
           text = 'Are you sure you want to exit all your SKR?<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
-          style.content.height = '200px';
         } else {
           text = 'Please set amount of collateral (SKR) you want to convert to GEM (W-ETH).<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'number';
-          style.content.height = '220px';
         }
         break;
       case 'boom':
         text = 'Please set amount of SKR you want to transfer to get SAI.<br />' +
                'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
         type = 'number';
-        style.content.height = '220px';
         break;
       case 'bust':
         text = 'Please set amount of SKR you want to get in exchange of SAI.<br />' +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
-        style.content.height = '220px';
         break;
       case 'lock':
         text = `Please set amount of collateral (SKR) you want to lock in CUP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
         type = 'number';
-        style.content.height = '220px';
         break;
       case 'free':
         text = `Please set amount of collateral (SKR) you want to withdraw from CUP ${modal.cup}`;
@@ -203,7 +197,6 @@ class Modal extends Component {
         text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CUP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
-        style.content.height = '220px';
         break;
       case 'give':
         text = `Please set the new address to be owner of CUP ${modal.cup}`;
@@ -213,7 +206,6 @@ class Modal extends Component {
         text = 'Are you sure you want to cash?<br />'+
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'yesno';
-        style.content.height = '200px';
         break;
       case 'bail':
         text = `Are you sure you want to bail Cup ${modal.cup}?`;
