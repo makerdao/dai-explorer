@@ -1022,8 +1022,8 @@ class App extends Component {
                   <Token sai={ this.state.sai } token='gem' color='' />
                   <Token sai={ this.state.sai } token='skr' color='bg-aqua' />
                   <Token sai={ this.state.sai } token='sai' color='bg-green' />
-                  <Token sai={ this.state.sai } token='sin' color='bg-red' />
-                  <Token sai={ this.state.sai } token='lps' color='bg-blue' />
+                  {/*<Token sai={ this.state.sai } token='sin' color='bg-red' />
+                  <Token sai={ this.state.sai } token='lps' color='bg-blue' />*/}
                 </div>
                 <SystemStatus sai={ this.state.sai } />
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
