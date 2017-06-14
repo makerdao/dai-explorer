@@ -721,7 +721,7 @@ class App extends Component {
   }
 
   executeMethod = (method) => {
-    this.tubObj[method]({ gas: 4000000 }, (e, tx) => {
+    this.tubObj[method]({}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method}`);
       } else {
@@ -731,7 +731,7 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
@@ -741,7 +741,7 @@ class App extends Component {
   }
 
   executeMethodValue = (method, value) => {
-    this.tubObj[method](web3.toWei(value), { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](web3.toWei(value), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
@@ -751,7 +751,7 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { gas: 4000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${value}`);
       } else {
@@ -766,7 +766,7 @@ class App extends Component {
         const valueAllowance = value2 ? value2 : value;
         const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), { gas: 4000000 }, (e, tx) => {
+          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value  });
             } else {
@@ -782,7 +782,7 @@ class App extends Component {
 
   executeLPCMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 4000000 }, (e, tx) => {
+    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
       } else {
@@ -796,7 +796,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(valueAllowance);
         if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 4000000 }, (e, tx) => {
+          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, {}, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
             } else {
@@ -973,7 +973,7 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    this[`${token}Obj`].transfer(to, web3.toWei(amount), { gas: 4000000 }, (e, tx) => {
+    this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
       } else {
