@@ -20,8 +20,10 @@ class Tag extends React.Component {
     window.m = this.m;
     this.get(this.m, 'next')
       .then(r => {
-        this.setState({ last: web3.toDecimal(r) - 1});
-        this.getAll(this.m, web3.toDecimal(r) - 1);
+        if (r !== '0x') {
+          this.setState({ last: web3.toDecimal(r) - 1});
+          this.getAll(this.m, web3.toDecimal(r) - 1);
+        }
       });;
     this.get(this.m, 'min')
       .then(r => {
@@ -76,7 +78,7 @@ class Tag extends React.Component {
             <div className="col-md-12">
               <div>
                 <p>
-                  Current Value:
+                  Current Value:&nbsp;
                   <strong>
                     <AnimatedNumber
                     value={ this.props.tag }
@@ -86,9 +88,15 @@ class Tag extends React.Component {
                     onClick = { copyToClipboard } />
                   </strong> USD/ETH
                 </p>
-                <p>
-                  Minimum Valid Sources: <strong>{ this.state.min }</strong> Total: <strong>{ this.state.last }</strong>
-                </p>
+                {
+                  this.state.last
+                  ?
+                    <p>
+                      Minimum Valid Sources: <strong>{ this.state.min }</strong> - Total: <strong>{ this.state.last }</strong>
+                    </p>
+                  :
+                    ''
+                }
                 { this.state.values.map(x => <DSValue key={ x } address={ x } />) }
                 <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/terra/#${this.props.address}` }>Details</a>
               </div>
