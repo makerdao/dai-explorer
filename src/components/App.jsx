@@ -11,7 +11,7 @@ import Tag from './Tag';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad } from '../helpers';
+import { toBytes32, fromRaytoWad, wmul, wdiv } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -300,7 +300,7 @@ class App extends Component {
     Promise.all(promises).then((r) => {
       if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
         const sai = { ...this.state.sai };
-        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(this.state.sai.tip.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
+        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(web3.fromWei(this.state.sai.tub.tax).pow(this.state.sai.tip.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
         this.setState({ sai });
       }
     });
@@ -626,15 +626,15 @@ class App extends Component {
   calculateSafetyAndDeficit = () => {
     if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.tub.per.gte(0)
         && this.state.sai.tub.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
-      const jam = this.state.sai.skr.potBalance.times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(18));
-      const pro = jam.times(this.state.sai.tub.tag).div(web3.toBigNumber(10).pow(18));
+      const jam = wmul(this.state.sai.skr.potBalance, this.state.sai.tub.per);
+      const pro = wmul(jam, this.state.sai.tub.tag);
       const con = this.state.sai.sin.totalSupply;
 
       const sai = { ...this.state.sai };
       sai.tub.eek = pro.lt(con);
 
       if (this.state.sai.tub.mat.gte(0)) {
-        const min = con.times(this.state.sai.tub.mat).div(web3.toBigNumber(10).pow(18));
+        const min = wmul(con, this.state.sai.tub.mat);
         sai.tub.safe = pro.gte(min);
       }
       this.setState({ sai });
@@ -718,11 +718,11 @@ class App extends Component {
         sai.tub.avail_boom_sai = dif;
       } else if (dif.lt(0)) {
         // This is a margin we need to take into account as bust quantity goes down per second
-        const futureFee = sai.sin.potBalance.times(sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)).minus(sai.sin.potBalance).round(0)
+        const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
         sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(sai.tip.par).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag));
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(sai.tip.par).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag));
+      sai.tub.avail_boom_skr = wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), wmul(sai.tub.per, sai.tub.tag));
+      sai.tub.avail_bust_skr = wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), wmul(sai.tub.per, sai.tub.tag));
       this.setState({ sai });
     }
   }
@@ -750,22 +750,22 @@ class App extends Component {
   }
 
   tab = (art) => {
-    return art.times(this.state.sai.tub.chi).div(web3.toBigNumber(10).pow(18)).round(0);
+    return wmul(art, this.state.sai.tub.chi).round(0);
   }
 
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).div(web3.toBigNumber(10).pow(18)).round(0).times(sai.tub.tag).div(web3.toBigNumber(10).pow(18)).round(0);
-    //sai.tub.cups[id].con = sai.tip.par.times(this.tab(cup.art)).div(web3.toBigNumber(10).pow(18));
-    sai.tub.cups[id].ratio = cup.pro.times(web3.toBigNumber(10).pow(18)).div(this.tab(cup.art).times(sai.tip.par));
+    sai.tub.cups[id].pro = wmul(wmul(cup.ink, sai.tub.per).round(0), sai.tub.tag).round(0);
+    sai.tub.cups[id].ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
     // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-    const marginTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120);
-    sai.tub.cups[id].avail_sai = cup.pro.times(web3.toBigNumber(10).pow(36)).div(sai.tub.mat.times(sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
-    sai.tub.cups[id].avail_sai_with_margin = cup.pro.times(web3.toBigNumber(10).pow(36)).div(sai.tub.mat.times(sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(sai.tip.par).div(sai.tub.per.times(sai.tub.tag))).round(0);
-    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(this.tab(cup.art).times(marginTax).times(sai.tub.mat).times(sai.tip.par).div(sai.tub.per.times(sai.tub.tag))).round(0);
-    sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per).div(cup.ink) : web3.toBigNumber(0);
+    const marginTax = web3.fromWei(this.state.sai.tub.tax).pow(120);
+    sai.tub.cups[id].avail_sai = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
+    sai.tub.cups[id].avail_sai_with_margin = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), sai.tub.mat), sai.tip.par), wmul(sai.tub.per, sai.tub.tag))).round(0);
+    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), sai.tub.mat), sai.tip.par), wmul(sai.tub.per, sai.tub.tag))).round(0);
+    sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), sai.tub.mat), sai.tub.per), cup.ink) : web3.toBigNumber(0);
+
     this.setState({ sai }, () => {
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
         if (!e) {
@@ -999,7 +999,7 @@ class App extends Component {
         break;
       case 'shut':
         // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.sai.tub.cups[cup].art.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)));
+        const debt = this.tab(this.state.sai.tub.cups[cup].art).times(web3.fromWei(this.state.sai.tub.tax).pow(120));
         if (this.state.sai.sai.myBalance.lt(debt)) {
           error = `Not enough balance of SAI to shut CUP ${cup}.`;
         } else {
@@ -1049,13 +1049,13 @@ class App extends Component {
       case 'lpc-exit':
         let lpsEq = null;
         if (token === 'gem') {
-          lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
+          lpsEq = web3.toBigNumber(value).times(wmul(this.state.sai.tub.tag, this.state.sai.lpc.per));
         } else {
           lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
         }
         lpsEq = lpsEq.round(0);
         if (lpsEq.lt(this.state.sai.lpc.pie)) {
-          lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+          lpsEq = wmul(lpsEq, this.state.sai.lpc.gap);
         }
 
         if (this.state.sai.lps.myBalance.lt(lpsEq)) {
@@ -1066,14 +1066,14 @@ class App extends Component {
         break;
       case 'lpc-take':
         if (token === 'gem') {
-          const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
+          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.tub.tag, this.state.sai.lpc.gap));
           if (this.state.sai.sai.myBalance.lt(valueSai)) {
             error = `Not enough balance in SAI to take ${value} GEM.`;
           } else {
             this.lpcAllowance(token, 'sai', method, value, valueSai);
           }
         } else if (token === 'sai') {
-          const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
+          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.tub.tag)).round(0);
           if (this.state.sai.gem.myBalance.lt(valueGem)) {
             error = `Not enough balance in GEM to take ${value} SAI.`;
           } else {

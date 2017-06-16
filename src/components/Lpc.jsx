@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { printNumber } from '../helpers';
+import { printNumber,/* WAD,*/ wdiv } from '../helpers';
 
 const Lpc = (props) => {
   const lpcActions = {
@@ -10,15 +10,15 @@ const Lpc = (props) => {
   };
 
   let maxClaimEqSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
-                      ? props.state.sai.lps.myBalance.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.lpc.per)
+                      ? wdiv(props.state.sai.lps.myBalance, props.state.sai.lpc.per)
                       : false;
 
   maxClaimEqSai = !props.state.sai.lps.myBalance.eq(props.state.sai.lps.totalSupply)
-                  ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.lpc.gap)
+                  ? wdiv(maxClaimEqSai, props.state.sai.lpc.gap)
                   : maxClaimEqSai;
 
   const maxClaimEqETH = maxClaimEqSai && props.state.sai.tub.tag.gt(0)
-                      ? maxClaimEqSai.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag)
+                      ? wdiv(maxClaimEqSai, props.state.sai.tub.tag)
                       : false;
   return (
     <div className="box">
@@ -42,7 +42,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.per
                   ?
-                    printNumber(web3.toBigNumber(10).pow(36).div(props.state.sai.lpc.per))
+                    printNumber(wdiv(WAD, props.state.sai.lpc.per))
                   :
                     <span>Loading...</span>
                 }
@@ -52,7 +52,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.per
                   ?
-                    printNumber(web3.toBigNumber(10).pow(54).div(props.state.sai.tub.tag).div(props.state.sai.lpc.per))
+                    printNumber(wdiv(wdiv(WAD, props.state.sai.tub.tag), props.state.sai.lpc.per))
                   :
                     <span>Loading...</span>
                 }
@@ -112,7 +112,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    printNumber(props.state.sai.lpc.pie.times(web3.toBigNumber(10).pow(18)).div(props.state.sai.tub.tag))
+                    printNumber(wdiv(props.state.sai.lpc.pie, props.state.sai.tub.tag))
                   :
                     <span>Loading...</span>
                 }

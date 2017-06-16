@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { printNumber } from '../helpers';
+import { WAD, printNumber, wdiv } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -48,7 +48,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tip.par.gte(0)
                 ?
-                  printNumber(web3.toBigNumber(10).pow(36).div(props.sai.tip.par))
+                  printNumber(wdiv(WAD, props.sai.tip.par))
                 :
                   <span>Loading...</span>
               }
@@ -97,7 +97,7 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.tax.gte(0)
                   ?
-                    <span>{ printNumber(props.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 365).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tub.tax).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }
@@ -109,7 +109,7 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tip.way.gte(0)
                   ?
-                    <span>{ printNumber(props.sai.tip.way.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 365).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tip.way).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from '../web3';
-import { printNumber } from '../helpers';
+import { printNumber, wdiv } from '../helpers';
 
 const renderCupActions = (reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
@@ -68,7 +68,7 @@ const Cups = (props) => {
                       <td>
                         {
                           props.sai.skr.totalSupply
-                            ? printNumber(props.sai.tub.cups[key].ink.div(props.sai.skr.totalSupply).times(web3.toBigNumber(10).pow(20)))
+                            ? printNumber(wdiv(props.sai.tub.cups[key].ink, props.sai.skr.totalSupply).times(100))
                             : <span title="0">0.000</span>
                         }%
                       </td>
@@ -81,7 +81,7 @@ const Cups = (props) => {
                           props.sai.tub.reg.eq(0)
                             ? props.sai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
                               ? <span>
-                                  { printNumber(props.sai.tub.cups[key].ratio.times(web3.toBigNumber(10).pow(20))) }%
+                                  { printNumber(web3.toWei(props.sai.tub.cups[key].ratio).times(100)) }%
                                 </span>
                               : '-'
                             : '-'

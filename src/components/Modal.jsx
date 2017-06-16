@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
 import web3 from  '../web3';
+import { wmul, wdiv } from '../helpers';
 
 class Modal extends Component {
   constructor() {
@@ -51,16 +52,16 @@ class Modal extends Component {
         break;
       case 'lpc-exit':
         value = this.props.sai.lps.myBalance && this.props.sai.lpc.per && this.props.sai.lpc.gap
-                ? this.props.sai.lps.myBalance.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.lpc.per)
+                ? wdiv(this.props.sai.lps.myBalance, this.props.sai.lpc.per)
                 : value;
         value = !this.props.sai.lps.myBalance.eq(this.props.sai.lps.totalSupply)
-                ? value.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.lpc.gap)
+                ? wdiv(value, this.props.sai.lpc.gap)
                 : value;
         if (document.getElementById('selectToken').value === 'sai') {
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
           value = this.props.sai.tub.tag.gt(0)
-                  ? value.times(web3.toBigNumber(10).pow(18)).div(this.props.sai.tub.tag)
+                  ? wdiv(value, this.props.sai.tub.tag)
                   : value;
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
         }
@@ -70,7 +71,7 @@ class Modal extends Component {
           value = this.props.sai.gem.myBalance.times(this.props.sai.tub.tag).div(this.props.sai.lpc.gap).round(0);
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
-          value = this.props.sai.sai.myBalance.times(web3.toBigNumber(10).pow(36)).div(this.props.sai.tub.tag).div(this.props.sai.lpc.gap).round(0);
+          value = wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.tub.tag), this.props.sai.lpc.gap).round(0);
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
         }
         break;
@@ -233,7 +234,7 @@ class Modal extends Component {
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
-          const valueSAI = web3.toBigNumber(value).times(this.props.sai.tub.tag.times(this.props.sai.tub.per)).div(web3.toBigNumber(10).pow(36));
+          const valueSAI = wmul(wmul(web3.toBigNumber(value), this.props.sai.tub.tag), this.props.sai.tub.per);
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI)).floor();
           let error = '';
           this.submitEnabled = true;
