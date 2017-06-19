@@ -4,7 +4,7 @@ import { formatNumber, copyToClipboard } from '../helpers';
 
 const Token = (props) => {
   const totalSupply = props.token === 'sai' || props.token === 'sin' ? props.sai[props.token].totalSupply.add(props.sai.sin.issuerFee) : props.sai[props.token].totalSupply;
-  const tapBalance = props.token === 'sai' ? props.sai[props.token].tapBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].tapBalance;
+  const pitBalance = props.token === 'sai' ? props.sai[props.token].pitBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].pitBalance;
   const potBalance = props.token === 'sin' ? props.sai[props.token].potBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].potBalance;
   return (
     <div className="col-md-4 col-sm-6 col-xs-12">
@@ -32,22 +32,7 @@ const Token = (props) => {
               onClick = { copyToClipboard } />
           </span>
           {
-            props.sai[props.token].tubBalance
-            ?
-              <span className="info-box-number">
-                <span>Tub</span>
-                <AnimatedNumber
-                  value={ props.sai[props.token].tubBalance }
-                  title={ formatNumber(props.sai[props.token].tubBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
-          }
-          {
-            props.sai[props.token].tubBalance
+            props.sai[props.token].potBalance
             ?
               <span className="info-box-number">
                 <span>Pot</span>
@@ -62,13 +47,43 @@ const Token = (props) => {
               ''
           }
           {
+            props.sai[props.token].pitBalance
+            ?
+              <span className="info-box-number">
+                <span>Pit</span>
+                <AnimatedNumber
+                  value={ pitBalance }
+                  title={ formatNumber(pitBalance, 18) }
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
+              </span>
+            :
+              ''
+          }
+          {
+            props.sai[props.token].jarBalance
+            ?
+              <span className="info-box-number">
+                <span>Jar</span>
+                <AnimatedNumber
+                  value={ props.sai[props.token].jarBalance }
+                  title={ formatNumber(props.sai[props.token].jarBalance, 18) }
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
+              </span>
+            :
+              ''
+          }
+          {
             props.sai[props.token].tapBalance
             ?
               <span className="info-box-number">
                 <span>Tap</span>
                 <AnimatedNumber
-                  value={ tapBalance }
-                  title={ formatNumber(tapBalance, 18) }
+                  value={ props.sai[props.token].tapBalance }
+                  title={ formatNumber(props.sai[props.token].tapBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />

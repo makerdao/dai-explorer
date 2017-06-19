@@ -9,7 +9,7 @@ var LIB_PATH = 'lib/sai/';
 var LIB_OUT  = LIB_PATH + 'out/';
 var OUT      = 'src/config/';
 
-var files = ['Tub', 'Top', 'Tap', 'Tip', 'DSToken', 'DSValue', 'DSRoles', 'SaiLPC'];
+var files = ['Tub', 'SaiJar', 'Top', 'Tap', 'Tip', 'DSToken', 'DSValue', 'DSRoles', 'SaiLPC'];
 
 gulp.task('default', gulpsync.sync(['update', 'build', 'generate']));
 

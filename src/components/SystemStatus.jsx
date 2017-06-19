@@ -26,9 +26,9 @@ const SystemStatus = (props) => {
             <div>
               <strong>ETH/SKR</strong>
               {
-                props.sai.tub.per.gte(0)
+                props.sai.jar.per.gte(0)
                 ?
-                  printNumber(props.sai.tub.per)
+                  printNumber(props.sai.jar.per)
                 :
                   <span>Loading...</span>
               }
@@ -36,9 +36,9 @@ const SystemStatus = (props) => {
             <div>
               <strong>USD/ETH</strong>
               {
-                props.sai.tub.tag.gte(0)
+                props.sai.jar.tag.gte(0)
                 ?
-                  printNumber(props.sai.tub.tag)
+                  printNumber(props.sai.jar.tag)
                 :
                   <span>Loading...</span>
               }
