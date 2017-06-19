@@ -927,7 +927,7 @@ class App extends Component {
   executeMethodCupValue = (method, cup, value, toWei = true) => {
     this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${value}`);
+        this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
       } else {
         console.log(e);
       }
@@ -967,7 +967,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeMethod('tub', method, value);
+          this.executeMethodValue('tub', method, value);
         }
       }
     });
@@ -986,7 +986,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeMethod(method === 'cash' ? 'top' : 'tub', method, cup, value);
+          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodCupValue(method, cup, value);
         }
       }
     });
