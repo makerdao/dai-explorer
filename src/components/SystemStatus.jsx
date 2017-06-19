@@ -142,7 +142,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Cage Price (USD/ETH)</strong>
+              <strong>Cage Price (SAI/ETH)</strong>
               {
                 props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gte(0)
                 ?
@@ -152,7 +152,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong>Fix (ETH/USD)</strong>
+              <strong>Fix (ETH/SAI)</strong>
               {
                 props.sai.tub.reg.gt(0) && props.sai.tub.fix.gte(0)
                 ?

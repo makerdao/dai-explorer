@@ -731,7 +731,7 @@ class App extends Component {
 
   getCagePriceFromTub = (reg) => {
     if (reg.gt(0)) {
-      this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
+      this.topObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
         if (!e) {
           const sai = { ...this.state.sai };
           sai.tub['cage_price'] = web3.toBigNumber(r.args.foo);
