@@ -61,8 +61,9 @@ class Modal extends Component {
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
           value = this.props.sai.jar.tag.gt(0)
-                  ? wdiv(value, this.props.sai.jar.tag)
+                  ? wmul(wdiv(value, this.props.sai.jar.tag), this.props.sai.tip.par)
                   : value;
+          
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
         }
         break;
@@ -71,7 +72,7 @@ class Modal extends Component {
           value = this.props.sai.gem.myBalance.times(this.props.sai.jar.tag).div(this.props.sai.lpc.gap).round(0);
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
-          value = wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.jar.tag), this.props.sai.lpc.gap).round(0);
+          value = wmul(wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.jar.tag), this.props.sai.lpc.gap), this.props.sai.tip.par).round(0);
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
         }
         break;

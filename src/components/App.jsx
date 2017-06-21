@@ -93,6 +93,7 @@ class App extends Component {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
+          jarBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
         },
@@ -289,9 +290,9 @@ class App extends Component {
 
         this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
         this.setFiltersTip();
-        this.setFiltersLPC();
+        this.setFiltersLpc();
         this.setFilterTag();
-        this.setIssuerFeeInterval();
+        this.setTimeVariablesInterval();
 
         // This is necessary to finish transactions that failed after signing
         this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
@@ -313,10 +314,11 @@ class App extends Component {
     });
   }
 
-  setIssuerFeeInterval = () => {
+  setTimeVariablesInterval = () => {
     setInterval(() => {
       this.getParameterFromTub('chi', true);
       this.getParameterFromTip('par');
+      this.getParameterFromLpc('per', true);
       this.loadEraRho();
     }, 5000);
   }
@@ -534,12 +536,12 @@ class App extends Component {
     });
   }
 
-  setFiltersLPC = () => {
+  setFiltersLpc = () => {
     this.lpcObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (r.args.sig === this.methodSig('jump(uint128)')) {
-          this.getParameterFromLPC('gap');
+          this.getParameterFromLpc('gap');
         }
       }
     });
@@ -572,11 +574,11 @@ class App extends Component {
 
     if (token !== 'lps') {
       this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
-      this.getParameterFromLPC('pie');
-      this.getParameterFromLPC('gap');
-      this.getParameterFromLPC('per', true);
+      this.getParameterFromLpc('pie');
+      this.getParameterFromLpc('gap');
+      this.getParameterFromLpc('per', true);
     }
-    if (token === 'gem') {
+    if (token === 'gem' || token === 'skr') {
       this.getBalanceOf(token, this.state.sai.jar.address, 'jarBalance');
     }
     if (token === 'sai' || token === 'gem') {
@@ -634,9 +636,9 @@ class App extends Component {
     this.getParameterFromTip('way', true);
     this.getParameterFromTip('par');
     this.loadEraRho();
-    this.getParameterFromLPC('pie');
-    this.getParameterFromLPC('gap');
-    this.getParameterFromLPC('per', true, this.calculateSafetyAndDeficit);
+    this.getParameterFromLpc('pie');
+    this.getParameterFromLpc('gap');
+    this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
   }
 
   calculateSafetyAndDeficit = () => {
@@ -719,7 +721,7 @@ class App extends Component {
     return p;
   }
 
-  getParameterFromLPC = (field, ray = false) => {
+  getParameterFromLpc = (field, ray = false) => {
     this.lpcObj[field].call((e, value) => {
       if (!e) {
         const sai = { ...this.state.sai };
@@ -868,7 +870,7 @@ class App extends Component {
       const c = transactions[tx].callback;
       if (c.method) {
         if(c.method.indexOf('lpc-') !== -1) {
-          this.executeLPCMethod(c.method, c.token, c.value);
+          this.executeLpcMethod(c.method, c.token, c.value);
         } else if (c.method === 'shut') {
           this.executeMethodCup(c.method, c.cup)
         } else if (c.cup && c.value) {
@@ -954,20 +956,20 @@ class App extends Component {
     });
   }
 
-  jarAllowance = (token, method, value) => {
+  jarAllowance = (token, method, cup, value) => {
     this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.jarObj.address, (e, r) => {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
           this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, value });
+              this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, cup, value });
             } else {
               console.log(e);
             }
           });
         } else {
-          this.executeMethodValue('tub', method, value);
+          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('tub', method, value);
         }
       }
     });
@@ -992,7 +994,7 @@ class App extends Component {
     });
   }
 
-  executeLPCMethod = (method, token, value) => {
+  executeLpcMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
     this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
       if (!e) {
@@ -1016,7 +1018,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeLPCMethod(method, tokenMethod, value);
+          this.executeLpcMethod(method, tokenMethod, value);
         }
       }
     });
@@ -1044,13 +1046,13 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.jarAllowance('gem', method, value);
+        this.jarAllowance('gem', method, false, value);
         break;
       case 'exit':
         if (this.state.sai.tub.reg.eq(2)) {
-          this.jarAllowance('skr', method, web3.fromWei(this.state.sai.skr.myBalance));
+          this.jarAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
         } else if (this.state.sai.tub.reg.eq(0)) {
-          this.jarAllowance('skr', method, value);
+          this.jarAllowance('skr', method, false, value);
         }
         break;
       case 'boom':
@@ -1061,7 +1063,7 @@ class App extends Component {
         this.pitAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':
-        this.potAllowance('skr', method, cup, value);
+        this.jarAllowance('skr', method, cup, value);
         break;
       case 'free':
       case 'draw':
@@ -1082,7 +1084,7 @@ class App extends Component {
       case 'lpc-exit':
         let lpsEq = null;
         if (token === 'gem') {
-          lpsEq = web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.per));
+          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.per)), this.state.sai.tip.par);
         } else {
           lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
         }
@@ -1094,6 +1096,8 @@ class App extends Component {
         if (this.state.sai.lps.myBalance.lt(lpsEq)) {
           error = 'Not enough balance in LPS to exit this amount of TOKEN.'.replace('TOKEN', token.toUpperCase());
         } else {
+          // Margin in allowance to solve dynamic 'par' value
+          lpsEq = lpsEq.times(1.01);
           this.lpcAllowance(token, 'lps', method, value, lpsEq);
         }
         break;

@@ -1,24 +1,24 @@
 {
   "private": {
     "tub": "",
-    "top": "",
     "tap": "",
+    "top": "",
     "lpc": "",
     "faucet": "",
     "fromBlock": 0
   },
   "kovan": {
-    "tub": "0x2d54d44e3f31cc7dc8eeb80ec80ae2f6ce496ec3",
-    "top": "0x2b4ab4dcc7c5462602d17d3782c8fb31e08b6e53",
-    "tap": "0xd4c4804c398fe527fa4d8263086a25116a322182",
-    "lpc": "0xf1ac893e959c08c85f6542cafab50d36bbdc5aa2",
+    "tub": "0x99f8062d9117f28cc08446697b2c44ea113f13e3",
+    "tap": "0x0d18f1078a1c56db27bd0f1d3423c145bf24d7bf",
+    "top": "0x364a6aaa51590097b4330d409c4893ff04ae633d",
+    "lpc": "0xe853256d0c4999502da21622389a708fb1a27b91",
     "faucet": "",
     "fromBlock": 2128242
   },
   "live": {
     "tub": "",
-    "top": "",
     "tap": "",
+    "top": "",
     "lpc": "",
     "faucet": "",
     "fromBlock": 0
