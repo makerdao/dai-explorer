@@ -8,10 +8,10 @@
     "fromBlock": 0
   },
   "kovan": {
-    "tub": "0x99f8062d9117f28cc08446697b2c44ea113f13e3",
-    "tap": "0x0d18f1078a1c56db27bd0f1d3423c145bf24d7bf",
-    "top": "0x364a6aaa51590097b4330d409c4893ff04ae633d",
-    "lpc": "0xe853256d0c4999502da21622389a708fb1a27b91",
+    "tub": "0xd818aedb83d974435a7a375f52044d969db6a71d",
+    "tap": "0x71e0e57f53cf8898c2668960612ee2882948dbb5",
+    "top": "0x00db6b6b7919199557d1eb842b1897f5f7e45cbf",
+    "lpc": "0x21aae3a6dd2052b837d41f432fc575db52af2b3a",
     "faucet": "",
     "fromBlock": 2128242
   },

@@ -60,8 +60,8 @@ class Modal extends Component {
         if (document.getElementById('selectToken').value === 'sai') {
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
-          value = this.props.sai.jar.tag.gt(0)
-                  ? wmul(wdiv(value, this.props.sai.jar.tag), this.props.sai.tip.par)
+          value = this.props.sai.pip.val.gt(0)
+                  ? wmul(wdiv(value, this.props.sai.pip.val), this.props.sai.tip.par)
                   : value;
           
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
@@ -69,10 +69,10 @@ class Modal extends Component {
         break;
       case 'lpc-take':
         if (document.getElementById('selectToken').value === 'sai') {
-          value = this.props.sai.gem.myBalance.times(this.props.sai.jar.tag).div(this.props.sai.lpc.gap).round(0);
+          value = this.props.sai.gem.myBalance.times(this.props.sai.pip.val).div(this.props.sai.lpc.gap).round(0);
           value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
         } else if (document.getElementById('selectToken').value === 'gem') {
-          value = wmul(wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.jar.tag), this.props.sai.lpc.gap), this.props.sai.tip.par).round(0);
+          value = wmul(wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.pip.val), this.props.sai.lpc.gap), this.props.sai.tip.par).round(0);
           value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
         }
         break;
@@ -235,7 +235,7 @@ class Modal extends Component {
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
-          const valueSAI = wdiv(wmul(wmul(web3.toBigNumber(value), this.props.sai.jar.tag), this.props.sai.jar.per), this.props.sai.tip.par);
+          const valueSAI = wdiv(wmul(web3.toBigNumber(value), this.props.sai.jar.tag), this.props.sai.tip.par);
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI)).floor();
           let error = '';
           this.submitEnabled = true;

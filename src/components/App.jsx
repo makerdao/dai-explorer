@@ -7,7 +7,7 @@ import Faucet from './Faucet';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Transfer from './Transfer';
-import Tag from './Tag';
+import FeedValue from './FeedValue';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
@@ -55,7 +55,6 @@ class App extends Component {
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
           hat: web3.toBigNumber(-1),
-          fix: web3.toBigNumber(-1),
           fit: web3.toBigNumber(-1),
           tax: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
@@ -121,8 +120,9 @@ class App extends Component {
         pit: {
           address: null,
         },
-        tag: {
+        pip: {
           address: null,
+          val: web3.toBigNumber(-1),
         },
         lpc: {
           address: null,
@@ -294,7 +294,7 @@ class App extends Component {
             this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
             this.setFiltersTip();
             this.setFiltersLpc();
-            this.setFilterTag();
+            this.setFilterFeedValue();
             this.setTimeVariablesInterval();
 
             // This is necessary to finish transactions that failed after signing
@@ -522,7 +522,6 @@ class App extends Component {
           this.getCup(r.args.foo, address);
         } else if (r.args.sig === this.methodSig('cage(uint128)')) {
           this.getParameterFromTub('reg');
-          this.getParameterFromTub('fix', true);
           this.getParameterFromTub('fit', true);
         } else if (r.args.sig === this.methodSig('chop(uint128)')) {
           this.getParameterFromTub('axe', true);
@@ -565,20 +564,23 @@ class App extends Component {
     });
   }
 
-  setFilterTag = () => {
-    this.tubObj.tip((e, r) => {
+  setFilterFeedValue = () => {
+    this.jarObj.pip.call((e, r) => {
       if (!e) {
-        window.tagObj = this.tagObj = this.loadObject(dsvalue.abi, r);
+        window.pipObj = this.pipObj = this.loadObject(dsvalue.abi, r);
         const sai = { ...this.state.sai };
-        sai.tag.address = r;
-        this.setState({ sai });
-        this.tagObj.LogNote({}, {}, (e, r) => {
+        sai.pip.address = r;
+        this.setState({ sai }, () => {
+          this.getValFromPip();
+        });
+        this.pipObj.LogNote({}, {}, (e, r) => {
           if (!e) {
             if (
               r.args.sig === this.methodSig('poke(bytes32)') ||
               r.args.sig === this.methodSig('poke()')
             ) {
               this.getParameterFromJar('tag');
+              this.getValFromPip();
             }
           }
         });
@@ -645,7 +647,6 @@ class App extends Component {
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
-    this.getParameterFromTub('fix', true);
     this.getParameterFromTub('fit', true);
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('chi', true);
@@ -660,10 +661,8 @@ class App extends Component {
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.jar.per.gte(0)
-        && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
-      const jam = wmul(this.state.sai.skr.potBalance, this.state.sai.jar.per);
-      const pro = wmul(jam, this.state.sai.jar.tag);
+    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+      const pro = wmul(this.state.sai.skr.jarBalance, this.state.sai.jar.tag);
       const con = this.state.sai.sin.totalSupply;
 
       const sai = { ...this.state.sai };
@@ -761,6 +760,23 @@ class App extends Component {
     }
   }
 
+  getValFromPip = (field) => {
+    const p = new Promise((resolve, reject) => {
+      this.pipObj.read.call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.pip.val = web3.toBigNumber(parseInt(value, 16));
+          this.setState({ sai }, () => {
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
   getBoomBustValues = () => {
     if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance) {
       const sai = { ...this.state.sai };
@@ -775,8 +791,8 @@ class App extends Component {
         const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
         sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), wmul(sai.jar.per, sai.jar.tag));
-      sai.tub.avail_bust_skr = wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), wmul(sai.jar.per, sai.jar.tag));
+      sai.tub.avail_boom_skr = wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag);
+      sai.tub.avail_bust_skr = wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag);
       this.setState({ sai });
     }
   }
@@ -810,14 +826,14 @@ class App extends Component {
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = wmul(wmul(cup.ink, sai.jar.per).round(0), sai.jar.tag).round(0);
+    sai.tub.cups[id].pro = wmul(cup.ink, sai.jar.tag).round(0);
     sai.tub.cups[id].ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
     // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
     const marginTax = web3.fromWei(this.state.sai.tub.tax).pow(120);
     sai.tub.cups[id].avail_sai = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
     sai.tub.cups[id].avail_sai_with_margin = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), sai.tub.mat), sai.tip.par), wmul(sai.jar.per, sai.jar.tag))).round(0);
-    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), sai.tub.mat), sai.tip.par), wmul(sai.jar.per, sai.jar.tag))).round(0);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), sai.tub.mat), sai.tip.par), sai.jar.tag)).round(0);
+    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), sai.tub.mat), sai.tip.par), sai.jar.tag)).round(0);
     sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), sai.tub.mat), sai.jar.per), cup.ink) : web3.toBigNumber(0);
 
     this.setState({ sai }, () => {
@@ -1077,7 +1093,7 @@ class App extends Component {
         this.pitAllowance('skr', method, value);
         break;
       case 'bust':
-        const valueSAI = web3.toBigNumber(value).times(this.state.sai.jar.tag).times(this.state.sai.jar.per).div(web3.toBigNumber(10).pow(36)).ceil();
+        const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.jar.tag).ceil();
         this.pitAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':
@@ -1102,7 +1118,7 @@ class App extends Component {
       case 'lpc-exit':
         let lpsEq = null;
         if (token === 'gem') {
-          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.per)), this.state.sai.tip.par);
+          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.per)), this.state.sai.tip.par);
         } else {
           lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
         }
@@ -1121,14 +1137,14 @@ class App extends Component {
         break;
       case 'lpc-take':
         if (token === 'gem') {
-          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.gap));
+          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.gap));
           if (this.state.sai.sai.myBalance.lt(valueSai)) {
             error = `Not enough balance in SAI to take ${value} GEM.`;
           } else {
             this.lpcAllowance(token, 'sai', method, value, valueSai);
           }
         } else if (token === 'sai') {
-          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.jar.tag)).round(0);
+          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.pip.val)).round(0);
           if (this.state.sai.gem.myBalance.lt(valueGem)) {
             error = `Not enough balance in GEM to take ${value} SAI.`;
           } else {
@@ -1228,8 +1244,8 @@ class App extends Component {
                 </div>
                 <Lpc state={ this.state } isUser={ this.isUser } handleOpenModal={ this.handleOpenModal } />
                 {
-                  this.state.sai.tag.address && this.state.network.network !== 'private' &&
-                  <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.jar.tag } />
+                  this.state.sai.pip.address && this.state.network.network !== 'private' &&
+                  <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
                 }
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
               </div>

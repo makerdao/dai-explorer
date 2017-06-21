@@ -17,8 +17,8 @@ const Lpc = (props) => {
                   ? wdiv(maxClaimEqSai, props.state.sai.lpc.gap)
                   : maxClaimEqSai;
 
-  const maxClaimEqETH = maxClaimEqSai && props.state.sai.jar.tag.gt(0)
-                      ? wdiv(maxClaimEqSai, props.state.sai.jar.tag)
+  const maxClaimEqETH = maxClaimEqSai && props.state.sai.pip.val.gt(0)
+                      ? wdiv(maxClaimEqSai, props.state.sai.pip.val)
                       : false;
   return (
     <div className="box">
@@ -52,7 +52,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.per
                   ?
-                    printNumber(wdiv(wdiv(WAD, props.state.sai.jar.tag), props.state.sai.lpc.per))
+                    printNumber(wdiv(wdiv(WAD, props.state.sai.pip.val), props.state.sai.lpc.per))
                   :
                     <span>Loading...</span>
                 }
@@ -112,7 +112,7 @@ const Lpc = (props) => {
                 {
                   props.state.sai.lpc.pie
                   ?
-                    printNumber(wdiv(props.state.sai.lpc.pie, props.state.sai.jar.tag))
+                    printNumber(wdiv(props.state.sai.lpc.pie, props.state.sai.pip.val))
                   :
                     <span>Loading...</span>
                 }

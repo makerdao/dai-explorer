@@ -36,9 +36,9 @@ const SystemStatus = (props) => {
             <div>
               <strong>USD/ETH</strong>
               {
-                props.sai.jar.tag.gte(0)
+                props.sai.pip.val.gte(0)
                 ?
-                  printNumber(props.sai.jar.tag)
+                  printNumber(props.sai.pip.val)
                 :
                   <span>Loading...</span>
               }
@@ -147,16 +147,6 @@ const SystemStatus = (props) => {
                 props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gte(0)
                 ?
                   printNumber(props.sai.tub.cage_price)
-                :
-                  <span>-</span>
-              }
-            </div>
-            <div>
-              <strong>Fix (ETH/SAI)</strong>
-              {
-                props.sai.tub.reg.gt(0) && props.sai.tub.fix.gte(0)
-                ?
-                  printNumber(props.sai.tub.fix)
                 :
                   <span>-</span>
               }

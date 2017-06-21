@@ -6,7 +6,7 @@ import { toBytes12, formatNumber, copyToClipboard } from '../helpers';
 
 const medianizer = require('../config/medianizer');
 
-class Tag extends React.Component {
+class FeedValue extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -81,8 +81,8 @@ class Tag extends React.Component {
                   Current Value:&nbsp;
                   <strong>
                     <AnimatedNumber
-                    value={ this.props.tag }
-                    title={ formatNumber(this.props.tag) }
+                    value={ this.props.pipVal }
+                    title={ formatNumber(this.props.pipVal) }
                     formatValue={ n => formatNumber(n, 3) }
                     className="printedNumber"
                     onClick = { copyToClipboard } />
@@ -108,4 +108,4 @@ class Tag extends React.Component {
   }
 }
 
-export default Tag;
+export default FeedValue;
