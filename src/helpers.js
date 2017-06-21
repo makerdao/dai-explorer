@@ -2,6 +2,8 @@ import React from 'react';
 import web3 from './web3';
 
 
+export const WAD = web3.toBigNumber(web3.toWei(1));
+
 var padLeft = function (string, chars, sign) {
   return new Array(chars - string.length + 1).join(sign ? sign : "0") + string;
 };
@@ -58,4 +60,14 @@ export function copyToClipboard(e) {
 
 export function printNumber(number) {
   return <span className="printedNumber" onClick={ copyToClipboard } title={ formatNumber(number, 18) }>{ formatNumber(number, 3) }</span>
+}
+
+// Multiply WAD values
+export function wmul(a, b) {
+  return a.times(b).div(WAD);
+}
+
+//Divide WAD values
+export function wdiv(a, b) {
+  return a.times(WAD).div(b);
 }

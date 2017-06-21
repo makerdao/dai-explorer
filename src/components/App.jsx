@@ -11,26 +11,21 @@ import Tag from './Tag';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad } from '../helpers';
+import { toBytes32, fromRaytoWad, wmul, wdiv } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
 const addresses = require('../config/addresses');
 
 const tub = require('../config/tub');
-window.tub = tub;
-
+const jar = require('../config/saijar');
+const top = require('../config/top');
+const tap = require('../config/tap');
+const tip = require('../config/tip');
 const dstoken = require('../config/dstoken');
-window.dstoken = dstoken;
-
 const dsvalue = require('../config/dsvalue');
-window.dsvalue = dsvalue;
-
 const dsroles = require('../config/dsroles');
-window.dsroles = dsroles;
-
 const lpc = require('../config/sailpc');
-window.lpc = lpc;
 
 class App extends Component {
   constructor() {
@@ -57,25 +52,40 @@ class App extends Component {
           eek: 'undefined',
           safe: 'undefined',
           reg: web3.toBigNumber(-1),
-          per: web3.toBigNumber(-1),
-          tag: web3.toBigNumber(-1),
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
           hat: web3.toBigNumber(-1),
           fix: web3.toBigNumber(-1),
-          par: web3.toBigNumber(-1),
+          fit: web3.toBigNumber(-1),
           tax: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
           rho: web3.toBigNumber(-1),
-          era: web3.toBigNumber(-1),
           cage_price: web3.toBigNumber(-1),
-          cups: {}
+          cups: {},
+        },
+        jar: {
+          address: null,
+          per: web3.toBigNumber(-1),
+          tag: web3.toBigNumber(-1),
+        },
+        top: {
+          address: null,
+        },
+        tap: {
+          address: null,
+        },
+        tip: {
+          address: null,
+          era: web3.toBigNumber(-1),
+          tau: web3.toBigNumber(-1),
+          par: web3.toBigNumber(-1),
+          way: web3.toBigNumber(-1),
         },
         gem: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          tubBalance: web3.toBigNumber(-1),
+          jarBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
           lpcBalance: web3.toBigNumber(-1),
         },
@@ -83,28 +93,32 @@ class App extends Component {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          tubBalance: web3.toBigNumber(-1),
+          jarBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
+          pitBalance: web3.toBigNumber(-1),
         },
         sai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          tubBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
+          pitBalance: web3.toBigNumber(-1),
           lpcBalance: web3.toBigNumber(-1),
         },
         sin: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          tubBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
+          pitBalance: web3.toBigNumber(-1),
           // This field will keep an estimated value of new sin which is being generated due the 'stability/issuer fee'.
           // It will return to zero each time 'drip' is called
           issuerFee: web3.toBigNumber(0),
         },
         pot: {
+          address: null,
+        },
+        pit: {
           address: null,
         },
         tag: {
@@ -190,7 +204,7 @@ class App extends Component {
 
     const addrs = addresses[this.state.network.network];
 
-    this.initContracts(addrs['tub'], addrs['lpc']);
+    this.initContracts(addrs['tub'], addrs['tap'], addrs['top'], addrs['lpc']);
   }
 
   checkAccounts = () => {
@@ -218,7 +232,7 @@ class App extends Component {
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.sai.tub.address, this.state.sai.lpc.address);
+      this.initContracts(this.state.sai.tub.address, this.state.sai.tap.address, this.state.sai.top.address, this.state.sai.lpc.address);
     }
 
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
@@ -234,12 +248,12 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateContracts = (tubAddress, lpcAddress) => {
-    return web3.isAddress(tubAddress) && web3.isAddress(lpcAddress);
+  validateAddresses = (tubAddress, tapAddress, topAddress, lpcAddress) => {
+    return web3.isAddress(tubAddress) && web3.isAddress(tapAddress) && web3.isAddress(topAddress) && web3.isAddress(lpcAddress);
   }
 
-  initContracts = (tubAddress, lpcAddress) => {
-    if (!this.validateContracts(tubAddress, lpcAddress)) {
+  initContracts = (tubAddress, tapAddress, topAddress, lpcAddress) => {
+    if (!this.validateAddresses(tubAddress, tapAddress, topAddress, lpcAddress)) {
       return;
     }
     web3.reset(true);
@@ -247,55 +261,69 @@ class App extends Component {
     this.setState({
       ...initialState
     }, () => {
+      // We need to verify that tap and top correspond to the tub
+      const setUpPromises = [this.getTubAddress(tap.abi, tapAddress), this.getTubAddress(top.abi, topAddress)];
+      Promise.all(setUpPromises).then((r) => {
+        if (r[1] === r[0] && r[0] === tubAddress) {
+          window.tubObj = this.tubObj = this.loadObject(tub.abi, tubAddress);
+          window.tapObj = this.tapObj = this.loadObject(tap.abi, tapAddress);
+          window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
+          window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
 
-      const sai = { ...this.state.sai };
+          const sai = { ...this.state.sai };
 
-      sai['tub'].address = tubAddress;
-      sai['lpc'].address = lpcAddress;
-      this.setState({ sai });
+          sai['tub'].address = tubAddress;
+          sai['top'].address = topAddress;
+          sai['tap'].address = tapAddress;
+          sai['lpc'].address = lpcAddress;
+          this.setState({ sai });
 
-      window.tubObj = this.tubObj = this.loadObject(tub.abi, sai.tub.address);
-      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, sai.lpc.address);
+          const promises = [this.setUpJar(), this.setUpTip()];
 
-      this.initializeSystemStatus();
+          Promise.all(promises).then((r) => {
+            this.initializeSystemStatus();
 
-      this.setUpPot();
-      this.setUpLPS();
-      this.setUpToken('gem');
-      this.setUpToken('skr');
-      this.setUpToken('sai');
-      this.setUpToken('sin');
+            this.setUpPot();
+            this.setUpPit();
+            this.setUpLPS();
+            this.setUpToken('gem');
+            this.setUpToken('skr');
+            this.setUpToken('sai');
+            this.setUpToken('sin');
 
-      this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+            this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+            this.setFiltersTip();
+            this.setFiltersLpc();
+            this.setFilterTag();
+            this.setTimeVariablesInterval();
 
-      this.setFiltersLPC();
-
-      this.setFilterTag();
-
-      this.setIssuerFeeInterval();
-
-      // This is necessary to finish transactions that failed after signing
-      this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+            // This is necessary to finish transactions that failed after signing
+            this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+          });
+        }
+      });
     });
   }
 
   loadEraRho = () => {
     const promises = [
-                        this.getParameterFromTub('rho'),
-                        this.getParameterFromTub('era')
-                       ];
+                      this.getParameterFromTub('rho'),
+                      this.getParameterFromTip('era')
+                      ];
     Promise.all(promises).then((r) => {
       if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
         const sai = { ...this.state.sai };
-        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(this.state.sai.tub.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
+        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(web3.fromWei(this.state.sai.tub.tax).pow(this.state.sai.tip.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
         this.setState({ sai });
       }
     });
   }
 
-  setIssuerFeeInterval = () => {
+  setTimeVariablesInterval = () => {
     setInterval(() => {
       this.getParameterFromTub('chi', true);
+      this.getParameterFromTip('par');
+      this.getParameterFromLpc('per', true);
       this.loadEraRho();
     }, 5000);
   }
@@ -309,14 +337,14 @@ class App extends Component {
 
   checkUserAuth = () => {
     if (this.state.network && this.state.network.defaultAccount !== null && typeof this.rolesObj !== 'undefined') {
-      this.rolesObj.isUserRoot(this.state.network.defaultAccount, (e, r) => {
+      this.rolesObj.isUserRoot.call(this.state.network.defaultAccount, (e, r) => {
         const sai = { ...this.state.sai };
         if (!e) {
           if (r) {
             sai.tub.role = 'root';
             this.setState({ sai });
           } else {
-             this.rolesObj.hasUserRole(this.state.network.defaultAccount, 1, (e2, r2) => {
+             this.rolesObj.hasUserRole.call(this.state.network.defaultAccount, 1, (e2, r2) => {
                if (!e2) {
                 sai.tub.role = r2 ? 'user' : 'none';
                 this.setState({ sai });
@@ -328,11 +356,70 @@ class App extends Component {
     }
   }
 
-  setUpPot = () => {
+  getTubAddress = (abi, address) => {
+    const p = new Promise((resolve, reject) => {
+      this.loadObject(abi, address).tub.call((e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  setUpJar = () => {
+    const p = new Promise((resolve, reject) => {
+      this.tubObj.jar((e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.jar.address = r;
+          window.jarObj = this.jarObj = this.loadObject(jar.abi, r);
+          this.setState({ sai }, () => {
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  setUpTip = () => {
+    const p = new Promise((resolve, reject) => {
+      this.tubObj.tip((e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.tip.address = r;
+          window.tipObj = this.tipObj = this.loadObject(tip.abi, r);
+          this.setState({ sai }, () => {
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  setUpPot = (object) => {
     this.tubObj.pot((e, r) => {
       if (!e) {
         const sai = { ...this.state.sai };
         sai.pot.address = r;
+        this.setState({ sai });
+      }
+    })
+  }
+
+  setUpPit = (object) => {
+    this.tubObj.pit((e, r) => {
+      if (!e) {
+        const sai = { ...this.state.sai };
+        sai.pit.address = r;
         this.setState({ sai });
       }
     })
@@ -436,7 +523,7 @@ class App extends Component {
         } else if (r.args.sig === this.methodSig('cage(uint128)')) {
           this.getParameterFromTub('reg');
           this.getParameterFromTub('fix', true);
-          this.getParameterFromTub('par', true);
+          this.getParameterFromTub('fit', true);
         } else if (r.args.sig === this.methodSig('chop(uint128)')) {
           this.getParameterFromTub('axe', true);
         } else if (r.args.sig === this.methodSig('cuff(uint128)')) {
@@ -456,12 +543,23 @@ class App extends Component {
     });
   }
 
-  setFiltersLPC = () => {
+  setFiltersTip = () => {
+    this.tipObj.LogNote({}, {}, (e, r) => {
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        if (r.args.sig === this.methodSig('coax(uint128)')) {
+          this.getParameterFromTip('way', true);
+        }
+      }
+    });
+  }
+
+  setFiltersLpc = () => {
     this.lpcObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (r.args.sig === this.methodSig('jump(uint128)')) {
-          this.getParameterFromLPC('gap');
+          this.getParameterFromLpc('gap');
         }
       }
     });
@@ -480,7 +578,7 @@ class App extends Component {
               r.args.sig === this.methodSig('poke(bytes32)') ||
               r.args.sig === this.methodSig('poke()')
             ) {
-              this.getParameterFromTub('tag');
+              this.getParameterFromJar('tag');
             }
           }
         });
@@ -493,20 +591,23 @@ class App extends Component {
     this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
 
     if (token !== 'lps') {
-      this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
       this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
-      this.getParameterFromLPC('pie');
-      this.getParameterFromLPC('gap');
-      this.getParameterFromLPC('per', true);
+      this.getParameterFromLpc('pie');
+      this.getParameterFromLpc('gap');
+      this.getParameterFromLpc('per', true);
+    }
+    if (token === 'gem' || token === 'skr') {
+      this.getBalanceOf(token, this.state.sai.jar.address, 'jarBalance');
     }
     if (token === 'sai' || token === 'gem') {
       this.getBalanceOf(token, this.state.sai.lpc.address, 'lpcBalance');
     }
-    if (token === 'sai' || token === 'sin') {
+    if (token === 'sai' || token === 'sin' || token === 'skr') {
+      this.getBalanceOf(token, this.state.sai.pit.address, 'pitBalance');
       this.getBoomBustValues();
     }
     if (token === 'gem' || token === 'skr') {
-      this.getParameterFromTub('per', true);
+      this.getParameterFromJar('per', true);
     }
   }
 
@@ -541,33 +642,35 @@ class App extends Component {
   initializeSystemStatus = () => {
     this.getParameterFromTub('authority', false, this.loadRoles());
     this.getParameterFromTub('reg', false, this.getCagePriceFromTub);
-    this.getParameterFromTub('per', true);
-    this.getParameterFromTub('tag', false, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
     this.getParameterFromTub('fix', true);
-    this.getParameterFromTub('par', true);
+    this.getParameterFromTub('fit', true);
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('chi', true);
+    this.getParameterFromJar('per', true);
+    this.getParameterFromJar('tag', false, this.calculateSafetyAndDeficit);
+    this.getParameterFromTip('way', true);
+    this.getParameterFromTip('par');
     this.loadEraRho();
-    this.getParameterFromLPC('pie');
-    this.getParameterFromLPC('gap');
-    this.getParameterFromLPC('per', true, this.calculateSafetyAndDeficit);
+    this.getParameterFromLpc('pie');
+    this.getParameterFromLpc('gap');
+    this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.tub.per.gte(0)
-        && this.state.sai.tub.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
-      const jam = this.state.sai.skr.potBalance.times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(18));
-      const pro = jam.times(this.state.sai.tub.tag).div(web3.toBigNumber(10).pow(18));
+    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.jar.per.gte(0)
+        && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+      const jam = wmul(this.state.sai.skr.potBalance, this.state.sai.jar.per);
+      const pro = wmul(jam, this.state.sai.jar.tag);
       const con = this.state.sai.sin.totalSupply;
 
       const sai = { ...this.state.sai };
       sai.tub.eek = pro.lt(con);
 
       if (this.state.sai.tub.mat.gte(0)) {
-        const min = con.times(this.state.sai.tub.mat).div(web3.toBigNumber(10).pow(18));
+        const min = wmul(con, this.state.sai.tub.mat);
         sai.tub.safe = pro.gte(min);
       }
       this.setState({ sai });
@@ -601,7 +704,42 @@ class App extends Component {
     return p;
   }
 
-  getParameterFromLPC = (field, ray = false) => {
+  getParameterFromJar = (field, ray = false, callback = false) => {
+    const p = new Promise((resolve, reject) => {
+      this.jarObj[field].call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.jar[field] = ray ? fromRaytoWad(value) : value;
+          this.setState({ sai }, () => {
+            this.getBoomBustValues();
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  getParameterFromTip = (field, ray = false) => {
+    const p = new Promise((resolve, reject) => {
+      this.tipObj[field].call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.tip[field] = ray ? fromRaytoWad(value) : value;
+          this.setState({ sai }, () => {
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  getParameterFromLpc = (field, ray = false) => {
     this.lpcObj[field].call((e, value) => {
       if (!e) {
         const sai = { ...this.state.sai };
@@ -613,7 +751,7 @@ class App extends Component {
 
   getCagePriceFromTub = (reg) => {
     if (reg.gt(0)) {
-      this.tubObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
+      this.topObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
         if (!e) {
           const sai = { ...this.state.sai };
           sai.tub['cage_price'] = web3.toBigNumber(r.args.foo);
@@ -624,9 +762,9 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.tubBalance && this.state.sai.sin.tubBalance) {
+    if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance) {
       const sai = { ...this.state.sai };
-      const dif = this.state.sai.sai.tubBalance.add(this.state.sai.sin.issuerFee).minus(this.state.sai.sin.tubBalance);
+      const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
       sai.tub.avail_boom_sai = web3.toBigNumber(0);
       sai.tub.avail_bust_sai = web3.toBigNumber(0);
 
@@ -634,11 +772,11 @@ class App extends Component {
         sai.tub.avail_boom_sai = dif;
       } else if (dif.lt(0)) {
         // This is a margin we need to take into account as bust quantity goes down per second
-        const futureFee = this.state.sai.sin.potBalance.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)).minus(this.state.sai.sin.potBalance).round(0)
+        const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
         sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = sai.tub.avail_boom_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
-      sai.tub.avail_bust_skr = sai.tub.avail_bust_sai.times(web3.toBigNumber(10).pow(36)).div(this.state.sai.tub.per.times(this.state.sai.tub.tag));
+      sai.tub.avail_boom_skr = wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), wmul(sai.jar.per, sai.jar.tag));
+      sai.tub.avail_bust_skr = wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), wmul(sai.jar.per, sai.jar.tag));
       this.setState({ sai });
     }
   }
@@ -666,21 +804,22 @@ class App extends Component {
   }
 
   tab = (art) => {
-    return art.times(this.state.sai.tub.chi).div(web3.toBigNumber(10).pow(18)).round(0);
+    return wmul(art, this.state.sai.tub.chi).round(0);
   }
 
   updateCup = (id) => {
     const sai = { ...this.state.sai };
     const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = cup.ink.times(sai.tub.per).div(web3.toBigNumber(10).pow(18)).round(0).times(sai.tub.tag).div(web3.toBigNumber(10).pow(18)).round(0);
-    sai.tub.cups[id].ratio = cup.pro.div(this.tab(cup.art));
+    sai.tub.cups[id].pro = wmul(wmul(cup.ink, sai.jar.per).round(0), sai.jar.tag).round(0);
+    sai.tub.cups[id].ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
     // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-    const marginTax = this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120);
-    sai.tub.cups[id].avail_sai = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
-    sai.tub.cups[id].avail_sai_with_margin = cup.pro.div(web3.fromWei(sai.tub.mat)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag))).round(0);
-    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(this.tab(cup.art).times(marginTax).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per.times(sai.tub.tag))).round(0);
-    sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? this.tab(cup.art).times(sai.tub.mat).times(web3.toBigNumber(10).pow(18)).div(sai.tub.per).div(cup.ink) : web3.toBigNumber(0);
+    const marginTax = web3.fromWei(this.state.sai.tub.tax).pow(120);
+    sai.tub.cups[id].avail_sai = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
+    sai.tub.cups[id].avail_sai_with_margin = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
+    sai.tub.cups[id].avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), sai.tub.mat), sai.tip.par), wmul(sai.jar.per, sai.jar.tag))).round(0);
+    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), sai.tub.mat), sai.tip.par), wmul(sai.jar.per, sai.jar.tag))).round(0);
+    sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), sai.tub.mat), sai.jar.per), cup.ink) : web3.toBigNumber(0);
+
     this.setState({ sai }, () => {
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
         if (!e) {
@@ -749,17 +888,17 @@ class App extends Component {
       const c = transactions[tx].callback;
       if (c.method) {
         if(c.method.indexOf('lpc-') !== -1) {
-          this.executeLPCMethod(c.method, c.token, c.value);
+          this.executeLpcMethod(c.method, c.token, c.value);
         } else if (c.method === 'shut') {
           this.executeMethodCup(c.method, c.cup)
         } else if (c.cup && c.value) {
           this.executeMethodCupValue(c.method, c.cup, c.value);
         } else if (c.value) {
-          this.executeMethodValue(c.method, c.value);
+          this.executeMethodValue((c.method === 'bust' || c.method === 'boom') ? 'tap' : 'tub', c.method, c.value);
         } else if (c.cup) {
           this.executeMethodCup(c.method, c.cup);
         } else {
-          this.executeMethod(c.method);
+          this.executeMethod(c.method === 'cash' ? 'top' : 'tub', c.method);
         }
       }
     }
@@ -775,10 +914,10 @@ class App extends Component {
     }
   }
 
-  executeMethod = (method) => {
-    this.tubObj[method]({ }, (e, tx) => {
+  executeMethod = (object, method) => {
+    this[`${object}Obj`][method]({}, (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method}`);
+        this.logPendingTransaction(tx, `${object}: ${method}`);
       } else {
         console.log(e);
       }
@@ -795,10 +934,10 @@ class App extends Component {
     });
   }
 
-  executeMethodValue = (method, value) => {
-    this.tubObj[method](web3.toWei(value), {}, (e, tx) => {
+  executeMethodValue = (object, method, value) => {
+    this[`${object}Obj`][method](web3.toWei(value), {}, (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${value}`);
+        this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
       } else {
         console.log(e);
       }
@@ -808,34 +947,72 @@ class App extends Component {
   executeMethodCupValue = (method, cup, value, toWei = true) => {
     this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${value}`);
+        this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
       } else {
         console.log(e);
       }
     });
   }
 
-  tubAllowance = (token, method, cup, value, value2 = false) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.tubObj.address, (e, r) => {
+  pitAllowance = (token, method, value, value2 = false) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pit.address, (e, r) => {
       if (!e) {
         const valueAllowance = value2 ? value2 : value;
         const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.tubObj.address, web3.toWei(valueAllowance), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.state.sai.pit.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value });
+              this.logPendingTransaction(tx, `${token}: approve pit ${valueAllowance}`, { method, value });
             } else {
               console.log(e);
             }
           });
         } else {
-          method === 'shut' ? this.executeMethodCup(method, cup) : (cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue(method, value));
+          this.executeMethodValue('tap', method, value);
         }
       }
     });
   }
 
-  executeLPCMethod = (method, token, value) => {
+  jarAllowance = (token, method, cup, value) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.jarObj.address, (e, r) => {
+      if (!e) {
+        const valueObj = web3.toBigNumber(web3.toWei(value));
+        if (r.lt(valueObj)) {
+          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
+            if (!e) {
+              this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, cup, value });
+            } else {
+              console.log(e);
+            }
+          });
+        } else {
+          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('tub', method, value);
+        }
+      }
+    });
+  }
+
+  potAllowance = (token, method, cup, value) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pot.address, (e, r) => {
+      if (!e) {
+        const valueObj = web3.toBigNumber(web3.toWei(value));
+        if (r.lt(valueObj)) {
+          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), {}, (e, tx) => {
+            if (!e) {
+              this.logPendingTransaction(tx, `${token}: approve pot ${value}`, { method, cup, value });
+            } else {
+              console.log(e);
+            }
+          });
+        } else {
+          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodCupValue(method, cup, value);
+        }
+      }
+    });
+  }
+
+  executeLpcMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
     this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
       if (!e) {
@@ -859,7 +1036,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeLPCMethod(method, tokenMethod, value);
+          this.executeLpcMethod(method, tokenMethod, value);
         }
       }
     });
@@ -871,15 +1048,15 @@ class App extends Component {
     let error = false;
     switch(method) {
       case 'open':
-        this.executeMethod(method);
+        this.executeMethod('tub', method);
         break;
       case 'shut':
         // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.sai.tub.cups[cup].art.times(this.state.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(120)));
+        const debt = this.tab(this.state.sai.tub.cups[cup].art).times(web3.fromWei(this.state.sai.tub.tax).pow(120));
         if (this.state.sai.sai.myBalance.lt(debt)) {
           error = `Not enough balance of SAI to shut CUP ${cup}.`;
         } else {
-          this.tubAllowance('sai', method, cup, web3.fromWei(debt));
+          this.potAllowance('sai', method, cup, web3.fromWei(debt));
         }
         break;
       case 'bite':
@@ -887,37 +1064,37 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.tubAllowance('gem', method, false, value);
+        this.jarAllowance('gem', method, false, value);
         break;
       case 'exit':
         if (this.state.sai.tub.reg.eq(2)) {
-          this.tubAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
+          this.jarAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
         } else if (this.state.sai.tub.reg.eq(0)) {
-          this.tubAllowance('skr', method, false, value);
+          this.jarAllowance('skr', method, false, value);
         }
         break;
       case 'boom':
-        this.tubAllowance('skr', method, false, value);
+        this.pitAllowance('skr', method, value);
         break;
       case 'bust':
-        const valueSAI = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.tub.per).div(web3.toBigNumber(10).pow(36)).ceil();
-        this.tubAllowance('sai', method, false, value, valueSAI);
+        const valueSAI = web3.toBigNumber(value).times(this.state.sai.jar.tag).times(this.state.sai.jar.per).div(web3.toBigNumber(10).pow(36)).ceil();
+        this.pitAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':
-        this.tubAllowance('skr', method, cup, value);
+        this.jarAllowance('skr', method, cup, value);
         break;
       case 'free':
       case 'draw':
         this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        this.tubAllowance('sai', method, cup, value);
+        this.potAllowance('sai', method, cup, value);
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.tubAllowance('sai', method, false, web3.fromWei(this.state.sai.sai.myBalance));
+        this.potAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
         break;
       case 'lpc-pool':
         this.lpcAllowance(token, token, method, value, web3.toWei(value));
@@ -925,31 +1102,33 @@ class App extends Component {
       case 'lpc-exit':
         let lpsEq = null;
         if (token === 'gem') {
-          lpsEq = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.per).div(web3.toBigNumber(10).pow(18));
+          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.per)), this.state.sai.tip.par);
         } else {
           lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
         }
         lpsEq = lpsEq.round(0);
         if (lpsEq.lt(this.state.sai.lpc.pie)) {
-          lpsEq = lpsEq.times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18));
+          lpsEq = wmul(lpsEq, this.state.sai.lpc.gap);
         }
 
         if (this.state.sai.lps.myBalance.lt(lpsEq)) {
           error = 'Not enough balance in LPS to exit this amount of TOKEN.'.replace('TOKEN', token.toUpperCase());
         } else {
+          // Margin in allowance to solve dynamic 'par' value
+          lpsEq = lpsEq.times(1.01);
           this.lpcAllowance(token, 'lps', method, value, lpsEq);
         }
         break;
       case 'lpc-take':
         if (token === 'gem') {
-          const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
+          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.jar.tag, this.state.sai.lpc.gap));
           if (this.state.sai.sai.myBalance.lt(valueSai)) {
             error = `Not enough balance in SAI to take ${value} GEM.`;
           } else {
             this.lpcAllowance(token, 'sai', method, value, valueSai);
           }
         } else if (token === 'sai') {
-          const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
+          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.jar.tag)).round(0);
           if (this.state.sai.gem.myBalance.lt(valueGem)) {
             error = `Not enough balance in GEM to take ${value} SAI.`;
           } else {
@@ -1050,7 +1229,7 @@ class App extends Component {
                 <Lpc state={ this.state } isUser={ this.isUser } handleOpenModal={ this.handleOpenModal } />
                 {
                   this.state.sai.tag.address && this.state.network.network !== 'private' &&
-                  <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.tub.tag } />
+                  <Tag address={ this.state.sai.tag.address } tag={ this.state.sai.jar.tag } />
                 }
                 <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
               </div>

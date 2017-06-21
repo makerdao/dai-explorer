@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { printNumber } from '../helpers';
+import { WAD, printNumber, wdiv } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -26,9 +26,9 @@ const SystemStatus = (props) => {
             <div>
               <strong>ETH/SKR</strong>
               {
-                props.sai.tub.per.gte(0)
+                props.sai.jar.per.gte(0)
                 ?
-                  printNumber(props.sai.tub.per)
+                  printNumber(props.sai.jar.per)
                 :
                   <span>Loading...</span>
               }
@@ -36,9 +36,19 @@ const SystemStatus = (props) => {
             <div>
               <strong>USD/ETH</strong>
               {
-                props.sai.tub.tag.gte(0)
+                props.sai.jar.tag.gte(0)
                 ?
-                  printNumber(props.sai.tub.tag)
+                  printNumber(props.sai.jar.tag)
+                :
+                  <span>Loading...</span>
+              }
+            </div>
+            <div>
+              <strong>SAI/USD</strong>
+              {
+                props.sai.tip.par.gte(0)
+                ?
+                  printNumber(wdiv(WAD, props.sai.tip.par))
                 :
                   <span>Loading...</span>
               }
@@ -87,7 +97,19 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.tax.gte(0)
                   ?
-                    <span>{ printNumber(props.sai.tub.tax.div(web3.toBigNumber(10).pow(18)).pow(60 * 60 * 24 * 365).times(web3.toBigNumber(10).pow(20)).minus(web3.toWei(100))) }%</span>
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tub.tax).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
+                  :
+                    <span>Loading...</span>
+                }
+              </span>
+            </div>
+            <div>
+              <strong>Way (365 days)</strong>
+              <span>
+                {
+                  props.sai.tip.way.gte(0)
+                  ?
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tip.way).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }
@@ -120,7 +142,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Cage Price (USD/ETH)</strong>
+              <strong>Cage Price (SAI/ETH)</strong>
               {
                 props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gte(0)
                 ?
@@ -130,7 +152,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong>Fix (ETH/USD)</strong>
+              <strong>Fix (ETH/SAI)</strong>
               {
                 props.sai.tub.reg.gt(0) && props.sai.tub.fix.gte(0)
                 ?
