@@ -204,7 +204,7 @@ class App extends Component {
 
     const addrs = addresses[this.state.network.network];
 
-    this.initContracts(addrs['tub'], addrs['top'], addrs['tap'], addrs['lpc']);
+    this.initContracts(addrs['tub'], addrs['tap'], addrs['top'], addrs['lpc']);
   }
 
   checkAccounts = () => {
@@ -232,7 +232,7 @@ class App extends Component {
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.sai.tub.address, this.state.sai.top.address, this.state.sai.tap.address, this.state.sai.lpc.address);
+      this.initContracts(this.state.sai.tub.address, this.state.sai.tap.address, this.state.sai.top.address, this.state.sai.lpc.address);
     }
 
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
@@ -248,12 +248,12 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateContracts = (tubAddress, topAddress, tapAddress, lpcAddress) => {
-    return web3.isAddress(tubAddress) && web3.isAddress(topAddress) && web3.isAddress(tapAddress) && web3.isAddress(lpcAddress);
+  validateAddresses = (tubAddress, tapAddress, topAddress, lpcAddress) => {
+    return web3.isAddress(tubAddress) && web3.isAddress(tapAddress) && web3.isAddress(topAddress) && web3.isAddress(lpcAddress);
   }
 
-  initContracts = (tubAddress, topAddress, tapAddress, lpcAddress) => {
-    if (!this.validateContracts(tubAddress, topAddress, tapAddress, lpcAddress)) {
+  initContracts = (tubAddress, tapAddress, topAddress, lpcAddress) => {
+    if (!this.validateAddresses(tubAddress, tapAddress, topAddress, lpcAddress)) {
       return;
     }
     web3.reset(true);
@@ -261,41 +261,46 @@ class App extends Component {
     this.setState({
       ...initialState
     }, () => {
+      // We need to verify that tap and top correspond to the tub
+      const setUpPromises = [this.getTubAddress(tap.abi, tapAddress), this.getTubAddress(top.abi, topAddress)];
+      Promise.all(setUpPromises).then((r) => {
+        if (r[1] === r[0] && r[0] === tubAddress) {
+          window.tubObj = this.tubObj = this.loadObject(tub.abi, tubAddress);
+          window.tapObj = this.tapObj = this.loadObject(tap.abi, tapAddress);
+          window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
+          window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
 
-      const sai = { ...this.state.sai };
+          const sai = { ...this.state.sai };
 
-      sai['tub'].address = tubAddress;
-      sai['top'].address = topAddress;
-      sai['tap'].address = tapAddress;
-      sai['lpc'].address = lpcAddress;
-      this.setState({ sai });
+          sai['tub'].address = tubAddress;
+          sai['top'].address = topAddress;
+          sai['tap'].address = tapAddress;
+          sai['lpc'].address = lpcAddress;
+          this.setState({ sai });
 
-      window.tubObj = this.tubObj = this.loadObject(tub.abi, sai.tub.address);
-      window.topObj = this.topObj = this.loadObject(top.abi, sai.top.address);
-      window.tapObj = this.tapObj = this.loadObject(tap.abi, sai.tap.address);
-      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, sai.lpc.address);
+          const promises = [this.setUpJar(), this.setUpTip()];
 
-      const promises = [this.setUpJar(), this.setUpTip()];
+          Promise.all(promises).then((r) => {
+            this.initializeSystemStatus();
 
-      Promise.all(promises).then((r) => {
-        this.initializeSystemStatus();
+            this.setUpPot();
+            this.setUpPit();
+            this.setUpLPS();
+            this.setUpToken('gem');
+            this.setUpToken('skr');
+            this.setUpToken('sai');
+            this.setUpToken('sin');
 
-        this.setUpPot();
-        this.setUpPit();
-        this.setUpLPS();
-        this.setUpToken('gem');
-        this.setUpToken('skr');
-        this.setUpToken('sai');
-        this.setUpToken('sin');
+            this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+            this.setFiltersTip();
+            this.setFiltersLpc();
+            this.setFilterTag();
+            this.setTimeVariablesInterval();
 
-        this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
-        this.setFiltersTip();
-        this.setFiltersLpc();
-        this.setFilterTag();
-        this.setTimeVariablesInterval();
-
-        // This is necessary to finish transactions that failed after signing
-        this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+            // This is necessary to finish transactions that failed after signing
+            this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+          });
+        }
       });
     });
   }
@@ -332,14 +337,14 @@ class App extends Component {
 
   checkUserAuth = () => {
     if (this.state.network && this.state.network.defaultAccount !== null && typeof this.rolesObj !== 'undefined') {
-      this.rolesObj.isUserRoot(this.state.network.defaultAccount, (e, r) => {
+      this.rolesObj.isUserRoot.call(this.state.network.defaultAccount, (e, r) => {
         const sai = { ...this.state.sai };
         if (!e) {
           if (r) {
             sai.tub.role = 'root';
             this.setState({ sai });
           } else {
-             this.rolesObj.hasUserRole(this.state.network.defaultAccount, 1, (e2, r2) => {
+             this.rolesObj.hasUserRole.call(this.state.network.defaultAccount, 1, (e2, r2) => {
                if (!e2) {
                 sai.tub.role = r2 ? 'user' : 'none';
                 this.setState({ sai });
@@ -349,6 +354,19 @@ class App extends Component {
         }
       })
     }
+  }
+
+  getTubAddress = (abi, address) => {
+    const p = new Promise((resolve, reject) => {
+      this.loadObject(abi, address).tub.call((e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
   }
 
   setUpJar = () => {
