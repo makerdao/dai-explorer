@@ -965,6 +965,7 @@ class App extends Component {
         if (r.lt(valueObj)) {
           this[`${token}Obj`].approve(this.state.sai.pit.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
+              value = method === 'cash' ? false : value;
               this.logPendingTransaction(tx, `${token}: approve pit ${valueAllowance}`, { method, value });
             } else {
               console.log(e);
