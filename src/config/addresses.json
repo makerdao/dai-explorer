@@ -1,9 +1,9 @@
 {
   "private": {
-    "tub": "0x8cc94094329e2397f176b9a3415a9a6eb66f3746",
-    "tap": "0x718e1497188318addf7e38b8318747006541f888",
-    "top": "0x1e5ead93c911450036a8312c25b5211b728f96d5",
-    "lpc": "0x32e02f2934824ec085298e2b4e0e07935ec6daec",
+    "tub": "0xd517fa80ed2aa312cb3e8fdd32cb3bbe7d28f5bc",
+    "tap": "0x070a69230a08b93807c43a96327ff091ae7fc04d",
+    "top": "0x6ed5f9899e0975d306dd9aa95a73c52af84d5b7c",
+    "lpc": "0xe9809eb4231ee76963842a4cd8c89bd06df5f09e",
     "faucet": "",
     "fromBlock": 0
   },
