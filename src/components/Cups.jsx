@@ -5,13 +5,12 @@ import { printNumber, wdiv } from '../helpers';
 const renderCupActions = (reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
     lock: reg.eq(0) && cup.lad === defaultAccount && lock,
-    free: reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    free: cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
     draw: reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
     wipe: reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
     shut: reg.eq(0) && cup.lad === defaultAccount,
     give: reg.eq(0) && cup.lad === defaultAccount,
-    bite: reg.eq(0) && cup.safe === false,
-    bail: reg.gt(0) && cup.lad === defaultAccount,
+    bite: (reg.eq(1) && cup.art.gt(0)) || cup.safe === false,
   };
 
   return (

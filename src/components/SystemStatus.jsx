@@ -141,16 +141,6 @@ const SystemStatus = (props) => {
                 }
               </span>
             </div>
-            <div>
-              <strong>Cage Price (SAI/ETH)</strong>
-              {
-                props.sai.tub.reg.gt(0) && props.sai.tub.cage_price.gte(0)
-                ?
-                  printNumber(props.sai.tub.cage_price)
-                :
-                  <span>-</span>
-              }
-            </div>
           </div>
         </div>
       </div>

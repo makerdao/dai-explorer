@@ -59,7 +59,6 @@ class App extends Component {
           tax: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
           rho: web3.toBigNumber(-1),
-          cage_price: web3.toBigNumber(-1),
           cups: {},
         },
         jar: {
@@ -85,7 +84,7 @@ class App extends Component {
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           jarBalance: web3.toBigNumber(-1),
-          potBalance: web3.toBigNumber(-1),
+          pitBalance: web3.toBigNumber(-1),
           lpcBalance: web3.toBigNumber(-1),
         },
         skr: {
@@ -93,14 +92,12 @@ class App extends Component {
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           jarBalance: web3.toBigNumber(-1),
-          potBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
         },
         sai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          potBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
           lpcBalance: web3.toBigNumber(-1),
         },
@@ -520,9 +517,9 @@ class App extends Component {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           this.getCup(r.args.foo, address);
-        } else if (r.args.sig === this.methodSig('cage(uint128)')) {
+        } else if (r.args.sig === this.methodSig('cage()')) {
           this.getParameterFromTub('reg');
-          this.getParameterFromTub('fit', true);
+          this.getParameterFromTub('fit');
         } else if (r.args.sig === this.methodSig('chop(uint128)')) {
           this.getParameterFromTub('axe', true);
         } else if (r.args.sig === this.methodSig('cuff(uint128)')) {
@@ -593,10 +590,12 @@ class App extends Component {
     this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
 
     if (token !== 'lps') {
-      this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
       this.getParameterFromLpc('pie');
       this.getParameterFromLpc('gap');
       this.getParameterFromLpc('per', true);
+    }
+    if (token === 'sin') {
+      this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
     }
     if (token === 'gem' || token === 'skr') {
       this.getBalanceOf(token, this.state.sai.jar.address, 'jarBalance');
@@ -604,7 +603,7 @@ class App extends Component {
     if (token === 'sai' || token === 'gem') {
       this.getBalanceOf(token, this.state.sai.lpc.address, 'lpcBalance');
     }
-    if (token === 'sai' || token === 'sin' || token === 'skr') {
+    if (token === 'gem' || token === 'skr' || token === 'sai' || token === 'sin') {
       this.getBalanceOf(token, this.state.sai.pit.address, 'pitBalance');
       this.getBoomBustValues();
     }
@@ -643,11 +642,11 @@ class App extends Component {
 
   initializeSystemStatus = () => {
     this.getParameterFromTub('authority', false, this.loadRoles());
-    this.getParameterFromTub('reg', false, this.getCagePriceFromTub);
+    this.getParameterFromTub('reg', false);
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
-    this.getParameterFromTub('fit', true);
+    this.getParameterFromTub('fit');
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('chi', true);
     this.getParameterFromJar('per', true);
@@ -661,7 +660,7 @@ class App extends Component {
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.sai.skr.potBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+    if (this.state.sai.skr.jarBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
       const pro = wmul(this.state.sai.skr.jarBalance, this.state.sai.jar.tag);
       const con = this.state.sai.sin.totalSupply;
 
@@ -746,18 +745,6 @@ class App extends Component {
         this.setState({ sai });
       }
     });
-  }
-
-  getCagePriceFromTub = (reg) => {
-    if (reg.gt(0)) {
-      this.topObj.LogNote({ sig: this.methodSig('cage(uint128)') }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
-        if (!e) {
-          const sai = { ...this.state.sai };
-          sai.tub['cage_price'] = web3.toBigNumber(r.args.foo);
-          this.setState({ sai });
-        }
-      });
-    }
   }
 
   getValFromPip = (field) => {
@@ -984,7 +971,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeMethodValue('tap', method, value);
+          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodValue('tap', method, value);
         }
       }
     });
@@ -1022,7 +1009,7 @@ class App extends Component {
             }
           });
         } else {
-          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodCupValue(method, cup, value);
+          this.executeMethodCupValue(method, cup, value);
         }
       }
     });
@@ -1083,7 +1070,7 @@ class App extends Component {
         this.jarAllowance('gem', method, false, value);
         break;
       case 'exit':
-        if (this.state.sai.tub.reg.eq(2)) {
+        if (this.state.sai.tub.reg.eq(1)) {
           this.jarAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
         } else if (this.state.sai.tub.reg.eq(0)) {
           this.jarAllowance('skr', method, false, value);
@@ -1110,7 +1097,7 @@ class App extends Component {
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.potAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
+        this.pitAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
         break;
       case 'lpc-pool':
         this.lpcAllowance(token, token, method, value, web3.toWei(value));
@@ -1184,7 +1171,9 @@ class App extends Component {
       cash: this.isUser() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
       open: this.isUser() && this.state.sai.tub.reg.eq(0),
       join: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
-      exit: this.isUser() && !this.state.sai.tub.reg.eq(1) && this.state.sai.skr.myBalance.gt(0),
+      exit: this.isUser() && this.state.sai.skr.myBalance.gt(0)
+                          && (this.state.sai.tub.reg.eq(0) ||
+                             (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
       boom: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
     };

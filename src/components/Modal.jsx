@@ -190,7 +190,7 @@ class Modal extends Component {
         }
         break;
       case 'exit':
-        if (this.props.reg.eq(2)) {
+        if (this.props.reg.eq(1)) {
           text = 'Are you sure you want to exit all your SKR?<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
@@ -275,7 +275,7 @@ class Modal extends Component {
           if (this.props.sai.tub.cups[cup].avail_skr.lt(valueWei)) {
             error = 'This amount of SKR exceeds the maximum available to free.';
             this.submitEnabled = false;
-          } else if (valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
+          } else if (this.props.sai.tub.reg.eq(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
             error = 'This amount puts your cup in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
