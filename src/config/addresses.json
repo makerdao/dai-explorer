@@ -1,9 +1,9 @@
 {
   "private": {
-    "tub": "0xd517fa80ed2aa312cb3e8fdd32cb3bbe7d28f5bc",
-    "tap": "0x070a69230a08b93807c43a96327ff091ae7fc04d",
-    "top": "0x6ed5f9899e0975d306dd9aa95a73c52af84d5b7c",
-    "lpc": "0xe9809eb4231ee76963842a4cd8c89bd06df5f09e",
+    "tub": "",
+    "tap": "",
+    "top": "",
+    "lpc": "",
     "faucet": "",
     "fromBlock": 0
   },

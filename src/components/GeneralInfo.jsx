@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import { etherscanAddress } from '../helpers';
+
 class GeneralInfo extends Component {
 
   changeTub = (e) => {
@@ -25,9 +27,11 @@ class GeneralInfo extends Component {
           <div className="row">
             <div className="col-md-6">
               <div><strong>Network:</strong> { this.props.network }</div>
-              <div><strong>Tub:</strong> { this.props.tub }</div>
-              <div><strong>LPC:</strong> { this.props.lpc }</div>
-              <div><strong>Account:</strong> { this.props.account }</div>
+              <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
+              <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>
+              <div><strong>Top:</strong> { etherscanAddress(this.props.network, this.props.top, this.props.top) }</div>
+              <div><strong>LPC:</strong> { etherscanAddress(this.props.network, this.props.lpc, this.props.lpc) }</div>
+              <div><strong>Account:</strong> { etherscanAddress(this.props.network, this.props.account, this.props.account) }</div>
               <div><strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }</div>
             </div>
             <div className="col-md-6">

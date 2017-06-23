@@ -1,16 +1,17 @@
 import React from 'react';
 import AnimatedNumber from '../AnimatedNumber';
-import { formatNumber, copyToClipboard } from '../helpers';
+import { formatNumber, copyToClipboard, etherscanToken } from '../helpers';
 
 const Token = (props) => {
-  const totalSupply = props.token === 'sai' || props.token === 'sin' ? props.sai[props.token].totalSupply.add(props.sai.sin.issuerFee) : props.sai[props.token].totalSupply;
-  const pitBalance = props.token === 'sai' ? props.sai[props.token].pitBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].pitBalance;
-  const potBalance = props.token === 'sin' ? props.sai[props.token].potBalance.add(props.sai.sin.issuerFee) : props.sai[props.token].potBalance;
+  const token = props.sai[props.token];
+  const totalSupply = props.token === 'sai' || props.token === 'sin' ? token.totalSupply.add(props.sai.sin.issuerFee) : token.totalSupply;
+  const pitBalance = props.token === 'sai' ? token.pitBalance.add(props.sai.sin.issuerFee) : token.pitBalance;
+  const potBalance = props.token === 'sin' ? token.potBalance.add(props.sai.sin.issuerFee) : token.potBalance;
   return (
-    <div className="col-md-4 col-sm-6 col-xs-12">
+    <div className="col-md-6 col-sm-6 col-xs-12">
       <div className="info-box">
         <span className={`info-box-icon ${props.color}`}>
-          { props.token === 'gem' ? 'WETH' : props.token }
+          { etherscanToken(props.network, props.token === 'gem' ? 'WETH' : props.token, token.address) }
         </span>
         <div className="info-box-content">
           <span className="info-box-number">
@@ -23,19 +24,19 @@ const Token = (props) => {
               onClick = { copyToClipboard } />
           </span>
           <span className="info-box-number">
-            <span>Mine</span>
+            <span>{ etherscanToken(props.network, 'Mine', token.address, props.account) }</span>
             <AnimatedNumber
-              value={ props.sai[props.token].myBalance }
-              title={ formatNumber(props.sai[props.token].myBalance, 18) }
+              value={ token.myBalance }
+              title={ formatNumber(token.myBalance, 18) }
               formatValue={ n => formatNumber(n, 3) }
               className="printedNumber"
               onClick = { copyToClipboard } />
           </span>
           {
-            props.sai[props.token].potBalance
+            token.potBalance
             ?
               <span className="info-box-number">
-                <span>Pot</span>
+                <span>{ etherscanToken(props.network, 'Pot', token.address, props.sai.pot.address) }</span>
                 <AnimatedNumber
                   value={ potBalance }
                   title={ formatNumber(potBalance, 18) }
@@ -47,10 +48,10 @@ const Token = (props) => {
               ''
           }
           {
-            props.sai[props.token].pitBalance
+            token.pitBalance
             ?
               <span className="info-box-number">
-                <span>Pit</span>
+                <span>{ etherscanToken(props.network, 'Pit', token.address, props.sai.pit.address) }</span>
                 <AnimatedNumber
                   value={ pitBalance }
                   title={ formatNumber(pitBalance, 18) }
@@ -62,13 +63,13 @@ const Token = (props) => {
               ''
           }
           {
-            props.sai[props.token].jarBalance
+            token.jarBalance
             ?
               <span className="info-box-number">
-                <span>Jar</span>
+                <span>{ etherscanToken(props.network, 'Jar', token.address, props.sai.jar.address) }</span>
                 <AnimatedNumber
-                  value={ props.sai[props.token].jarBalance }
-                  title={ formatNumber(props.sai[props.token].jarBalance, 18) }
+                  value={ token.jarBalance }
+                  title={ formatNumber(token.jarBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
@@ -77,28 +78,13 @@ const Token = (props) => {
               ''
           }
           {
-            props.sai[props.token].tapBalance
+            token.lpcBalance
             ?
               <span className="info-box-number">
-                <span>Tap</span>
+                <span>{ etherscanToken(props.network, 'Lpc', token.address, props.sai.lpc.address) }</span>
                 <AnimatedNumber
-                  value={ props.sai[props.token].tapBalance }
-                  title={ formatNumber(props.sai[props.token].tapBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
-          }
-          {
-            props.sai[props.token].lpcBalance
-            ?
-              <span className="info-box-number">
-                <span>Lpc</span>
-                <AnimatedNumber
-                  value={ props.sai[props.token].lpcBalance }
-                  title={ formatNumber(props.sai[props.token].lpcBalance, 18) }
+                  value={ token.lpcBalance }
+                  title={ formatNumber(token.lpcBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />

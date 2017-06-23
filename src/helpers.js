@@ -71,3 +71,19 @@ export function wmul(a, b) {
 export function wdiv(a, b) {
   return a.times(WAD).div(b);
 }
+
+function etherscanUrl(network) {
+  return `https://${ network !== 'live' ? `${network}.` : '' }etherscan.io`;
+}
+
+export function etherscanAddress(network, text, address) {
+  return <a href={ `${etherscanUrl(network)}/address/${address}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+}
+
+export function etherscanTx(network, text, tx) {
+  return <a href={ `${etherscanUrl(network)}/tx/${tx}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+}
+
+export function etherscanToken(network, text, token, holder = false) {
+  return <a href={ `${etherscanUrl(network)}/token/${token}${holder ? `?a=${holder}` : ''}` } target="_blank" rel="noopener noreferrer">{ text }</a>
+}

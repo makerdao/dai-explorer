@@ -11,7 +11,7 @@ import FeedValue from './FeedValue';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad, wmul, wdiv } from '../helpers';
+import { toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -876,7 +876,7 @@ class App extends Component {
     transactions[tx] = { pending: true, title, callback }
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx))
-    this.refs.notificator.info(tx, title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), false);
+    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
   }
 
   logTransactionConfirmed = (tx) => {
@@ -886,7 +886,7 @@ class App extends Component {
       transactions[tx].pending = false;
       this.setState({ transactions });
 
-      this.refs.notificator.success(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+      this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
 
       const c = transactions[tx].callback;
       if (c.method) {
@@ -1018,7 +1018,7 @@ class App extends Component {
 
   executeLpcMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
+    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 100000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
       } else {
@@ -1032,7 +1032,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(valueAllowance);
         if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, {}, (e, tx) => {
+          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 100000 }, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
             } else {
@@ -1191,18 +1191,18 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo tub={ this.state.sai.tub.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
+                <GeneralInfo tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } top={ this.state.sai.top.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
               <div className="col-md-9">
                 <div className="row">
-                  <Token sai={ this.state.sai } token='gem' color='' />
-                  <Token sai={ this.state.sai } token='skr' color='bg-aqua' />
-                  <Token sai={ this.state.sai } token='sai' color='bg-green' />
-                  <Token sai={ this.state.sai } token='sin' color='bg-red' />
-                  <Token sai={ this.state.sai } token='lps' color='bg-blue' />
+                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' />
+                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
+                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
+                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' />
+                  {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
                 </div>
                 <SystemStatus sai={ this.state.sai } />
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />

@@ -39,6 +39,7 @@ div#cups .row {
   font-size: 32px;
   height: 100%;
   line-height: 110px;
+  text-transform: uppercase;
 }
 
 .info-box-number {
@@ -57,8 +58,8 @@ div#cups .row {
   width: 55px;
 }
 
-.info-box-icon {
-  text-transform: uppercase;
+.info-box-icon a {
+  color: #333;
 }
 
 tr th, tr td {
@@ -103,6 +104,10 @@ tr th, tr td {
   margin: 5px 10px;
   color: #FFF;
   border-radius: 5px;
+}
+
+.notify-item a {
+  color: #FFF;
 }
  
 .notify-item:hover {
