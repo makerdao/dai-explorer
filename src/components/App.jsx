@@ -11,7 +11,7 @@ import FeedValue from './FeedValue';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
+import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 // import logo from '../logo.svg';
 import './App.css';
 
@@ -65,12 +65,14 @@ class App extends Component {
           address: null,
           per: web3.toBigNumber(-1),
           tag: web3.toBigNumber(-1),
+          gap: web3.toBigNumber(-1),
         },
         top: {
           address: null,
         },
         tap: {
           address: null,
+          gap: web3.toBigNumber(-1),
         },
         tip: {
           address: null,
@@ -289,7 +291,9 @@ class App extends Component {
             this.setUpToken('sin');
 
             this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+            this.setFiltersTap();
             this.setFiltersTip();
+            this.setFiltersJar();
             this.setFiltersLpc();
             this.setFilterFeedValue();
             this.setTimeVariablesInterval();
@@ -539,12 +543,34 @@ class App extends Component {
     });
   }
 
+  setFiltersTap = () => {
+    this.tapObj.LogNote({}, {}, (e, r) => {
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        if (r.args.sig === this.methodSig('jump(uint128)')) {
+          this.getParameterFromTap('gap', false, this.getBoomBustValues());
+        }
+      }
+    });
+  }
+
   setFiltersTip = () => {
     this.tipObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (r.args.sig === this.methodSig('coax(uint128)')) {
           this.getParameterFromTip('way', true);
+        }
+      }
+    });
+  }
+
+  setFiltersJar = () => {
+    this.jarObj.LogNote({}, {}, (e, r) => {
+      if (!e) {
+        this.logTransactionConfirmed(r.transactionHash);
+        if (r.args.sig === this.methodSig('jump(uint128)')) {
+          this.getParameterFromJar('gap');
         }
       }
     });
@@ -650,7 +676,9 @@ class App extends Component {
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('chi', true);
     this.getParameterFromJar('per', true);
+    this.getParameterFromJar('gap');
     this.getParameterFromJar('tag', false, this.calculateSafetyAndDeficit);
+    this.getParameterFromTap('gap', false, this.getBoomBustValues());
     this.getParameterFromTip('way', true);
     this.getParameterFromTip('par');
     this.loadEraRho();
@@ -720,6 +748,23 @@ class App extends Component {
     return p;
   }
 
+  getParameterFromTap = (field, ray = false) => {
+    const p = new Promise((resolve, reject) => {
+      this.tapObj[field].call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.tap[field] = ray ? fromRaytoWad(value) : value;
+          this.setState({ sai }, () => {
+            resolve(true);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
   getParameterFromTip = (field, ray = false) => {
     const p = new Promise((resolve, reject) => {
       this.tipObj[field].call((e, value) => {
@@ -778,8 +823,8 @@ class App extends Component {
         const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
         sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag);
-      sai.tub.avail_bust_skr = wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag);
+      sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.minus(sai.tap.gap));
+      sai.tub.avail_bust_skr = wdiv(wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag), WAD.add(sai.tap.gap));
       this.setState({ sai });
     }
   }
@@ -928,7 +973,7 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), {}, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), { gas: 1000000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
@@ -938,7 +983,7 @@ class App extends Component {
   }
 
   executeMethodValue = (object, method, value) => {
-    this[`${object}Obj`][method](web3.toWei(value), {}, (e, tx) => {
+    this[`${object}Obj`][method](web3.toWei(value), { gas: 1000000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
       } else {
@@ -948,7 +993,7 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { gas: 1000000 }, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
       } else {
@@ -983,7 +1028,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), { gas: 1000000 }, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, cup, value });
             } else {
@@ -1002,7 +1047,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), { gas: 1000000 }, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve pot ${value}`, { method, cup, value });
             } else {
@@ -1081,7 +1126,7 @@ class App extends Component {
         this.pitAllowance('skr', method, value);
         break;
       case 'bust':
-        const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.jar.tag).ceil();
+        const valueSAI = wmul(wdiv(wmul(web3.toBigNumber(value), this.state.sai.jar.tag), this.state.sai.tip.par), WAD.add(this.state.sai.tap.gap)).ceil();
         this.pitAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':

@@ -84,6 +84,26 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
+              <strong>Gap (join/exit)</strong>
+              {
+                props.sai.jar.gap.gte(0)
+                ?
+                  <span>{ printNumber(props.sai.jar.gap.times(100)) }%</span>
+                :
+                  <span>Loading...</span>
+              }
+            </div>
+            <div>
+              <strong>Gap (boom/bust)</strong>
+              {
+                props.sai.tap.gap.gte(0)
+                ?
+                  <span>{ printNumber(props.sai.tap.gap.times(100)) }%</span>
+                :
+                  <span>Loading...</span>
+              }
+            </div>
+            <div>
               <strong>Deficit</strong>
               <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek !== 'undefined' ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
