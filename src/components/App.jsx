@@ -799,6 +799,7 @@ class App extends Component {
           const sai = { ...this.state.sai };
           sai.pip.val = web3.toBigNumber(parseInt(value, 16));
           this.setState({ sai }, () => {
+            this.getBoomBustValues();
             resolve(true);
           });
         } else {
@@ -810,7 +811,7 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance) {
+    if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance && this.state.sai.pip.val) {
       const sai = { ...this.state.sai };
       const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
       sai.tub.avail_boom_sai = web3.toBigNumber(0);
@@ -825,6 +826,11 @@ class App extends Component {
       }
       sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.minus(sai.tap.gap));
       sai.tub.avail_bust_skr = wdiv(wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag), WAD.add(sai.tap.gap));
+
+      if (sai.tub.avail_bust_sai.gt(0) && sai.skr.pitBalance.lt(sai.tub.avail_bust_skr)) {
+        // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
+        sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, WAD.add(sai.tap.gap)), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+      }
       this.setState({ sai });
     }
   }
@@ -973,7 +979,7 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), { gas: 1000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
@@ -983,7 +989,7 @@ class App extends Component {
   }
 
   executeMethodValue = (object, method, value) => {
-    this[`${object}Obj`][method](web3.toWei(value), { gas: 1000000 }, (e, tx) => {
+    this[`${object}Obj`][method](web3.toWei(value), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
       } else {
@@ -993,7 +999,7 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, { gas: 1000000 }, (e, tx) => {
+    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
       } else {
@@ -1028,7 +1034,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), { gas: 1000000 }, (e, tx) => {
+          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, cup, value });
             } else {
@@ -1047,7 +1053,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), { gas: 1000000 }, (e, tx) => {
+          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), {}, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${token}: approve pot ${value}`, { method, cup, value });
             } else {
