@@ -13,12 +13,22 @@ const renderCupActions = (reg, lock, cupId, cup, handleOpenModal, defaultAccount
     bite: (reg.eq(1) && cup.art.gt(0)) || cup.safe === false,
   };
 
+  const helpers = {
+    lock: 'Deposit SKR in this CUP',
+    free: 'Withdraw SKR from this CUP',
+    draw: 'Mint SAI from the SKR locked amount',
+    wipe: 'Burn SAI previously minted',
+    shut: 'Close this CUP',
+    give: 'Transfer this CUP',
+    bite: 'Liquidate this CUP',
+  };
+
   return (
     <span>
       {
         Object.keys(actions).map(key =>
           <span key={ key }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal }>{ key }</a> : key }
+            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
             <span> / </span>
           </span>
         )

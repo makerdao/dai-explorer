@@ -3,10 +3,16 @@ import web3 from  '../web3';
 import { printNumber,/* WAD,*/ wdiv } from '../helpers';
 
 const Lpc = (props) => {
-  const lpcActions = {
+  const actions = {
     pool: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
     exit: props.isUser() && props.state.sai.lps.myBalance && props.state.sai.lps.myBalance.gt(0),
     take: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
+  };
+
+  const helpers = {
+    pool: 'Deposit WETH or SAI to the LPC',
+    exit: 'Withdraw WETH or SAI from the LPC',
+    take: 'Exchange WETH/SAI',
   };
 
   let maxClaimEqSai = props.state.sai.lps.myBalance && props.state.sai.lpc.per && props.state.sai.lpc.gap
@@ -29,9 +35,9 @@ const Lpc = (props) => {
         <div className="row">
           <div className="col-md-12">
             {
-              Object.keys(lpcActions).map(key =>
+              Object.keys(actions).map(key =>
                 <span key={ key }>
-                  { lpcActions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ props.handleOpenModal }>{ key }</a> : key }
+                  { actions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ props.handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
                   <span> / </span>
                 </span>
               )

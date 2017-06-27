@@ -1069,7 +1069,7 @@ class App extends Component {
 
   executeLpcMethod = (method, token, value) => {
     const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), { gas: 100000 }, (e, tx) => {
+    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
       } else {
@@ -1083,7 +1083,7 @@ class App extends Component {
       if (!e) {
         const valueObj = web3.toBigNumber(valueAllowance);
         if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, { gas: 100000 }, (e, tx) => {
+          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, {}, (e, tx) => {
             if (!e) {
               this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
             } else {
@@ -1227,7 +1227,16 @@ class App extends Component {
                           && (this.state.sai.tub.reg.eq(0) ||
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
       boom: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
-      bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0)
+      bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+    };
+
+    const helpers = {
+      cash: 'Exchange your SAI to WETH',
+      open: 'Open a new CUP (debt position)',
+      join: 'Deposit WETH in exchange of SKR',
+      exit: 'Withdraw WETH in exchange of SKR',
+      boom: 'Buy SAI in exchange of SKR',
+      bust: 'Sell SAI in exchange of SKR',
     };
 
     return (
@@ -1269,7 +1278,7 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal }>{ key }</a> : key }
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
                               <span> / </span>
                             </span>
                           )
