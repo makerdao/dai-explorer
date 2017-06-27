@@ -68,7 +68,7 @@ const Lpc = (props) => {
                 }
               </div>
               <div>
-                <strong>LPC Funds of ETH</strong>
+                <strong>LPC Funds of WETH</strong>
                 {
                   props.state.sai.lpc.pie
                   ?
@@ -88,7 +88,7 @@ const Lpc = (props) => {
                 }
               </div>
               <div>
-                <strong>Avail. to exit (in ETH)</strong>
+                <strong>Avail. to exit (in WETH)</strong>
                 {
                   maxClaimEqETH
                   ?

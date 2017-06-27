@@ -1178,14 +1178,14 @@ class App extends Component {
         if (token === 'gem') {
           const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.gap));
           if (this.state.sai.sai.myBalance.lt(valueSai)) {
-            error = `Not enough balance in SAI to take ${value} GEM.`;
+            error = `Not enough balance in SAI to take ${value} WETH.`;
           } else {
             this.lpcAllowance(token, 'sai', method, value, valueSai);
           }
         } else if (token === 'sai') {
           const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.pip.val)).round(0);
           if (this.state.sai.gem.myBalance.lt(valueGem)) {
-            error = `Not enough balance in GEM to take ${value} SAI.`;
+            error = `Not enough balance in WETH to take ${value} SAI.`;
           } else {
             this.lpcAllowance(token, 'gem', method, value, valueGem);
           }

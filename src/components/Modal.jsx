@@ -119,7 +119,7 @@ class Modal extends Component {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <select ref={(input) => this.token = input} id="selectToken">
-          <option value="gem">GEM</option>
+          <option value="gem">WETH</option>
           <option value="sai">SAI</option>
         </select>
         <input ref={(input) => this.updateVal = input} type="number" id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
@@ -175,15 +175,15 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'join':
-        text = 'Please set amount of GEM (W-ETH) you want to convert to collateral (SKR).<br />' + 
-               'You might be requested for signing two transactions if there is not enough allowance in GEM to complete this transaction.';
+        text = 'Please set amount of WETH you want to convert to collateral (SKR).<br />' +
+               'You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
           if (this.props.sai.gem.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to join this amount of GEM.';
+            error = 'Not enough balance to join this amount of WETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -196,7 +196,7 @@ class Modal extends Component {
           type = 'yesno';
           this.submitEnabled = true;
         } else {
-          text = 'Please set amount of collateral (SKR) you want to convert to GEM (W-ETH).<br />' +
+          text = 'Please set amount of collateral (SKR) you want to convert to WETH.<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'number';
 
@@ -348,7 +348,7 @@ class Modal extends Component {
             error = 'Not enough balance to pool this amount of SAI.';
             this.submitEnabled = false;
           } else if (token === 'gem' && this.props.sai.gem.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to pool this amount of GEM.';
+            error = 'Not enough balance to pool this amount of WETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -364,7 +364,7 @@ class Modal extends Component {
           this.submitEnabled = true;
           const token = document.getElementById('selectToken').value;
           if (token === 'gem' && this.props.sai.gem.lpcBalance.lt(valueWei)) {
-            error = 'Not enough funds in LPC to exit this amount of GEM.';
+            error = 'Not enough funds in LPC to exit this amount of WETH.';
             this.submitEnabled = false;
           } else if (token === 'sai' && this.props.sai.sai.lpcBalance.lt(valueWei)) {
             error = 'Not enough funds in LPC to exit this amount of SAI.';
@@ -383,7 +383,7 @@ class Modal extends Component {
           this.submitEnabled = true;
           const token = document.getElementById('selectToken').value;
           if (token === 'gem' && this.props.sai.gem.lpcBalance.lt(valueWei)) {
-            error = 'Not enough balance in LPC to take this amount of GEM.';
+            error = 'Not enough balance in LPC to take this amount of WETH.';
             this.submitEnabled = false;
           } else if (token === 'sai' && this.props.sai.sai.lpcBalance.lt(valueWei)) {
             error = 'Not enough balance in LPC to take this amount of SAI.';
