@@ -99,7 +99,7 @@ class Modal extends Component {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <select ref={(input) => this.token = input} id="selectToken">
-          <option value="gem">GEM</option>
+          <option value="gem">WETH</option>
           <option value="sai">SAI</option>
         </select>
         <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" />
@@ -155,8 +155,8 @@ class Modal extends Component {
         type = 'yesno';
         break;
       case 'join':
-        text = 'Please set amount of GEM (W-ETH) you want to convert to collateral (SKR).<br />' + 
-               'You might be requested for signing two transactions if there is not enough allowance in GEM to complete this transaction.';
+        text = 'Please set amount of WETH you want to convert to collateral (SKR).<br />' +
+               'You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         type = 'number';
         break;
       case 'exit':
@@ -165,7 +165,7 @@ class Modal extends Component {
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
         } else {
-          text = 'Please set amount of collateral (SKR) you want to convert to GEM (W-ETH).<br />' +
+          text = 'Please set amount of collateral (SKR) you want to convert to W-ETH.<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'number';
         }

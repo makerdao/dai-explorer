@@ -827,7 +827,7 @@ class App extends Component {
         break;
       case 'join':
         if (this.state.sai.gem.myBalance.lt(valueWei)) {
-          error = `Not enough balance to join ${value} GEM.`;
+          error = `Not enough balance to join ${value} WETH.`;
         } else {
           this.tubAllowance('gem', method, false, value);
         }
@@ -907,14 +907,14 @@ class App extends Component {
         if (token === 'sai' && this.state.sai.sai.myBalance.lt(valueWei)) {
           error = `Not enough balance to pool ${value} SAI.`;
         } else if (token === 'gem' && this.state.sai.gem.myBalance.lt(valueWei)) {
-          error = `Not enough balance to pool ${value} GEM.`;
+          error = `Not enough balance to pool ${value} WETH.`;
         } else {
           this.lpcAllowance(token, token, method, value, web3.toWei(value));
         }
         break;
       case 'lpc-exit':
         if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough funds in LPC to exit ${value} GEM.`;
+          error = `Not enough funds in LPC to exit ${value} WETH.`;
         } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
           error = `Not enough funds in LPC to exit ${value} SAI.`;
         } else {
@@ -938,21 +938,21 @@ class App extends Component {
         break;
       case 'lpc-take':
         if (token === 'gem' && this.state.sai.gem.lpcBalance.lt(web3.toWei(value))) {
-          error = `Not enough balance in LPC to take ${value} GEM.`;
+          error = `Not enough balance in LPC to take ${value} WETH.`;
         } else if (token === 'sai' && this.state.sai.sai.lpcBalance.lt(web3.toWei(value))) {
           error = `Not enough balance in LPC to take ${value} SAI.`;
         } else {
           if (token === 'gem') {
             const valueSai = web3.toBigNumber(value).times(this.state.sai.tub.tag).times(this.state.sai.lpc.gap).div(web3.toBigNumber(10).pow(18)).round(0);
             if (this.state.sai.sai.myBalance.lt(valueSai)) {
-              error = `Not enough balance in SAI to take ${value} GEM.`;
+              error = `Not enough balance in SAI to take ${value} WETH.`;
             } else {
               this.lpcAllowance(token, 'sai', method, value, valueSai);
             }
           } else if (token === 'sai') {
             const valueGem = web3.toBigNumber(value).times(this.state.sai.lpc.gap).times(web3.toBigNumber(10).pow(18)).div(this.state.sai.tub.tag).round(0);
             if (this.state.sai.gem.myBalance.lt(valueGem)) {
-              error = `Not enough balance in GEM to take ${value} SAI.`;
+              error = `Not enough balance in WETH to take ${value} SAI.`;
             } else {
               this.lpcAllowance(token, 'gem', method, value, valueGem);
             }
