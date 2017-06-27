@@ -5,15 +5,17 @@
     "top": "",
     "lpc": "",
     "faucet": "",
+    "whitelisted": false,
     "fromBlock": 0
   },
   "kovan": {
-    "tub": "",
-    "tap": "",
-    "top": "",
-    "lpc": "",
+    "tub": "0xc349a197c9c3200411094adec82972a2b921c6e2",
+    "tap": "0x3d9a8aa3753bab869b1cc58063063773da54bd66",
+    "top": "0x66174cf99acdb1a5568186a55827b2aac56275e1",
+    "lpc": "0x421943ce89b6d0daf0128aafc679079050aa0c1e",
     "faucet": "",
-    "fromBlock": 2128242
+    "whitelisted": false,
+    "fromBlock": 2331078
   },
   "live": {
     "tub": "",
@@ -21,6 +23,7 @@
     "top": "",
     "lpc": "",
     "faucet": "",
+    "whitelisted": false,
     "fromBlock": 0
   }
 }

@@ -4,9 +4,9 @@ import { printNumber,/* WAD,*/ wdiv } from '../helpers';
 
 const Lpc = (props) => {
   const actions = {
-    pool: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
-    exit: props.isUser() && props.state.sai.lps.myBalance && props.state.sai.lps.myBalance.gt(0),
-    take: props.isUser() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
+    pool: props.hasUserRights() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
+    exit: props.hasUserRights() && props.state.sai.lps.myBalance && props.state.sai.lps.myBalance.gt(0),
+    take: props.hasUserRights() && (props.state.sai.gem.myBalance.gt(0) || props.state.sai.sai.myBalance.gt(0)),
   };
 
   const helpers = {

@@ -130,7 +130,8 @@ class App extends Component {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-        }
+        },
+        whitelisted: true,
       },
     };
   }
@@ -203,6 +204,10 @@ class App extends Component {
 
     const addrs = addresses[this.state.network.network];
 
+    const saiState = { ...this.state.sai };
+    saiState['whitelisted'] = addresses[this.state.network.network]['whitelisted'];
+    this.setState({ sai: saiState });
+
     this.initContracts(addrs['tub'], addrs['tap'], addrs['top'], addrs['lpc']);
   }
 
@@ -271,6 +276,7 @@ class App extends Component {
 
           const sai = { ...this.state.sai };
 
+          sai['whitelisted'] = addresses[this.state.network.network]['whitelisted'];
           sai['tub'].address = tubAddress;
           sai['top'].address = topAddress;
           sai['tap'].address = tapAddress;
@@ -347,7 +353,7 @@ class App extends Component {
           } else {
              this.rolesObj.hasUserRole.call(this.state.network.defaultAccount, 1, (e2, r2) => {
                if (!e2) {
-                sai.tub.role = r2 ? 'user' : 'none';
+                sai.tub.role = r2 ? 'user' : 'public';
                 this.setState({ sai });
                }
              });
@@ -658,7 +664,7 @@ class App extends Component {
         const sai = { ...this.state.sai };
         sai[name][field] = r;
         this.setState({ sai }, () => {
-          if (name === 'skr' && field === 'potBalance') {
+          if ((name === 'skr' || name === 'sai') && field === 'jarBalance') {
             this.calculateSafetyAndDeficit();
           }
         });
@@ -824,12 +830,12 @@ class App extends Component {
         const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
         sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
       }
-      sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.minus(sai.tap.gap));
-      sai.tub.avail_bust_skr = wdiv(wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag), WAD.add(sai.tap.gap));
+      sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
+      sai.tub.avail_bust_skr = wdiv(wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag), sai.tap.gap);
 
       if (sai.tub.avail_bust_sai.gt(0) && sai.skr.pitBalance.lt(sai.tub.avail_bust_skr)) {
         // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
-        sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, WAD.add(sai.tap.gap)), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+        sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
       }
       this.setState({ sai });
     }
@@ -1214,20 +1220,20 @@ class App extends Component {
     });
   }
 
-  isUser = () => {
-    return ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1;
+  hasUserRights = () => {
+    return !this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1;
   }
 
   renderMain() {
     const actions = {
-      cash: this.isUser() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
-      open: this.isUser() && this.state.sai.tub.reg.eq(0),
-      join: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
-      exit: this.isUser() && this.state.sai.skr.myBalance.gt(0)
+      cash: this.hasUserRights() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
+      open: this.hasUserRights() && this.state.sai.tub.reg.eq(0),
+      join: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
+      exit: this.hasUserRights() && this.state.sai.skr.myBalance.gt(0)
                           && (this.state.sai.tub.reg.eq(0) ||
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
-      boom: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
-      bust: this.isUser() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+      bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
     };
 
     const helpers = {
@@ -1292,7 +1298,7 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <Lpc state={ this.state } isUser={ this.isUser } handleOpenModal={ this.handleOpenModal } />
+                <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
                 {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />

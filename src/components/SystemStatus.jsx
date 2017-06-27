@@ -88,7 +88,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.jar.gap.gte(0)
                 ?
-                  <span>{ printNumber(props.sai.jar.gap.times(100)) }%</span>
+                  <span>{ printNumber(props.sai.jar.gap.times(100).minus(WAD.times(100))) }%</span>
                 :
                   <span>Loading...</span>
               }
@@ -98,7 +98,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tap.gap.gte(0)
                 ?
-                  <span>{ printNumber(props.sai.tap.gap.times(100)) }%</span>
+                  <span>{ printNumber(props.sai.tap.gap.times(100).minus(WAD.times(100))) }%</span>
                 :
                   <span>Loading...</span>
               }
