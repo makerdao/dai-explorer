@@ -1289,7 +1289,7 @@ class App extends Component {
                           Object.keys(actions).map(key =>
                             <span key={ key }>
                               { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
-                              <span> / </span>
+                              { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
                         }

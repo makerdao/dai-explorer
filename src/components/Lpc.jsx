@@ -38,7 +38,7 @@ const Lpc = (props) => {
               Object.keys(actions).map(key =>
                 <span key={ key }>
                   { actions[key] ? <a href="#action" data-method={ `lpc-${key}` } onClick={ props.handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
-                  <span> / </span>
+                  { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                 </span>
               )
             }
