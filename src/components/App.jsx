@@ -22,6 +22,7 @@ const jar = require('../config/saijar');
 const top = require('../config/top');
 const tap = require('../config/tap');
 const tip = require('../config/tip');
+const dsethtoken = require('../config/dsethtoken');
 const dstoken = require('../config/dstoken');
 const dsvalue = require('../config/dsvalue');
 const dsroles = require('../config/dsroles');
@@ -449,7 +450,7 @@ class App extends Component {
   setUpToken = (token) => {
     this.tubObj[token]((e, r) => {
       if (!e) {
-        window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(dstoken.abi, r);
+        window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'gem' ? dsethtoken.abi : dstoken.abi, r);
 
         const sai = { ...this.state.sai };
         sai[token].address = r;
@@ -466,7 +467,7 @@ class App extends Component {
 
     if (token === 'gem') {
       filters.push('Deposit');
-      filters.push('Withdraw');
+      filters.push('Withdrawal');
     }
 
     for (let i = 0; i < filters.length; i++) {
