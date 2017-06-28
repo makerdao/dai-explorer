@@ -331,8 +331,8 @@ class Modal extends Component {
         type = 'yesno';
         this.submitEnabled = true;
         break;
-      case 'bail':
-        text = `Are you sure you want to bail Cup ${modal.cup}?`;
+      case 'vent':
+        text = 'Are you sure you want to vent the system?';
         type = 'yesno';
         this.submitEnabled = true;
         break;

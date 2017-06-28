@@ -519,7 +519,6 @@ class App extends Component {
       'wipe(bytes32,uint128)',
       'bite(bytes32)',
       'shut(bytes32)',
-      'bail(bytes32)',
       'give(bytes32,address)',
     ].map((v) => this.methodSig(v));
 
@@ -1122,7 +1121,6 @@ class App extends Component {
         }
         break;
       case 'bite':
-      case 'bail':
         this.executeMethodCup(method, cup);
         break;
       case 'join':
@@ -1157,6 +1155,9 @@ class App extends Component {
         break;
       case 'cash':
         this.pitAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
+        break;
+      case 'vent':
+        this.executeMethod('top', method);
         break;
       case 'lpc-pool':
         this.lpcAllowance(token, token, method, value, web3.toWei(value));
@@ -1235,6 +1236,7 @@ class App extends Component {
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
       boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      vent: this.hasUserRights() && this.state.sai.tub.reg.eq(1) && this.state.sai.skr.pitBalance.gt(0),
     };
 
     const helpers = {
@@ -1244,6 +1246,7 @@ class App extends Component {
       exit: 'Withdraw WETH in exchange of SKR',
       boom: 'Buy SAI in exchange of SKR',
       bust: 'Sell SAI in exchange of SKR',
+      vent: 'Burn remaining SKR from PIT',
     };
 
     return (
