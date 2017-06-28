@@ -1228,7 +1228,6 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      cash: this.hasUserRights() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
       open: this.hasUserRights() && this.state.sai.tub.reg.eq(0),
       join: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
       exit: this.hasUserRights() && this.state.sai.skr.myBalance.gt(0)
@@ -1236,16 +1235,17 @@ class App extends Component {
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
       boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      cash: this.hasUserRights() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
       vent: this.hasUserRights() && this.state.sai.tub.reg.eq(1) && this.state.sai.skr.pitBalance.gt(0),
     };
 
     const helpers = {
-      cash: 'Exchange your SAI to WETH',
       open: 'Open a new CUP (debt position)',
       join: 'Deposit WETH in exchange of SKR',
       exit: 'Withdraw WETH in exchange of SKR',
       boom: 'Buy SAI in exchange of SKR',
       bust: 'Sell SAI in exchange of SKR',
+      cash: 'Exchange your SAI to WETH',
       vent: 'Burn remaining SKR from PIT',
     };
 
