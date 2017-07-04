@@ -235,7 +235,7 @@ class Modal extends Component {
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
-          const valueSAI = wdiv(wmul(web3.toBigNumber(value), this.props.sai.jar.tag), this.props.sai.tip.par);
+          const valueSAI = wmul(web3.toBigNumber(value), this.props.sai.tub.avail_bust_ratio);
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI)).floor();
           let error = '';
           this.submitEnabled = true;

@@ -820,22 +820,33 @@ class App extends Component {
     if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance && this.state.sai.pip.val) {
       const sai = { ...this.state.sai };
       const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
-      sai.tub.avail_boom_sai = web3.toBigNumber(0);
-      sai.tub.avail_bust_sai = web3.toBigNumber(0);
+      sai.tub.avail_boom_sai = sai.tub.avail_boom_skr = web3.toBigNumber(0);
+      sai.tub.avail_bust_sai = sai.tub.avail_bust_skr = web3.toBigNumber(0);
 
       if (dif.gt(0)) {
+        // We can boom
         sai.tub.avail_boom_sai = dif;
-      } else if (dif.lt(0)) {
+        sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
+      }
+
+      if (sai.skr.pitBalance.gt(0) || dif.lt(0)) {
+        // We can bust
+
         // This is a margin we need to take into account as bust quantity goes down per second
         const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
-        sai.tub.avail_bust_sai = dif.abs().minus(futureFee);
-      }
-      sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
-      sai.tub.avail_bust_skr = wdiv(wdiv(wmul(sai.tub.avail_bust_sai, sai.tip.par), sai.jar.tag), sai.tap.gap);
+        const saiNeeded = dif.abs().minus(futureFee);
+        const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, sai.tip.par), sai.jar.tag), sai.tap.gap);
 
-      if (sai.tub.avail_bust_sai.gt(0) && sai.skr.pitBalance.lt(sai.tub.avail_bust_skr)) {
-        // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
-        sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+        if (sai.skr.pitBalance.gte(equivalentSKR)) {
+          sai.tub.avail_bust_skr = sai.skr.pitBalance;
+          sai.tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, sai.tip.par), sai.jar.tag), sai.tap.gap);
+          sai.tub.avail_bust_sai = wmul(sai.tub.avail_bust_skr, sai.tub.avail_bust_ratio);
+        } else {
+          sai.tub.avail_bust_sai = saiNeeded;
+          // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
+          sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+          sai.tub.avail_bust_ratio = wdiv(sai.tub.avail_bust_sai, sai.tub.avail_bust_skr);
+        }
       }
       this.setState({ sai });
     }
@@ -1137,7 +1148,7 @@ class App extends Component {
         this.pitAllowance('skr', method, value);
         break;
       case 'bust':
-        const valueSAI = wmul(wdiv(wmul(web3.toBigNumber(value), this.state.sai.jar.tag), this.state.sai.tip.par), WAD.add(this.state.sai.tap.gap)).ceil();
+        const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.tub.avail_bust_ratio).ceil();
         this.pitAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':
