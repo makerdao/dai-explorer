@@ -15,7 +15,7 @@ import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helper
 // import logo from '../logo.svg';
 import './App.css';
 
-const addresses = require('../config/addresses');
+const settings = require('../config/settings');
 
 const tub = require('../config/tub');
 const jar = require('../config/saijar');
@@ -203,10 +203,10 @@ class App extends Component {
     networkState['latestBlock'] = 0;
     this.setState({ network: networkState });
 
-    const addrs = addresses[this.state.network.network];
+    const addrs = settings[this.state.network.network];
 
     const saiState = { ...this.state.sai };
-    saiState['whitelisted'] = addresses[this.state.network.network]['whitelisted'];
+    saiState['whitelisted'] = settings[this.state.network.network]['whitelisted'];
     this.setState({ sai: saiState });
 
     this.initContracts(addrs['tub'], addrs['tap'], addrs['top'], addrs['lpc']);
@@ -277,7 +277,7 @@ class App extends Component {
 
           const sai = { ...this.state.sai };
 
-          sai['whitelisted'] = addresses[this.state.network.network]['whitelisted'];
+          sai['whitelisted'] = settings[this.state.network.network]['whitelisted'];
           sai['tub'].address = tubAddress;
           sai['top'].address = topAddress;
           sai['tap'].address = tapAddress;
@@ -491,25 +491,47 @@ class App extends Component {
     }
   }
 
-  setFiltersTub = (address) => {
-    // Get open cups by address (or all)
-
+  getCupsFromChain = (address, fromBlock) => {
     let conditions = {};
     if (address) {
       conditions = { lad: address }
     }
-    this.tubObj.LogNewCup(conditions, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
+
+    this.tubObj.LogNewCup(conditions, { fromBlock }, (e, r) => {
       if (!e) {
         this.getCup(r.args['cup'], address);
       }
     });
     if (address) {
       // Get cups given to address (only if not seeing all cups).
-      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock: addresses[this.state.network.network]['fromBlock'] }, (e, r) => {
+      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock }, (e, r) => {
         if (!e) {
           this.getCup(r.args.foo, address);
         }
       });
+    }
+  }
+
+  setFiltersTub = (address) => {
+    // Get open cups by address (or all)
+
+    var xhr = new XMLHttpRequest();
+    const me = this;
+
+    if (settings[this.state.network.network]['service']) {
+      xhr.open('GET', `${settings[this.state.network.network]['service']}/cups`, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          response.results.forEach(function (v) {
+            me.getCup(toBytes32(v.cupi), address);
+          });
+          me.getCupsFromChain(address, response.last_block);
+        }
+      }
+      xhr.send();
+    } else {
+      this.getCupsFromChain(address, settings[this.state.network.network]['fromBlock']);
     }
 
     const cupSignatures = [

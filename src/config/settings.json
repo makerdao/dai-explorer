@@ -6,7 +6,8 @@
     "lpc": "",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 0
+    "fromBlock": 0,
+    "service": ""
   },
   "kovan": {
     "tub": "0x771aa6e0a64641d46c49009a867d9ac4fc32d317",
@@ -15,7 +16,8 @@
     "lpc": "0xe7a406991ccfbb6d4e6ae6e747b842fbac32fc67",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 2462886
+    "fromBlock": 2462886,
+    "service": ""
   },
   "live": {
     "tub": "",
@@ -24,6 +26,7 @@
     "lpc": "",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 0
+    "fromBlock": 0,
+    "service": ""
   }
 }

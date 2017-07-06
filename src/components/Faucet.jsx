@@ -1,13 +1,13 @@
 import React from 'react';
 import web3 from '../web3';
 
-const addresses = require('../config/addresses');
+const settings = require('../config/settings');
 const faucet = require('../config/faucet');
 
 class Faucet extends React.Component {
   constructor(props) {
     super(props);
-    this.faucet = web3.eth.contract(faucet.abi).at(addresses.kovan.faucet);
+    this.faucet = web3.eth.contract(faucet.abi).at(settings.kovan.faucet);
     window.faucet = this.faucet;
     this.state = {
       claimed: null
