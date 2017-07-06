@@ -137,6 +137,10 @@ tr th, tr td {
   font-weight: 700;
 }
 
+.transfer {
+  height: 150px;
+}
+
 .transfer label {
   clear: left;
   display: block;
@@ -144,10 +148,20 @@ tr th, tr td {
   height: 25px;
 }
 
-.transfer input, .transfer select {
+.transfer input, .transfer select, .transfer span {
+  clear: right;
   display: block;
   float: right;
   width: 150px;
+}
+
+
+.transfer input[type=number], .transfer input[type=text], .transfer span {
+  text-align: right;
+}
+
+.transfer input[type=text] {
+  padding-right: 15px;
 }
 
 .transfer input[type=submit] {

@@ -6,6 +6,7 @@ import GeneralInfo from './GeneralInfo';
 import Faucet from './Faucet';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
+import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
 import Lpc from './Lpc';
@@ -34,7 +35,9 @@ class App extends Component {
     const initialState = this.getInitialState();
     this.state = {
       ...initialState,
-      network: {},
+      network: {
+        accountBalance: web3.toBigNumber(-1),
+      },
       transactions: {},
       modal: {
         show: false
@@ -219,7 +222,15 @@ class App extends Component {
         networkState['accounts'] = accounts;
         networkState['defaultAccount'] = accounts[0];
         web3.eth.defaultAccount = networkState['defaultAccount'];
-        this.setState({ network: networkState }, () => this.checkUserAuth());
+        this.setState({ network: networkState }, () => {
+          web3.eth.getBalance(this.state.network.defaultAccount, (e, r) => {
+            const networkState = { ...this.state.network };
+            networkState['accountBalance'] = r;
+            this.setState({ network: networkState }, () => {
+              this.checkUserAuth();
+            });
+          });
+        });
       }
     });
   }
@@ -1075,7 +1086,7 @@ class App extends Component {
         if (r.lt(valueObj)) {
           this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve jar ${value}`, { method, cup, value });
+              this.logPendingTransaction(tx, `${token.replace('gem', 'weth')}: approve jar ${value}`, { method, cup, value });
             } else {
               console.log(e);
             }
@@ -1255,6 +1266,26 @@ class App extends Component {
     });
   }
 
+  wrapUnwrap = (operation, amount) => {
+    if (operation === 'wrap') {
+      this.gemObj.deposit({ value: web3.toWei(amount) }, (e, tx) => {
+        if (!e) {
+          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
+        } else {
+          console.log(e);
+        }
+      });
+    } else if (operation === 'unwrap') {
+      this.gemObj.withdraw(web3.toWei(amount), {}, (e, tx) => {
+        if (!e) {
+          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
+        } else {
+          console.log(e);
+        }
+      });
+    }
+  }
+
   hasUserRights = () => {
     return !this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1;
   }
@@ -1308,6 +1339,14 @@ class App extends Component {
                   {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
                 </div>
                 <SystemStatus sai={ this.state.sai } />
+                <div className="row">
+                  <div className="col-md-6">
+                    <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                  </div>
+                  <div className="col-md-6">
+                    <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                  </div>
+                </div>
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
@@ -1340,7 +1379,6 @@ class App extends Component {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
                 }
-                <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
               </div>
             </div>
           </div>
