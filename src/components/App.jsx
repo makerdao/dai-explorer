@@ -136,6 +136,11 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
         },
         whitelisted: true,
+        graph: {
+          pips: {},
+          pers: {},
+          pars: {},
+        },
       },
     };
   }
@@ -743,6 +748,9 @@ class App extends Component {
     this.getParameterFromLpc('pie');
     this.getParameterFromLpc('gap');
     this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
+    if (settings[this.state.network.network]['service']) {
+      this.getGraphsData();
+    }
   }
 
   calculateSafetyAndDeficit = () => {
@@ -924,6 +932,17 @@ class App extends Component {
         delete sai.tub.cups[id];
       }
     });
+  }
+
+  getGraphsData = () => {
+    const data = ['pips', 'pers', 'pars'];
+    data.forEach((value) => {
+      Promise.resolve(this.getFromService(value)).then((response) => {
+        const sai = { ...this.state.sai };
+        sai['graph'][value] = response;
+        this.setState({ sai });
+      });
+    })
   }
 
   tab = (art) => {
