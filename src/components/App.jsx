@@ -502,12 +502,7 @@ class App extends Component {
     }
   }
 
-  getCupsFromChain = (address, fromBlock) => {
-    let conditions = {};
-    if (address) {
-      conditions = { lad: address }
-    }
-
+  getCupsFromChain = (address, conditions, fromBlock) => {
     this.tubObj.LogNewCup(conditions, { fromBlock }, (e, r) => {
       if (!e) {
         this.getCup(r.args['cup'], address);
@@ -523,26 +518,50 @@ class App extends Component {
     }
   }
 
-  setFiltersTub = (address) => {
-    // Get open cups by address (or all)
-
-    var xhr = new XMLHttpRequest();
-    const me = this;
-
-    if (settings[this.state.network.network]['service']) {
-      xhr.open('GET', `${settings[this.state.network.network]['service']}/cups`, true);
-      xhr.onreadystatechange = function() {
+  getFromService = (service, conditions = {}, sort = {}) => {
+    const p = new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      let conditionsString = '';
+      let sortString = '';
+      Object.keys(conditions).map(key => {
+        conditionsString += `${key}:${conditions[key]}`;
+        conditionsString += Object.keys(conditions).pop() !== key ? '&' : '';
+        return false;
+      });
+      Object.keys(sort).map(key => {
+        sortString += `${key}:${sort[key]}`;
+        sortString += Object.keys(sort).pop() !== key ? '&' : '';
+        return false;
+      });
+      xhr.open('GET', `${settings[this.state.network.network]['service']}/${service}/${conditionsString}/${sortString}`, true);
+      xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          response.results.forEach(function (v) {
-            me.getCup(toBytes32(v.cupi), address);
-          });
-          me.getCupsFromChain(address, response.last_block);
+          resolve(response);
         }
       }
       xhr.send();
+    });
+    return p;
+  }
+
+  setFiltersTub = (address) => {
+    // Get open cups by address (or all)
+    let conditions = {};
+    if (address) {
+      conditions = { lad: address }
+    }
+
+    const me = this;
+    if (settings[this.state.network.network]['service']) {
+      Promise.resolve(this.getFromService('cups', conditions, {cupi:'desc'})).then((response) => {
+        response.results.forEach(function (v) {
+          me.getCup(toBytes32(v.cupi), address);
+        });
+        me.getCupsFromChain(address, conditions, response.last_block);
+      });
     } else {
-      this.getCupsFromChain(address, settings[this.state.network.network]['fromBlock']);
+      this.getCupsFromChain(address, conditions, settings[this.state.network.network]['fromBlock']);
     }
 
     const cupSignatures = [
