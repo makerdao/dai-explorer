@@ -110,7 +110,6 @@ class App extends Component {
         sin: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
-          myBalance: web3.toBigNumber(-1),
           potBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
           // This field will keep an estimated value of new sin which is being generated due the 'stability/issuer fee'.
@@ -270,7 +269,7 @@ class App extends Component {
   }
 
   validateAddresses = (tubAddress, tapAddress, topAddress, lpcAddress) => {
-    return web3.isAddress(tubAddress) && web3.isAddress(tapAddress) && web3.isAddress(topAddress) && web3.isAddress(lpcAddress);
+    return web3.isAddress(tubAddress) && web3.isAddress(tapAddress) && web3.isAddress(topAddress) && (web3.isAddress(lpcAddress) || lpcAddress === '' || lpcAddress === null);
   }
 
   initContracts = (tubAddress, tapAddress, topAddress, lpcAddress) => {
@@ -450,17 +449,19 @@ class App extends Component {
   }
 
   setUpLPS = () => {
-    this.lpcObj.lps((e, r) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        sai.lps.address = r;
-        window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, sai.lps.address);
-        this.setState({ sai }, () => {
-          this.getDataFromToken('lps');
-          this.setFilterToken('lps');
-        });
-      }
-    })
+    if (this.lpcObj.address) {
+      this.lpcObj.lps((e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.lps.address = r;
+          window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, sai.lps.address);
+          this.setState({ sai }, () => {
+            this.getDataFromToken('lps');
+            this.setFilterToken('lps');
+          });
+        }
+      });
+    }
   }
 
   setUpToken = (token) => {
@@ -640,14 +641,16 @@ class App extends Component {
   }
 
   setFiltersLpc = () => {
-    this.lpcObj.LogNote({}, {}, (e, r) => {
-      if (!e) {
-        this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('jump(uint128)')) {
-          this.getParameterFromLpc('gap');
+    if (this.lpcObj.address) {
+      this.lpcObj.LogNote({}, {}, (e, r) => {
+        if (!e) {
+          this.logTransactionConfirmed(r.transactionHash);
+          if (r.args.sig === this.methodSig('jump(uint128)')) {
+            this.getParameterFromLpc('gap');
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   setFilterFeedValue = () => {
@@ -676,12 +679,14 @@ class App extends Component {
 
   getDataFromToken = (token) => {
     this.getTotalSupply(token);
-    this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
 
     if (token !== 'lps') {
       this.getParameterFromLpc('pie');
       this.getParameterFromLpc('gap');
       this.getParameterFromLpc('per', true);
+    }
+    if (token !== 'sin') {
+      this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
     }
     if (token === 'sin') {
       this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
@@ -849,13 +854,15 @@ class App extends Component {
   }
 
   getParameterFromLpc = (field, ray = false) => {
-    this.lpcObj[field].call((e, value) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        sai.lpc[field] = ray ? fromRaytoWad(value) : value;
-        this.setState({ sai });
-      }
-    });
+    if (this.lpcObj.address) {
+      this.lpcObj[field].call((e, value) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.lpc[field] = ray ? fromRaytoWad(value) : value;
+          this.setState({ sai });
+        }
+      });
+    }
   }
 
   getValFromPip = (field) => {
@@ -1377,14 +1384,17 @@ class App extends Component {
                   {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
                 </div>
                 <SystemStatus sai={ this.state.sai } />
-                <div className="row">
-                  <div className="col-md-6">
-                    <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                {
+                  this.state.sai.lpc.address &&
+                  <div className="row">
+                    <div className="col-md-6">
+                      <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                    </div>
+                    <div className="col-md-6">
+                      <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
-                  </div>
-                </div>
+                }
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
@@ -1412,10 +1422,21 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
+                {
+                  this.state.sai.lpc.address &&
+                  <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
+                }
                 {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
+                }
+                {
+                  !this.state.sai.lpc.address &&
+                  <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                }
+                {
+                  !this.state.sai.lpc.address &&
+                  <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
                 }
               </div>
             </div>
