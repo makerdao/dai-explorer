@@ -10,13 +10,13 @@
     "service": ""
   },
   "kovan": {
-    "tub": "0x771aa6e0a64641d46c49009a867d9ac4fc32d317",
-    "tap": "0xce8861b1bd1e79d700464b1557a90ef7e3447cfd",
-    "top": "0xafe71e9ce6be0edf3d142fbf5f7673930c203ab5",
+    "tub": "0xb215612d29a9f7c0871b7b39142633ee074b785b",
+    "tap": "0xc527cbed697a460a1d21dab07ebeec62c72894a3",
+    "top": "0xaaa4466b3c924cd57fbdd21131a320d7fb2465b5",
     "lpc": "",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 2462886,
+    "fromBlock": 2590758,
     "service": ""
   },
   "live": {
