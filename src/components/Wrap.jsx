@@ -21,7 +21,7 @@ class Wrap extends Component {
       this.setState({ error: `Not enough balance to unwrap ${amount} WETH` });
     } else {
       this.props.wrapUnwrap(operation, amount);
-      this.wrapUnwrapForm.reset();
+      this.amount.value = '';
     }
   }
 

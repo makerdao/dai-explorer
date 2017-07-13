@@ -21,7 +21,8 @@ class Transfer extends Component {
       this.setState({ error: `Not enough balance to transfer ${amount} ${token}` });
     } else if (token) {
       this.props.transferToken(token, to, amount);
-      this.transferForm.reset();
+      this.to.value = '';
+      this.amount.value = '';
     }
   }
 
