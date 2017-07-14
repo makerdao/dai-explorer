@@ -1,7 +1,5 @@
 {
   "private": {
-    "tub": "",
-    "tap": "",
     "top": "",
     "lpc": "",
     "faucet": "",
@@ -10,8 +8,6 @@
     "service": ""
   },
   "kovan": {
-    "tub": "0xb215612d29a9f7c0871b7b39142633ee074b785b",
-    "tap": "0xc527cbed697a460a1d21dab07ebeec62c72894a3",
     "top": "0xaaa4466b3c924cd57fbdd21131a320d7fb2465b5",
     "lpc": "",
     "faucet": "",
@@ -20,8 +16,6 @@
     "service": ""
   },
   "live": {
-    "tub": "",
-    "tap": "",
     "top": "",
     "lpc": "",
     "faucet": "",

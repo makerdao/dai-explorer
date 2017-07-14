@@ -216,7 +216,7 @@ class App extends Component {
     saiState['whitelisted'] = settings[this.state.network.network]['whitelisted'];
     this.setState({ sai: saiState });
 
-    this.initContracts(addrs['tub'], addrs['tap'], addrs['top'], addrs['lpc']);
+    this.initContracts(addrs['top'], addrs['lpc']);
   }
 
   checkAccounts = () => {
@@ -252,7 +252,7 @@ class App extends Component {
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.sai.tub.address, this.state.sai.tap.address, this.state.sai.top.address, this.state.sai.lpc.address);
+      this.initContracts(this.state.sai.top.address, this.state.sai.lpc.address);
     }
 
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
@@ -268,12 +268,12 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateAddresses = (tubAddress, tapAddress, topAddress, lpcAddress) => {
-    return web3.isAddress(tubAddress) && web3.isAddress(tapAddress) && web3.isAddress(topAddress) && (web3.isAddress(lpcAddress) || lpcAddress === '' || lpcAddress === null);
+  validateAddresses = (topAddress, lpcAddress) => {
+    return web3.isAddress(topAddress) && (web3.isAddress(lpcAddress) || lpcAddress === '' || lpcAddress === null);
   }
 
-  initContracts = (tubAddress, tapAddress, topAddress, lpcAddress) => {
-    if (!this.validateAddresses(tubAddress, tapAddress, topAddress, lpcAddress)) {
+  initContracts = (topAddress, lpcAddress) => {
+    if (!this.validateAddresses(topAddress, lpcAddress)) {
       return;
     }
     web3.reset(true);
@@ -282,21 +282,22 @@ class App extends Component {
       ...initialState
     }, () => {
       // We need to verify that tap and top correspond to the tub
-      const setUpPromises = [this.getTubAddress(tap.abi, tapAddress), this.getTubAddress(top.abi, topAddress)];
-      Promise.all(setUpPromises).then((r) => {
-        if (r[1] === r[0] && r[0] === tubAddress) {
-          window.tubObj = this.tubObj = this.loadObject(tub.abi, tubAddress);
-          window.tapObj = this.tapObj = this.loadObject(tap.abi, tapAddress);
-          window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
-          window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
+      window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
+      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
 
+      const setUpPromises = [this.getTubAddress(), this.getTapAddress()];
+      Promise.all(setUpPromises).then((r) => {
+        if (r[0] && r[1] && web3.isAddress(r[0]) &&web3.isAddress(r[1])) {
+          window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
+          window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
           const sai = { ...this.state.sai };
 
           sai['whitelisted'] = settings[this.state.network.network]['whitelisted'];
-          sai['tub'].address = tubAddress;
           sai['top'].address = topAddress;
-          sai['tap'].address = tapAddress;
           sai['lpc'].address = lpcAddress;
+          sai['tub'].address = r[0];
+          sai['tap'].address = r[1];
+
           this.setState({ sai });
 
           const promises = [this.setUpJar(), this.setUpTip()];
@@ -323,6 +324,8 @@ class App extends Component {
             // This is necessary to finish transactions that failed after signing
             this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
           });
+        } else {
+          alert('This is not a Top address');
         }
       });
     });
@@ -379,9 +382,22 @@ class App extends Component {
     }
   }
 
-  getTubAddress = (abi, address) => {
+  getTubAddress = () => {
     const p = new Promise((resolve, reject) => {
-      this.loadObject(abi, address).tub.call((e, r) => {
+      this.topObj.tub.call((e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  getTapAddress = () => {
+    const p = new Promise((resolve, reject) => {
+      this.topObj.tap.call((e, r) => {
         if (!e) {
           resolve(r);
         } else {
