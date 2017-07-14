@@ -1,8 +1,8 @@
 import React from 'react';
 import web3 from '../web3';
 
-const settings = require('../config/settings');
-const faucet = require('../config/faucet');
+const settings = require('../settings');
+const faucet = require('../abi/faucet');
 
 class Faucet extends React.Component {
   constructor(props) {

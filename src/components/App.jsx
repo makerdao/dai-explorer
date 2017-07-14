@@ -16,18 +16,18 @@ import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helper
 // import logo from '../logo.svg';
 import './App.css';
 
-const settings = require('../config/settings');
+const settings = require('../settings');
 
-const tub = require('../config/tub');
-const jar = require('../config/saijar');
-const top = require('../config/top');
-const tap = require('../config/tap');
-const tip = require('../config/tip');
-const dsethtoken = require('../config/dsethtoken');
-const dstoken = require('../config/dstoken');
-const dsvalue = require('../config/dsvalue');
-const dsroles = require('../config/dsroles');
-const lpc = require('../config/sailpc');
+const tub = require('../abi/tub');
+const jar = require('../abi/saijar');
+const top = require('../abi/top');
+const tap = require('../abi/tap');
+const tip = require('../abi/tip');
+const dsethtoken = require('../abi/dsethtoken');
+const dstoken = require('../abi/dstoken');
+const dsvalue = require('../abi/dsvalue');
+const dsroles = require('../abi/dsroles');
+const lpc = require('../abi/sailpc');
 
 class App extends Component {
   constructor() {

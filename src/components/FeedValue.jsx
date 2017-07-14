@@ -4,7 +4,7 @@ import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
 import { toBytes12, formatNumber, copyToClipboard } from '../helpers';
 
-const medianizer = require('../config/medianizer');
+const medianizer = require('../abi/medianizer');
 
 class FeedValue extends React.Component {
   constructor(props) {

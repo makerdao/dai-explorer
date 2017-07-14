@@ -3,7 +3,7 @@ import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
 import { formatNumber, copyToClipboard } from '../helpers';
 
-var dsvalue = require('../config/dsvalue');
+var dsvalue = require('../abi/dsvalue');
 
 class DSValue extends React.Component {
 
