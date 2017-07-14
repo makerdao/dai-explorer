@@ -227,13 +227,15 @@ class App extends Component {
         networkState['defaultAccount'] = accounts[0];
         web3.eth.defaultAccount = networkState['defaultAccount'];
         this.setState({ network: networkState }, () => {
-          web3.eth.getBalance(this.state.network.defaultAccount, (e, r) => {
-            const networkState = { ...this.state.network };
-            networkState['accountBalance'] = r;
-            this.setState({ network: networkState }, () => {
-              this.checkUserAuth();
+          if (web3.isAddress(this.state.network.defaultAccount)) {
+            web3.eth.getBalance(this.state.network.defaultAccount, (e, r) => {
+              const networkState = { ...this.state.network };
+              networkState['accountBalance'] = r;
+              this.setState({ network: networkState }, () => {
+                this.checkUserAuth();
+              });
             });
-          });
+          }
         });
       }
     });
@@ -1348,7 +1350,7 @@ class App extends Component {
   }
 
   hasUserRights = () => {
-    return !this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1;
+    return web3.isAddress(this.state.network.defaultAccount) && (!this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1);
   }
 
   renderMain() {
