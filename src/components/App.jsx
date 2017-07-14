@@ -1393,26 +1393,23 @@ class App extends Component {
               </div>
             </div>
             <div className="row">
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' />
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
+              {/* <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
+              {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
+            </div>
+            <div className="row">
               <div className="col-md-9">
-                <div className="row">
-                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' />
-                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
-                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
-                  <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' />
-                  {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
-                </div>
                 <SystemStatus sai={ this.state.sai } />
-                {
-                  this.state.sai.lpc.address &&
-                  <div className="row">
-                    <div className="col-md-6">
-                      <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
-                    </div>
-                    <div className="col-md-6">
-                      <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
-                    </div>
+                <div className="row">
+                  <div className="col-md-6">
+                    <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
                   </div>
-                }
+                  <div className="col-md-6">
+                    <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                  </div>
+                </div>
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3">
@@ -1447,14 +1444,6 @@ class App extends Component {
                 {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
-                }
-                {
-                  !this.state.sai.lpc.address &&
-                  <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
-                }
-                {
-                  !this.state.sai.lpc.address &&
-                  <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
                 }
               </div>
             </div>

@@ -8,7 +8,7 @@ const Token = (props) => {
   const pitBalance = props.token === 'sai' ? token.pitBalance.add(props.sai.sin.issuerFee) : token.pitBalance;
   const potBalance = props.token === 'sin' ? token.potBalance.add(props.sai.sin.issuerFee) : token.potBalance;
   return (
-    <div className="col-md-6 col-sm-6 col-xs-12">
+    <div className="col-md-4 col-sm-4 col-xs-12">
       <div className={ props.sai.lpc.address ? 'info-box big' : 'info-box'}>
         <span className={`info-box-icon ${props.color}`}>
           { etherscanToken(props.network, props.token === 'gem' ? 'WETH' : props.token, token.address) }
