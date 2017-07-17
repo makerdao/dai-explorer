@@ -7,7 +7,7 @@ var gutil    = require('gulp-util');
 
 var LIB_PATH = 'lib/sai/';
 var LIB_OUT  = LIB_PATH + 'out/';
-var OUT      = 'src/config/';
+var OUT      = 'src/abi/';
 
 var files = ['Tub', 'SaiJar', 'Top', 'Tap', 'Tip', 'SaiLPC'];
 

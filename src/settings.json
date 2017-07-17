@@ -8,19 +8,19 @@
     "service": ""
   },
   "kovan": {
-    "top": "0x4eac1af59e3deb8fe1dbeb3d6616d9ac0d3945f3",
+    "top": "0xc25789084005dc4ed6be033a943f2c2f3efafcc1",
     "lpc": "",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 2607899,
+    "fromBlock": 2670325,
     "service": ""
   },
   "live": {
-    "top": "0x9f4ef828791d2b2fd8aba69c551eda066457df75",
+    "top": "0x92bfd0e786e284429c96cf6a6e4a3ecf46fb3e9a",
     "lpc": "",
     "faucet": "",
     "whitelisted": false,
-    "fromBlock": 4021347,
+    "fromBlock": 4030971,
     "service": ""
   }
 }
