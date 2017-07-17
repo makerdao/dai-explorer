@@ -15,9 +15,9 @@ const SystemStatus = (props) => {
               <strong>Status</strong>
               <span className={ props.sai.tub.reg.gt(0) ? 'error-color' : 'success-color' }>
                 {
-                  typeof props.sai.tub.reg.lt(0)
+                  props.sai.tub.reg.gte(0)
                   ?
-                    (props.sai.tub.reg.eq(0) ? 'Usual' : (props.sai.tub.reg.eq(1) ? 'Caged' : 'Empty'))
+                    (props.sai.tub.reg.eq(0) ? 'Usual' : (props.sai.tub.reg.eq(1) ? 'Caged' : 'Unknown'))
                   :
                     'Loading...'
                 }
