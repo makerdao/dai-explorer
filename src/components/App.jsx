@@ -557,7 +557,8 @@ class App extends Component {
         sortString += Object.keys(sort).pop() !== key ? '&' : '';
         return false;
       });
-      xhr.open('GET', `${settings[this.state.network.network]['service']}/${service}/${conditionsString}/${sortString}`, true);
+      const url = `${settings[this.state.network.network].service}${settings[this.state.network.network].service.slice(-1) !== '/' ? '/' : ''}${service}/${conditionsString}/${sortString}`;
+      xhr.open('GET', url, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
