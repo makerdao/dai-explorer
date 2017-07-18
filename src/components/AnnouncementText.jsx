@@ -23,7 +23,7 @@ class AnnouncementText extends Component {
           We are proud to announce that after more than 2.5 years of development the Maker community is finally able to release its first decentralized stablecoin system.
         </p>
         <p>
-          We call this system Sai (contraction of Simple Dai). It is a very basic decentralized stablecoin design that is soft-pegged to 1 USD and backed by ETH as collateral. You can read about it in more detail here: https://blog.makerdao.com/2017/06/05/introducing-sai/
+          We call this system Sai (contraction of Simple Dai). It is a very basic decentralized stablecoin design that is soft-pegged to 1 USD and backed by ETH as collateral. You can read about it in more detail here:<br /><a href="https://blog.makerdao.com/2017/06/05/introducing-sai/" target="_blank">https://blog.makerdao.com/2017/06/05/introducing-sai/</a>
         </p>
         <p>
           The first Sai instance has been deployed by Mecon BCC pte. ltd., a Singapore based software company founded by Rune Christensen to assist with the operation of early Maker stablecoin prototypes. 
@@ -97,7 +97,7 @@ class AnnouncementText extends Component {
           </li>
         </ul>
         <p>
-          If you have any questions, comments or concerns please join us at chat.makerdao.com to assist in the development of Sai.
+          If you have any questions, comments or concerns please join us at <a href="https://chat.makerdao.com/">chat.makerdao.com</a> to assist in the development of Sai.
         </p>
       </div>
     )

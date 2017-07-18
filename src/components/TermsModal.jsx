@@ -26,12 +26,12 @@ class TermsModal extends Component {
   }
 
   componentDidMount = () => {
-    setTimeout(() => {
+    window.requestAnimationFrame(() => {
       if (ReactDOM.findDOMNode(this.refs.termsContent)) {
         this.checkBottom();
         ReactDOM.findDOMNode(this.refs.termsContent).addEventListener('scroll', this.checkBottom);
       }
-    }, 500)
+    });
   };
 
   checkBottom = () => {
