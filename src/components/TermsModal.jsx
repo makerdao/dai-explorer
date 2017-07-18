@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
 import ReactDOM from 'react-dom';
-import AnnouncementText from './TermsText';
-import TermsText from './AnnouncementText';
+import AnnouncementText from './AnnouncementText';
+import TermsText from './TermsText';
 
 class TermsModal extends Component {
   constructor() {
