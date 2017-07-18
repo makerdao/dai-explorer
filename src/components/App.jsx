@@ -14,7 +14,7 @@ import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
-// import logo from '../logo.svg';
+import logo from '../makerdao.svg';
 import './App.css';
 
 const settings = require('../settings');
@@ -1399,8 +1399,7 @@ class App extends Component {
       <div className="content-wrapper">
         <section className="content-header">
           <h1>
-            Sai Explorer
-            <small>Version 1.0{/*<button onClick={this.toggle}>Toggle to connect or disconnect</button>*/}</small>
+            <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
           </h1>
         </section>
         <section className="content">
