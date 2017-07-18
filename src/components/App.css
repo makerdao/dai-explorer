@@ -232,28 +232,49 @@ p.error {
 }
 
 #termsWrapper {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 #termsWrapper h2 {
   display: block;
-  height: 5%;
-  margin-left: 14px;
-  font-size: 2rem;
+  flex: 0 0 auto;
+  height: 40px;
+  font-size: 30px;
+  padding-left: 14px;
 }
 
-#termsWrapper form {
-  display: block;
-  height: 15%;
+@media (max-width: 900px) {
+  #termsWrapper h2 {
+    font-size: 25px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 750px) {
+  #termsWrapper h2 {
+    font-size: 20px;
+    height: 25px;
+  }
+}
+
+@media (max-width: 605px) {
+  #termsWrapper h2 {
+    height: 40px;
+  }
 }
 
 #termsWrapper .content {
-  height: 80%;
+  /* height: 80%;
   min-height: initial;
-  overflow-y: auto;
+  overflow-y: auto; */
+  flex: 1 1 auto;
   padding-bottom: 0px;
   padding-top: 0px;
   word-break: break-all;
+  overflow-y: scroll;
 }
 
 #termsWrapper .content::-webkit-scrollbar {
@@ -266,13 +287,19 @@ p.error {
   -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 
+#termsWrapper form {
+  display: block;
+  flex: 0 0 auto;
+  height: 50px;
+  overflow: hidden;
+}
+
 #termsWrapper input[type=submit] {
   display: block;
   font-size: 18px;
-  height: 80%;
-  max-height: 35px;
+  height: 34px;
   margin: auto;
-  margin-top: 3%;
+  margin-top: 8px;
   width: 100px;
 }
 

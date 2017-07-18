@@ -75,11 +75,11 @@ class TermsModal extends Component {
           style={ style } >
         <div id="termsWrapper">
           <h2>{ this.props.modal.announcement ? 'Mecon Sai public alpha test announcement' : 'Disclaimer; liabilities and warranties' }</h2>
-          <input ref={(input) => this.type = input} type="hidden" value={ this.props.modal.announcement ? 'announcement' : 'terms' } />
           <div className="content" ref="termsContent">
             { this.props.modal.announcement ? <AnnouncementText /> : <TermsText /> }
           </div>
           <form ref={(input) => this.termsForm = input} onSubmit={(e) => this.acceptTerms(e)}>
+            <input ref={(input) => this.type = input} type="hidden" value={ this.props.modal.announcement ? 'announcement' : 'terms' } />
             <input type="submit" value="Accept" disabled={ !this.state.gotScrollBottom } />
           </form>
         </div>
