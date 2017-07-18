@@ -267,9 +267,6 @@ p.error {
 }
 
 #termsWrapper .content {
-  /* height: 80%;
-  min-height: initial;
-  overflow-y: auto; */
   flex: 1 1 auto;
   padding-bottom: 0px;
   padding-top: 0px;
