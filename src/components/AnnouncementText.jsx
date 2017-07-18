@@ -5,21 +5,6 @@ class AnnouncementText extends Component {
     return(
       <div>
         <p>
-          Mecon will perform the Sai deployment and its price feed oracle services “as is” without any guarantee that it will perform as described. Mecon does not accept any responsibility should the system fail.
-        </p>
-        <p>
-          Alpha testers who buy Sai or use Sai CDPs, for as long as they hold these Sai or Sai CDPs, are donating their money to a public bug bounty with the understanding that it could be lost at any time, and are doing so for the sake of supporting the further development of Maker and Dai and to experiment with the alpha.
-        </p>
-        <p>
-          Here’s a nonexhaustive list of ways that Sai can fail:
-        </p>
-        <ul>
-          <li>An attacker might find a vulnerability in one or more of the Sai smart contracts, and use it to steal all the collateral held in the system. This will result in a total loss of funds for all users of the system, both CDP users and Sai holders.</li>
-          <li>If too many of the price feed oracle servers are compromised by an attacker, it would be possible for the attacker to create faulty market conditions that result in the total loss of funds for all users, both CDP users and Sai holders.</li>
-          <li>A bug in the Sai codebase could result in some or all of the ETH collateral held in the system becoming permanently stuck, resulting in the total loss of funds for all users, both CDP users and Sai holders.</li>
-          <li>A sudden and overwhelming crash in the price of ETH could cause the 1 USD soft-peg to fail, resulting in a partial loss of funds for Sai holders and a total loss of funds for CDP users.</li>
-        </ul>
-        <p>
           We are proud to announce that after more than 2.5 years of development the Maker community is finally able to release its first decentralized stablecoin system.
         </p>
         <p>
