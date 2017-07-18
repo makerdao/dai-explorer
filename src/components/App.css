@@ -235,9 +235,27 @@ p.error {
   height: 100%;
 }
 
+#termsWrapper h2 {
+  margin-left: 14px;
+  font-size: 20px;
+}
+
 #termsWrapper .content {
   height: 80%;
   overflow-y: auto;
+  word-break: break-all;
+}
+
+@media (min-width: 510px) {
+  #termsWrapper h2 {
+    font-size: 30px;
+  }
+}
+
+@media (min-width: 870px) {
+  #termsWrapper .content {
+    height: 85%;
+  }
 }
 
 #termsWrapper .content::-webkit-scrollbar {
@@ -255,7 +273,7 @@ p.error {
     font-size: 18px;
     height: 35px;
     margin: auto;
-    margin-top: 10px;
+    margin-top: 15px;
     width: 100px;
 }
 

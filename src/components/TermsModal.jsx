@@ -61,7 +61,7 @@ class TermsModal extends Component {
         top: '50%', // start from center
         transform: 'translate(-50%,-50%)', // adjust top "up" based on height
         width: '70%',
-        maxWidth: '70%',
+        maxWidth: '800px',
         overflow: 'hidden'
       }
     };
@@ -73,8 +73,6 @@ class TermsModal extends Component {
           isOpen={ this.props.modal.announcement || this.props.modal.terms }
           contentLabel="Action Modal"
           style={ style } >
-        <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
-        <br />
         <div id="termsWrapper">
           <h2>{ this.props.modal.announcement ? 'Mecon Sai public alpha test announcement' : 'Disclaimer; liabilities and warranties' }</h2>
           <input ref={(input) => this.type = input} type="hidden" value={ this.props.modal.announcement ? 'announcement' : 'terms' } />

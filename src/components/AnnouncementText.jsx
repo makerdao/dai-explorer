@@ -23,7 +23,7 @@ class AnnouncementText extends Component {
           Mecon has scheduled this Sai instance to become globally settled at some point in the future to allow for additional upgrades to Sai with a fresh Sai deployment.
         </p>
         <p>
-          It is vital for the safe operation and testing of the first Sai instance that it doesn’t become too popular too quickly. Mecon will be in charge of publicity around the rollout, and will do so very conservatively. The primary goal will be to give the Maker community a live system that they can observe and interact with, in order to prepare for the future task of governing the more complicated Dai system.
+          <strong>It is vital for the safe operation and testing of the first Sai instance that it doesn’t become too popular too quickly.</strong> Mecon will be in charge of publicity around the rollout, and will do so very conservatively. The primary goal will be to give the Maker community a live system that they can observe and interact with, in order to prepare for the future task of governing the more complicated Dai system.
         </p>
         <p>
           If Mecon detects too large an influx of new users external to the Maker community, it will use the global settlement to shut down the system in order to protect users. For this reason we ask everyone in the Maker community to please do not share this announcement or any other news of the Sai deployment unilaterally, but wait for Mecon to publicize the rollout in a controlled fashion.
@@ -32,7 +32,7 @@ class AnnouncementText extends Component {
           Sai is an experimental decentralized stablecoin prototype in its alpha phase. It is extremely risky and hasn’t yet undergone an external security audit. There are numerous ways the system can fail expectedly or unexpectedly, which in some cases can result in the total loss of all user funds. Therefore it is vital that alpha testers of the system understand to not entrust the system with any more money than they can afford to lose. 
         </p>
         <p>
-          The first Sai instance has been deployed with the following parameters:
+          The first Sai instance has been deployed with the following <a href="https://github.com/makerdao/docs/blob/master/Dai.md#glossary-of-terms" target="_blank" rel="noopener noreferrer">parameters</a>:
         </p>
         <ul>
           <li>
