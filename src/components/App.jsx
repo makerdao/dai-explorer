@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import NoConnection from './NoConnection';
+import TermsModal from './TermsModal';
 import Modal from './Modal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
@@ -39,6 +40,10 @@ class App extends Component {
         accountBalance: web3.toBigNumber(-1),
       },
       transactions: {},
+      termsModal: {
+        announcement: true,
+        terms: true,
+      },
       modal: {
         show: false
       },
@@ -1350,6 +1355,12 @@ class App extends Component {
     }
   }
 
+  markAsAccepted = (type) => {
+    const termsModal = { ...this.state.termsModal };
+    termsModal[type] = false;
+    this.setState({ termsModal });
+  }
+
   hasUserRights = () => {
     return web3.isAddress(this.state.network.defaultAccount) && (!this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1);
   }
@@ -1449,6 +1460,7 @@ class App extends Component {
               </div>
             </div>
           </div>
+          <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
           <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>

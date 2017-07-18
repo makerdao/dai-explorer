@@ -226,3 +226,25 @@ p.error {
     margin-bottom: 0px;
   }
 }
+
+#termsWrapper {
+  height: 100%;
+}
+
+#termsWrapper .content {
+  height: 80%;
+  overflow-y: scroll;
+}
+
+#termsWrapper input[type=submit] {
+    display: block;
+    font-size: 18px;
+    height: 35px;
+    margin: auto;
+    margin-top: 10px;
+    width: 100px;
+}
+
+#termsWrapper input[type=submit]:disabled {
+  opacity: 0.3;
+}
