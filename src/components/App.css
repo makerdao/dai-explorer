@@ -236,45 +236,44 @@ p.error {
 }
 
 #termsWrapper h2 {
+  display: block;
+  height: 5%;
   margin-left: 14px;
-  font-size: 20px;
+  font-size: 2rem;
+}
+
+#termsWrapper form {
+  display: block;
+  height: 15%;
 }
 
 #termsWrapper .content {
   height: 80%;
+  min-height: initial;
   overflow-y: auto;
+  padding-bottom: 0px;
+  padding-top: 0px;
   word-break: break-all;
 }
 
-@media (min-width: 510px) {
-  #termsWrapper h2 {
-    font-size: 30px;
-  }
-}
-
-@media (min-width: 870px) {
-  #termsWrapper .content {
-    height: 85%;
-  }
-}
-
 #termsWrapper .content::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 7px;
+  -webkit-appearance: none;
+  width: 7px;
 }
 #termsWrapper .content::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0,0,0,.5);
-    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.5);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 
 #termsWrapper input[type=submit] {
-    display: block;
-    font-size: 18px;
-    height: 35px;
-    margin: auto;
-    margin-top: 15px;
-    width: 100px;
+  display: block;
+  font-size: 18px;
+  height: 80%;
+  max-height: 35px;
+  margin: auto;
+  margin-top: 3%;
+  width: 100px;
 }
 
 #termsWrapper input[type=submit]:disabled {
