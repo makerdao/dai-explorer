@@ -262,6 +262,11 @@ class App extends Component {
       this.initContracts(this.state.sai.top.address, this.state.sai.lpc.address);
     }
 
+    if (localStorage.getItem('termsModal')) {
+      const termsModal = JSON.parse(localStorage.getItem('termsModal'));
+      this.setState({ termsModal });
+    }
+
     this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
@@ -1358,7 +1363,9 @@ class App extends Component {
   markAsAccepted = (type) => {
     const termsModal = { ...this.state.termsModal };
     termsModal[type] = false;
-    this.setState({ termsModal });
+    this.setState({ termsModal }, () => {
+      localStorage.setItem('termsModal', JSON.stringify(termsModal));
+    });
   }
 
   hasUserRights = () => {
