@@ -562,12 +562,14 @@ class App extends Component {
         conditionsString += Object.keys(conditions).pop() !== key ? '&' : '';
         return false;
       });
+      conditionsString = conditionsString !== '' ? `/conditions=${conditionsString}` : '';
       Object.keys(sort).map(key => {
         sortString += `${key}:${sort[key]}`;
         sortString += Object.keys(sort).pop() !== key ? '&' : '';
         return false;
       });
-      const url = `${settings[this.state.network.network].service}${settings[this.state.network.network].service.slice(-1) !== '/' ? '/' : ''}${service}/${conditionsString}/${sortString}`;
+      sortString = sortString !== '' ? `/sort=${sortString}` : '';
+      const url = `${settings[this.state.network.network].service}${settings[this.state.network.network].service.slice(-1) !== '/' ? '/' : ''}${service}${conditionsString}${sortString}`;
       xhr.open('GET', url, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
