@@ -275,7 +275,7 @@ class Modal extends Component {
           if (this.props.sai.tub.cups[cup].avail_skr.lt(valueWei)) {
             error = 'This amount of SKR exceeds the maximum available to free.';
             this.submitEnabled = false;
-          } else if (this.props.sai.tub.reg.eq(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
+          } else if (this.props.sai.tub.reg.eq(0) && this.props.sai.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
             error = 'This amount puts your cup in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
