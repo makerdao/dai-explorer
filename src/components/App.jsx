@@ -1187,7 +1187,7 @@ class App extends Component {
             }
           });
         } else {
-          this.executeMethodCupValue(method, cup, value);
+          method === 'shut' ? this.executeMethodCup(method, cup) : this.executeMethodCupValue(method, cup, value);
         }
       }
     });
