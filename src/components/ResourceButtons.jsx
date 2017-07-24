@@ -7,7 +7,7 @@ const ResourceButtons = (props) => {
     <span className="resourceButtons">
       <a className="resource video" href="#video" onClick={ props.handleOpenVideoModal }>
         <img src={ vicon } alt="Video Tutorial" />
-        <span>See how it works</span>
+        <span>Video Tutorial</span>
       </a>
       <a className="resource terminology" href="#terminology" onClick={ props.handleOpenTerminologyModal }>
         <img src={ ticon } alt="Terminology" />

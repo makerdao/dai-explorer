@@ -1450,7 +1450,6 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9 main">
-                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
                 <SystemStatus sai={ this.state.sai } />
                 <div className="row">
                   <div className="col-md-6">
@@ -1463,7 +1462,6 @@ class App extends Component {
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
               <div className="col-md-3 right-sidebar">
-                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
                 <div className="box">
                   <div className="box-header with-border">
                     <h3 className="box-title">General Actions</h3>
@@ -1496,6 +1494,7 @@ class App extends Component {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
                 }
+                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
               </div>
             </div>
           </div>

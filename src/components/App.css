@@ -325,7 +325,7 @@ a.resource {
   display: block;
   margin-bottom: 10px;
   overflow: hidden;
-  padding: 15px 20px;
+  padding: 8px 20px;
 }
 
 a.resource.video {
@@ -364,7 +364,14 @@ a.resource span {
   text-transform: uppercase;
 }
 
-.main .resourceButtons {
+@media (min-width: 992px) and (max-width: 1220px) {
+  a.resource span {
+    font-size: 18px;
+    margin-left: 10px;
+  }
+}
+
+/* .main .resourceButtons {
   display: none;
 }
 
@@ -380,18 +387,7 @@ a.resource span {
   .right-sidebar .resourceButtons {
     display: none;
   }
-}
-
-@media (min-width: 992px) and (max-width: 1220px) {
-  a.resource {
-    padding: 15px 10px;
-  }
-
-  a.resource span {
-    font-size: 18px;
-    margin-left: 10px;
-  }
-}
+} */
 
 .close {
   display: block;
