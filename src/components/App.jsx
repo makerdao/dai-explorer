@@ -10,6 +10,7 @@ import Cups from './Cups';
 import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
+import Video from './Video';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
@@ -1421,6 +1422,7 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9">
+                <Video />
                 <SystemStatus sai={ this.state.sai } />
                 <div className="row">
                   <div className="col-md-6">
