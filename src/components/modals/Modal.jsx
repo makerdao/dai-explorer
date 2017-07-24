@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
-import web3 from  '../web3';
-import { wmul, wdiv } from '../helpers';
+import web3 from  '../../web3';
+import { wmul, wdiv } from '../../helpers';
 
 class Modal extends Component {
   constructor() {
