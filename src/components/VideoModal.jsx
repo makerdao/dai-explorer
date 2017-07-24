@@ -18,6 +18,7 @@ const VideoModal = (props) => {
       top: '50%', // start from center
       transform: 'translate(-50%,-50%)', // adjust top "up" based on height
       width: '90%',
+      maxWidth: '1000px',
       overflow: 'hidden'
     }
   };
