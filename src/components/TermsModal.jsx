@@ -66,8 +66,6 @@ class TermsModal extends Component {
       }
     };
 
-    this.cond = null;
-
     return (
       <ReactModal
           isOpen={ this.props.modal.announcement || this.props.modal.terms }

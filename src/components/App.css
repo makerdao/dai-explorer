@@ -317,3 +317,85 @@ p.error {
 	width: 100%;
 	height: 100%;
 }
+
+a.resource {
+  border: 1px solid;
+  border-radius: 5px;
+  clear: left;
+  display: block;
+  margin-bottom: 10px;
+  overflow: hidden;
+  padding: 15px 20px;
+}
+
+a.resource.video {
+  background-color: #1ABC9C;
+  border-color: #17A387;
+}
+
+a.resource.video:hover {
+  background-color: #1ED6B1;
+  border-color: #1ABD9C;
+}
+
+a.resource.terminology {
+  background-color: #546979;
+  border-color: #41525E;
+}
+
+a.resource.terminology:hover {
+  background-color: #647E91;
+  border-color: #536878;
+}
+
+a.resource img {
+  display: block;
+  float: left;
+  width: 36px;
+}
+
+a.resource span {
+  color: #FFF;
+  display: block;
+  float: left;
+  font-size: 22px;
+  line-height: 36px;
+  margin-left: 12px;
+  text-transform: uppercase;
+}
+
+.main .resourceButtons {
+  display: none;
+}
+
+.right-sidebar .resourceButtons {
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .main .resourceButtons {
+    display: block;
+  }
+
+  .right-sidebar .resourceButtons {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1220px) {
+  a.resource {
+    padding: 15px 10px;
+  }
+
+  a.resource span {
+    font-size: 18px;
+    margin-left: 10px;
+  }
+}
+
+.close {
+  display: block;
+  margin-bottom: 5px;
+  width: 100%;
+  text-align: right;
+}

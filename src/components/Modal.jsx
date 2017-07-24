@@ -402,7 +402,6 @@ class Modal extends Component {
           contentLabel="Action Modal"
           style={ style } >
         <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
-        <br />
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
           { type === 'lpc' ? this.renderLPCForm() : (type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type)) }

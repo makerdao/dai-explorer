@@ -10,7 +10,9 @@ import Cups from './Cups';
 import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
-import Video from './Video';
+import ResourceButtons from './ResourceButtons';
+import VideoModal from './VideoModal';
+import TerminologyModal from './TerminologyModal';
 import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
@@ -44,6 +46,12 @@ class App extends Component {
       termsModal: {
         announcement: true,
         terms: true,
+      },
+      videoModal: {
+        show: false
+      },
+      terminologyModal: {
+        show: false
       },
       modal: {
         show: false
@@ -1030,6 +1038,26 @@ class App extends Component {
     this.setState({ modal: { show: false } });
   }
 
+  handleOpenVideoModal = (e) => {
+    e.preventDefault();
+    this.setState({ videoModal: { show: true } });
+  }
+
+  handleCloseVideoModal = (e) => {
+    e.preventDefault();
+    this.setState({ videoModal: { show: false } });
+  }
+
+  handleOpenTerminologyModal = (e) => {
+    e.preventDefault();
+    this.setState({ terminologyModal: { show: true } });
+  }
+
+  handleCloseTerminologyModal = (e) => {
+    e.preventDefault();
+    this.setState({ terminologyModal: { show: false } });
+  }
+
   checkPendingTransactions = () => {
     const transactions = { ...this.state.transactions };
     Object.keys(transactions).map(tx => {
@@ -1421,8 +1449,8 @@ class App extends Component {
               {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
             </div>
             <div className="row">
-              <div className="col-md-9">
-                <Video />
+              <div className="col-md-9 main">
+                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
                 <SystemStatus sai={ this.state.sai } />
                 <div className="row">
                   <div className="col-md-6">
@@ -1434,7 +1462,8 @@ class App extends Component {
                 </div>
                 <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-3 right-sidebar">
+                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
                 <div className="box">
                   <div className="box-header with-border">
                     <h3 className="box-title">General Actions</h3>
@@ -1471,6 +1500,8 @@ class App extends Component {
             </div>
           </div>
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
+          <VideoModal modal={ this.state.videoModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
+          <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>
