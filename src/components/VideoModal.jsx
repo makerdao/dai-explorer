@@ -3,6 +3,9 @@ import ReactModal from 'react-modal';
 
 const VideoModal = (props) => {
   const style = {
+    overlay: {
+      backgroundColor : 'rgba(0, 0, 0, 0.5)'
+    },
     content: {
       border: 1,
       borderStyle: 'solid',
