@@ -7,7 +7,7 @@ const faucet = require('../abi/faucet');
 class Faucet extends React.Component {
   constructor(props) {
     super(props);
-    this.faucet = web3.eth.contract(faucet.abi).at(settings.kovan.faucet);
+    this.faucet = web3.eth.contract(faucet.abi).at(settings.chain.kovan.faucet);
     window.faucet = this.faucet;
     this.state = {
       claimed: null

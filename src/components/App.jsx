@@ -224,10 +224,10 @@ class App extends Component {
     networkState['latestBlock'] = 0;
     this.setState({ network: networkState });
 
-    const addrs = settings[this.state.network.network];
+    const addrs = settings.chain[this.state.network.network];
 
     const saiState = { ...this.state.sai };
-    saiState['whitelisted'] = settings[this.state.network.network]['whitelisted'];
+    saiState['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
     this.setState({ sai: saiState });
 
     this.initContracts(addrs['top'], addrs['lpc']);
@@ -313,7 +313,7 @@ class App extends Component {
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
           const sai = { ...this.state.sai };
 
-          sai['whitelisted'] = settings[this.state.network.network]['whitelisted'];
+          sai['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
           sai['top'].address = topAddress;
           sai['lpc'].address = lpcAddress;
           sai['tub'].address = r[0];
@@ -578,7 +578,7 @@ class App extends Component {
         return false;
       });
       sortString = sortString !== '' ? `/sort=${sortString}` : '';
-      const url = `${settings[this.state.network.network].service}${settings[this.state.network.network].service.slice(-1) !== '/' ? '/' : ''}${service}${conditionsString}${sortString}`;
+      const url = `${settings.chain[this.state.network.network].service}${settings.chain[this.state.network.network].service.slice(-1) !== '/' ? '/' : ''}${service}${conditionsString}${sortString}`;
       xhr.open('GET', url, true);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
@@ -599,7 +599,7 @@ class App extends Component {
     }
 
     const me = this;
-    if (settings[this.state.network.network]['service']) {
+    if (settings.chain[this.state.network.network]['service']) {
       Promise.resolve(this.getFromService('cups', conditions, {cupi:'desc'})).then((response) => {
         response.results.forEach(function (v) {
           me.getCup(toBytes32(v.cupi), address);
@@ -607,7 +607,7 @@ class App extends Component {
         me.getCupsFromChain(address, conditions, response.last_block);
       });
     } else {
-      this.getCupsFromChain(address, conditions, settings[this.state.network.network]['fromBlock']);
+      this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
     }
 
     const cupSignatures = [
@@ -793,7 +793,7 @@ class App extends Component {
     this.getParameterFromLpc('pie');
     this.getParameterFromLpc('gap');
     this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
-    if (settings[this.state.network.network]['service']) {
+    if (settings.chain[this.state.network.network]['service']) {
       this.getGraphsData();
     }
   }
@@ -1451,15 +1451,21 @@ class App extends Component {
             <div className="row">
               <div className="col-md-9 main">
                 <SystemStatus sai={ this.state.sai } />
-                <div className="row">
-                  <div className="col-md-6">
-                    <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
-                  </div>
-                  <div className="col-md-6">
-                    <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
-                  </div>
-                </div>
-                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ this.state.params && this.state.params[0] && this.state.params[0] === 'all' } />
+                {
+                  web3.isAddress(this.state.network.defaultAccount)
+                  ?
+                    <div className="row">
+                      <div className="col-md-6">
+                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                      </div>
+                      <div className="col-md-6">
+                        <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                      </div>
+                    </div>
+                  :
+                    ''
+                }
+                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } hasUserRights={ this.hasUserRights } />
               </div>
               <div className="col-md-3 right-sidebar">
                 <div className="box">

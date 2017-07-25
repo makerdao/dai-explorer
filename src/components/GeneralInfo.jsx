@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import web3 from  '../web3';
 
 import { etherscanAddress } from '../helpers';
 
@@ -29,8 +30,19 @@ class GeneralInfo extends Component {
               <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
               <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>
               { this.props.lpc ? <div><strong>LPC:</strong> { etherscanAddress(this.props.network, this.props.lpc, this.props.lpc) }</div> : '' }
-              <div><strong>Account:</strong> { this.props.account ? etherscanAddress(this.props.network, this.props.account, this.props.account) : <span style={{ 'color': 'red' }}>IN ORDER TO USE THE SYSTEM, PLEASE UNLOCK YOUR ACCOUNT</span> }</div>
-              <div><strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }</div>
+              <div>
+                <strong>Account:</strong> { this.props.account
+                                            ? etherscanAddress(this.props.network, this.props.account, this.props.account)
+                                            : <span style={{ 'color': 'red' }}>
+                                                { web3.currentProvider.constructor.name === 'MetamaskInpageProvider'
+                                                ? 'METAMASK ACCOUNT LOCKED'
+                                                : 'NO ACCOUNT FOUND - READ ONLY MODE'
+                                                }
+                                              </span> }
+              </div>
+              <div>
+                <strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }
+              </div>
             </div>
             <div className="col-md-6">
               <div className="box-group" id="accordion">

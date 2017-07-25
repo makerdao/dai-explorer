@@ -2,15 +2,15 @@ import React from 'react';
 import web3 from '../web3';
 import { printNumber, wdiv } from '../helpers';
 
-const renderCupActions = (reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
-    lock: reg.eq(0) && cup.lad === defaultAccount && lock,
-    free: cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: reg.eq(0) && cup.lad === defaultAccount,
-    give: reg.eq(0) && cup.lad === defaultAccount,
-    bite: (reg.eq(1) && cup.art.gt(0)) || cup.safe === false,
+    lock: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
+    free: hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    draw: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
+    give: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
+    bite: hasUserRights && ((reg.eq(1) && cup.art.gt(0)) || cup.safe === false),
   };
 
   const helpers = {
@@ -123,7 +123,7 @@ const Cups = (props) => {
                         }
                       </td>
                       <td className="text-left">
-                        { renderCupActions(props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )
