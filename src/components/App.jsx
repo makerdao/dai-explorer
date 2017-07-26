@@ -193,7 +193,7 @@ class App extends Component {
                   network = 'kovan';
                   break;
                 case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
-                  network = 'live';
+                  network = 'main';
                   break;
                 default:
                   console.log('setting network to private');
@@ -1412,19 +1412,22 @@ class App extends Component {
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
       boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
-      cash: this.hasUserRights() && this.state.sai.tub.reg.gt(0) && this.state.sai.sai.myBalance.gt(0),
-      vent: this.hasUserRights() && this.state.sai.tub.reg.eq(1) && this.state.sai.skr.pitBalance.gt(0),
     };
 
     const helpers = {
-      open: 'Open a new CUP (debt position)',
+      open: 'Open a new CDP',
       join: 'Deposit WETH in exchange of SKR',
       exit: 'Withdraw WETH in exchange of SKR',
-      boom: 'Buy SAI in exchange of SKR',
-      bust: 'Sell SAI in exchange of SKR',
-      cash: 'Exchange your SAI to WETH',
-      vent: 'Burn remaining SKR from PIT',
+      boom: 'Buy SAI with SKR',
+      bust: 'Buy SKR with SAI',
     };
+
+    if (this.state.sai.tub.reg.eq(1)) {
+      actions.cash = this.hasUserRights() && this.state.sai.sai.myBalance.gt(0);
+      actions.vent = this.hasUserRights() && this.state.sai.skr.pitBalance.gt(0);
+      helpers.cash = 'Exchange your SAI for ETH at the cage price';
+      helpers.vent = 'Clean up the CDP state after cage';
+    }
 
     return (
       <div className="content-wrapper">
@@ -1437,7 +1440,7 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } top={ this.state.sai.top.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
+                <GeneralInfo tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } top={ this.state.sai.top.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
                   initContracts={this.initContracts} />
               </div>
             </div>

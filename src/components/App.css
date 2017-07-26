@@ -202,6 +202,16 @@ p.error {
   margin: 10px;
 }
 
+.system-status > div > span.boom-bust {
+  float: left;
+  margin-top: 0px;
+}
+
+.system-status > div > span.boom-bust:first-of-type {
+  border-right: 1px solid;
+  padding-right: 20px;
+}
+
 .error-color {
   color: #dd4b39;
 }

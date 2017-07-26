@@ -14,13 +14,13 @@ const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal,
   };
 
   const helpers = {
-    lock: 'Deposit SKR in this CUP',
-    free: 'Withdraw SKR from this CUP',
-    draw: 'Mint SAI from the SKR locked amount',
-    wipe: 'Burn SAI previously minted',
-    shut: 'Close this CUP',
-    give: 'Transfer this CUP',
-    bite: 'Liquidate this CUP',
+    lock: 'Add collateral to a CDP',
+    free: 'Remove collateral from a CDP',
+    draw: 'Create Sai against a CDP',
+    wipe: 'Use Sai to cancel CDP debt',
+    shut: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP',
+    give: 'Transfer CDP ownership',
+    bite: 'Initiate liquidation of an undercollateralized CDP',
   };
 
   return (

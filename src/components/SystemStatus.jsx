@@ -17,7 +17,7 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.reg.gte(0)
                   ?
-                    (props.sai.tub.reg.eq(0) ? 'Usual' : (props.sai.tub.reg.eq(1) ? 'Caged' : 'Unknown'))
+                    (props.sai.tub.reg.eq(0) ? 'Active' : (props.sai.tub.reg.eq(1) ? 'Inactive' : 'Unknown'))
                   :
                     'Loading...'
                 }
@@ -112,7 +112,7 @@ const SystemStatus = (props) => {
               <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
-              <strong>Tax (365 days)</strong>
+              <strong>CDP Fee (365 days)</strong>
               <span>
                 {
                   props.sai.tub.tax.gte(0)
@@ -124,7 +124,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Way (365 days)</strong>
+              <strong>Interest Rate (365 days)</strong>
               <span>
                 {
                   props.sai.tip.way.gte(0)
@@ -136,8 +136,8 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Avail. Boom</strong>
-              <span>
+              <strong>Total liquidity available via bust and boom</strong>
+              <span className="boom-bust">
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>
@@ -147,10 +147,7 @@ const SystemStatus = (props) => {
                   : '-'
                 }
               </span>
-            </div>
-            <div>
-              <strong>Avail. Bust</strong>
-              <span>
+              <span className="boom-bust">
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>

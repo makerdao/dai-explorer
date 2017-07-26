@@ -17,7 +17,7 @@
       "fromBlock": 2670325,
       "service": ""
     },
-    "live": {
+    "main": {
       "top": "0x92bfd0e786e284429c96cf6a6e4a3ecf46fb3e9a",
       "lpc": "",
       "faucet": "",

@@ -25,10 +25,12 @@ class GeneralInfo extends Component {
         <div className="box-body">
           <div className="row">
             <div className="col-md-6">
-              <div><strong>Network:</strong> { this.props.network }</div>
+              <div><strong>Network:</strong> { this.props.network === 'main' ? 'mainnet' : this.props.network }</div>
               <div><strong>Top:</strong> { etherscanAddress(this.props.network, this.props.top, this.props.top) }</div>
               <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
               <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>
+              <div><strong>Jar:</strong> { etherscanAddress(this.props.network, this.props.jar, this.props.jar) }</div>
+              <div><strong>Tip:</strong> { etherscanAddress(this.props.network, this.props.tip, this.props.tip) }</div>
               { this.props.lpc ? <div><strong>LPC:</strong> { etherscanAddress(this.props.network, this.props.lpc, this.props.lpc) }</div> : '' }
               <div>
                 <strong>Account:</strong> { this.props.account
