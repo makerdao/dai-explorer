@@ -405,3 +405,11 @@ a.resource span {
   width: 100%;
   text-align: right;
 }
+
+#toggle-addresses[aria-expanded="false"] :nth-child(2) {
+  display: none;
+}
+
+#toggle-addresses[aria-expanded="true"] :first-child {
+  display: none;
+}
