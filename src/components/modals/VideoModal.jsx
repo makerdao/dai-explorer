@@ -28,7 +28,7 @@ const VideoModal = (props) => {
 
   return (
     <ReactModal
-        isOpen={ props.modal.show }
+        isOpen={ (!props.termsModal.announcement && !props.termsModal.terms && props.termsModal.video) || props.modal.show }
         contentLabel="Action Modal"
         style={ style } >
       <a href="#action" className="close" onClick={ props.handleCloseVideoModal }>X</a>

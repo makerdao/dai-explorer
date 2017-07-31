@@ -46,6 +46,7 @@ class App extends Component {
       termsModal: {
         announcement: true,
         terms: true,
+        video: true,
       },
       videoModal: {
         show: false
@@ -1045,6 +1046,7 @@ class App extends Component {
 
   handleCloseVideoModal = (e) => {
     e.preventDefault();
+    this.markAsAccepted('video');
     this.setState({ videoModal: { show: false } });
   }
 
@@ -1508,7 +1510,7 @@ class App extends Component {
             </div>
           </div>
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
-          <VideoModal modal={ this.state.videoModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
+          <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
