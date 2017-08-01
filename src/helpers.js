@@ -73,7 +73,7 @@ export function wdiv(a, b) {
 }
 
 function etherscanUrl(network) {
-  return `https://${ network !== 'live' ? `${network}.` : '' }etherscan.io`;
+  return `https://${ network !== 'main' ? `${network}.` : '' }etherscan.io`;
 }
 
 export function etherscanAddress(network, text, address) {
