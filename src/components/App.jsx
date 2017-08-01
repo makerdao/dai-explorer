@@ -1066,10 +1066,10 @@ class App extends Component {
       if (transactions[tx].pending) {
         web3.eth.getTransactionReceipt(tx, (e, r) => {
           if (!e && r !== null) {
-            if (r.logs.length > 0) {
-              this.logTransactionConfirmed(tx);
-            } else {
+            if (r.logs.length === 0) {
               this.logTransactionFailed(tx);
+            } else if (r.blockNumber)  {
+              this.logTransactionConfirmed(tx);
             }
           }
         });
@@ -1095,7 +1095,6 @@ class App extends Component {
       this.setState({ transactions });
 
       this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
-
       const c = transactions[tx].callback;
       if (c.method) {
         if(c.method.indexOf('lpc-') !== -1) {
