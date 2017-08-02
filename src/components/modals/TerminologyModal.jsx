@@ -49,6 +49,7 @@ const TerminologyModal = (props) => {
             <strong>Debt (Sai):</strong> The amount of outstanding SAI debt in a CDP.<br />
             <strong>Deficit:</strong> Whether the system is at less than 100% overall collateralisation.<br />
             <strong>Draw:</strong> Create Sai against a CDP.<br />
+            <strong>ETH/USD:</strong> Price of 1 ETH in USD (as determined by the median of the feeds).<br />
             <strong>Exit:</strong> Exchange SKR for Ethereum.<br />
             <strong>Free:</strong> Remove collateral from a CDP.<br />
             <strong>Gap (boom/bust):</strong>  The discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’).<br />
@@ -72,7 +73,6 @@ const TerminologyModal = (props) => {
             <strong>Tap:</strong> Liquidator.<br />
             <strong>Top:</strong> System overview / settlement.<br />
             <strong>Tub:</strong> CDP engine.<br />
-            <strong>ETH/USD:</strong> Price of 1 ETH in USD (as determined by the median of the feeds).<br />
             <strong>Wipe:</strong> Use Sai to cancel CDP debt.<br />
             <strong>Wrap/Unwrap ETH:</strong> Convert Ethereum into an ERC-20 compatible token.<br />
           </div>
