@@ -26,7 +26,7 @@ class AnnouncementText extends Component {
           <strong>It is vital for the safe operation and testing of the first Sai instance that it doesn’t become too popular too quickly.</strong> Mecon will be in charge of publicity around the rollout, and will do so very conservatively. The primary goal will be to give the Maker community a live system that they can observe and interact with, in order to prepare for the future task of governing the more complicated Dai system.
         </p>
         <p>
-          If Mecon detects too large an influx of new users external to the Maker community, it will use the global settlement to shut down the system in order to protect users. For this reason we ask everyone in the Maker community to please do not share this announcement or any other news of the Sai deployment unilaterally, but wait for Mecon to publicize the rollout in a controlled fashion.
+          If Mecon detects too large an influx of new users external to the Maker community, it will use the global settlement to shut down the system in order to protect users. For this reason we ask everyone in the Maker community to please not share this announcement or any other news of the Sai deployment unilaterally, but wait for Mecon to publicize the rollout in a controlled fashion.
         </p>
         <p>
           Sai is an experimental decentralized stablecoin prototype in its alpha phase. It is extremely risky and hasn’t yet undergone an external security audit. There are numerous ways the system can fail expectedly or unexpectedly, which in some cases can result in the total loss of all user funds. Therefore it is vital that alpha testers of the system understand to not entrust the system with any more money than they can afford to lose.
