@@ -1441,7 +1441,7 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } top={ this.state.sai.top.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
+                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
                   initContracts={this.initContracts} />
               </div>
             </div>

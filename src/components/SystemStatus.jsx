@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { WAD, printNumber, wdiv } from '../helpers';
+import { WAD, printNumber } from '../helpers';
 
 const SystemStatus = (props) => {
   return (
@@ -24,7 +24,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>ETH/SKR</strong>
+              <strong>SKR/ETH</strong>
               {
                 props.sai.jar.per.gte(0)
                 ?
@@ -34,7 +34,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong>USD/ETH</strong>
+              <strong>ETH/USD</strong>
               {
                 props.sai.pip.val.gte(0)
                 ?
@@ -48,7 +48,7 @@ const SystemStatus = (props) => {
               {
                 props.sai.tip.par.gte(0)
                 ?
-                  printNumber(wdiv(WAD, props.sai.tip.par))
+                  printNumber(props.sai.tip.par)
                 :
                   <span>Loading...</span>
               }
