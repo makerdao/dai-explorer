@@ -38,13 +38,13 @@ const TerminologyModal = (props) => {
             <strong>% Tot (SKR):</strong> The ratio of collateral SKR to total outstanding SKR.<br />
             <strong>% Ratio:</strong> The collateral ratio of the CDP.<br />
             <strong>Account:</strong> The user’s active ethereum account.<br />
-            <strong>Avail. Sai (to draw):</strong>  The maximum Sai that can currently be drawn from a CDP.<br />
+            <strong>Avail. Sai (to draw):</strong> The maximum Sai that can currently be drawn from a CDP.<br />
             <strong>Avail. SKR (to free):</strong> The maximum SKR that can currently be released from a CDP.<br />
             <strong>Bite:</strong> Initiate liquidation of an undercollateralized CDP.<br />
             <strong>CDP Fee:</strong> CDP interest rate.<br />
             <strong>Collateral Auction:</strong> The auction selling collateral in a liquidated CDP. It is designed to prioritize covering the debt owed by the CDP, then to give the owner the best price possible for their collateral refund.<br />
             <strong>Collateralized Debt Position (CDP):</strong> A smart contract whose users receive an asset (Sai), which effectively operates as a debt instrument with an interest rate. The CDP user has posted collateral in excess of the value of the loan in order to guarantee their debt position.<br />
-            <strong>Collateral Ratio:</strong>  The ratio of the value of a CDP’s collateral to the value of its debt.<br />
+            <strong>Collateral Ratio:</strong> The ratio of the value of a CDP’s collateral to the value of its debt.<br />
             <strong>Debt Ceiling:</strong> The maximum number of SAI that can be issued.<br />
             <strong>Debt (Sai):</strong> The amount of outstanding SAI debt in a CDP.<br />
             <strong>Deficit:</strong> Whether the system is at less than 100% overall collateralisation.<br />
@@ -52,13 +52,13 @@ const TerminologyModal = (props) => {
             <strong>ETH/USD:</strong> Price of 1 ETH in USD (as determined by the median of the feeds).<br />
             <strong>Exit:</strong> Exchange SKR for Ethereum.<br />
             <strong>Free:</strong> Remove collateral from a CDP.<br />
-            <strong>Gap (boom/bust):</strong>  The discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’).<br />
+            <strong>Gap (boom/bust):</strong> The discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’).<br />
             <strong>Give:</strong> Transfer CDP ownership.<br />
             <strong>Interest rate:</strong> Annual % change of Sai target price in USD. This represents Sai deflation or inflation when positive or negative, respectively.<br />
             <strong>Join:</strong> Exchange Ethereum for SKR.<br />
             <strong>Keepers:</strong> Independent economic actors that trade Sai, CDPs and/or MKR, create Sai or close CDPs and seek arbitrage opportunities in The Sai Stablecoin System and as a result help maintain Sai market rationality and price stability.<br />
             <strong>Liq. Penalty:</strong> The penalty charged by the system upon liquidation, as a percentage of the CDP collateral.<br />
-            <strong>Liq. Ratio:</strong>  The  collateralization ratio below which a CDP may be liquidated.<br />
+            <strong>Liq. Ratio:</strong> The collateralization ratio below which a CDP may be liquidated.<br />
             <strong>Liquidation price:</strong> The Ethereum price at which a CDP will become unsafe and at risk of liquidation.<br />
             <strong>Lock:</strong> Add collateral to a CDP.<br />
             <strong>Locked (SKR):</strong> The amount of SKR collateral in a CDP.<br />

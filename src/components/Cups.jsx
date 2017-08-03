@@ -49,15 +49,15 @@ const Cups = (props) => {
             <table className="text-right">
               <thead>
                 <tr>
-                  <th>Cup</th>
-                  <th>Debt (SAI)</th>
-                  <th>Locked (SKR)</th>
-                  <th>% Tot SKR</th>
-                  <th>% Ratio</th>
-                  <th>Avail. SAI (to draw)</th>
-                  <th>Avail. SKR (to free)</th>
-                  <th>Liquidation price</th>
-                  <th>Status</th>
+                  <th>CDP Id</th>
+                  <th title="The amount of outstanding SAI debt in a CDP.">Debt (SAI)</th>
+                  <th title="The amount of SKR collateral in a CDP.">Locked (SKR)</th>
+                  <th title="The ratio of collateral SKR to total outstanding SKR.">% Tot SKR</th>
+                  <th title="The collateral ratio of the CDP.">% Ratio</th>
+                  <th title="The maximum Sai that can currently be drawn from a CDP.">Avail. SAI (to draw)</th>
+                  <th title="The maximum SKR that can currently be released from a CDP.">Avail. SKR (to free)</th>
+                  <th title="The Ethereum price at which a CDP will become unsafe and at risk of liquidation.">Liquidation price</th>
+                  <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed.">Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
