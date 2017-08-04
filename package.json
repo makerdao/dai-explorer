@@ -5,6 +5,8 @@
   "homepage": "https://sai.makerdao.com",
   "dependencies": {
     "create-react-class": "^15.5.3",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-surge": "^0.1.0",
     "import": "0.0.6",
     "prop-types": "^15.5.8",
     "raf": "^3.3.0",
