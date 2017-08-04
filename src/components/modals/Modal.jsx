@@ -162,18 +162,18 @@ class Modal extends Component {
     this.cond = null;
     switch(modal.method) {
       case 'open':
-        text = 'Are you sure you want to open a new Cup?';
+        text = 'Are you sure you want to open a new CDP?';
         type = 'yesno';
         this.submitEnabled = true;
         break;
       case 'shut':
-        text = `Are you sure you want to close Cup ${modal.cup}?.<br />` +
+        text = `Are you sure you want to close CDP ${modal.cup}?.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'yesno';
         this.submitEnabled = true;
         break;
       case 'bite':
-        text = `Are you sure you want to bite Cup ${modal.cup}?`;
+        text = `Are you sure you want to bite CDP ${modal.cup}?`;
         type = 'yesno';
         this.submitEnabled = true;
         break;
@@ -253,7 +253,7 @@ class Modal extends Component {
         }
         break;
       case 'lock':
-        text = `Please set amount of collateral (SKR) you want to lock in CUP ${modal.cup}.<br />` +
+        text = `Please set amount of collateral (SKR) you want to lock in CDP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
@@ -268,7 +268,7 @@ class Modal extends Component {
         }
         break;
       case 'free':
-        text = `Please set amount of collateral (SKR) you want to withdraw from CUP ${modal.cup}`;
+        text = `Please set amount of collateral (SKR) you want to withdraw from CDP ${modal.cup}`;
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -279,13 +279,13 @@ class Modal extends Component {
             error = 'This amount of SKR exceeds the maximum available to free.';
             this.submitEnabled = false;
           } else if (this.props.sai.tub.reg.eq(0) && this.props.sai.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
-            error = 'This amount puts your cup in risk to be liquidated';
+            error = 'This amount puts your CDP in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'draw':
-        text = `Please set amount of SAI you want to mint from your locked collateral (SKR) in CUP ${modal.cup}`;
+        text = `Please set amount of SAI you want to mint from your locked collateral (SKR) in CDP ${modal.cup}`;
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -299,13 +299,13 @@ class Modal extends Component {
             error = 'This amount of SAI exceeds the maximum available to draw.';
             this.submitEnabled = false;
           } else if (valueWei.gt(this.props.sai.tub.cups[cup].avail_sai.times(0.9))) {
-            error = 'This amount puts your cup in risk to be liquidated';
+            error = 'This amount puts your CDP in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'wipe':
-        text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CUP ${modal.cup}.<br />` +
+        text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CDP ${modal.cup}.<br />` +
                'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
@@ -317,14 +317,14 @@ class Modal extends Component {
             error = 'Not enough balance to wipe this amount of SAI.';
             this.submitEnabled = false;
           } else if (this.props.tab(this.props.sai.tub.cups[cup].art).lt(valueWei)) {
-            error = `Debt in CUP ${cup} is lower than this amount of SAI.`;
+            error = `Debt in CDP ${cup} is lower than this amount of SAI.`;
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'give':
-        text = `Please set the new address to be owner of CUP ${modal.cup}`;
+        text = `Please set the new address to be owner of CDP ${modal.cup}`;
         type = 'text';
         this.submitEnabled = true;
         break;

@@ -4,6 +4,7 @@ import TermsModal from './modals/TermsModal';
 import Modal from './modals/Modal';
 import VideoModal from './modals/VideoModal';
 import TerminologyModal from './modals/TerminologyModal';
+import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
 import Faucet from './Faucet';
@@ -52,6 +53,9 @@ class App extends Component {
         show: false
       },
       terminologyModal: {
+        show: false
+      },
+      cupHistoryModal: {
         show: false
       },
       modal: {
@@ -601,7 +605,7 @@ class App extends Component {
 
     const me = this;
     if (settings.chain[this.state.network.network]['service']) {
-      Promise.resolve(this.getFromService('cups', conditions, {cupi:'desc'})).then((response) => {
+      Promise.resolve(this.getFromService('cups', conditions, { cupi:'desc' })).then((response) => {
         response.results.forEach(function (v) {
           me.getCup(toBytes32(v.cupi), address);
         });
@@ -1060,6 +1064,17 @@ class App extends Component {
     this.setState({ terminologyModal: { show: false } });
   }
 
+  handleOpenCupHistoryModal = (e) => {
+    e.preventDefault();
+    const id = e.target.getAttribute('data-id');
+    this.setState({ cupHistoryModal: { show: true, id } });
+  }
+
+  handleCloseCupHistoryModal = (e) => {
+    e.preventDefault();
+    this.setState({ cupHistoryModal: { show: false } });
+  }
+
   checkPendingTransactions = () => {
     const transactions = { ...this.state.transactions };
     Object.keys(transactions).map(tx => {
@@ -1265,7 +1280,7 @@ class App extends Component {
         // We calculate debt with some margin before shutting cup (to avoid failures)
         const debt = this.tab(this.state.sai.tub.cups[cup].art).times(web3.fromWei(this.state.sai.tub.tax).pow(120));
         if (this.state.sai.sai.myBalance.lt(debt)) {
-          error = `Not enough balance of SAI to shut CUP ${cup}.`;
+          error = `Not enough balance of SAI to shut CDP ${cup}.`;
         } else {
           this.potAllowance('sai', method, cup, web3.fromWei(debt));
         }
@@ -1469,7 +1484,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } hasUserRights={ this.hasUserRights } />
+                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } hasUserRights={ this.hasUserRights } />
               </div>
               <div className="col-md-3 right-sidebar">
                 <div className="box">
@@ -1511,6 +1526,7 @@ class App extends Component {
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
+          <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } />
           <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>

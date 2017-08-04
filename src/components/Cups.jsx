@@ -41,7 +41,7 @@ const Cups = (props) => {
   return (
     <div className="box">
       <div className="box-header with-border">
-        <h3 className="box-title">{ props.all ? 'All' : 'My' } Cups - <a href={ props.all ? '#mine' : '#all' }>Show { props.all ? 'only my' : 'all' } cups</a></h3>
+        <h3 className="box-title">{ props.all ? 'All' : 'My' } CDPs - <a href={ props.all ? '#mine' : '#all' }>Show { props.all ? 'only my' : 'all' } CDPs</a></h3>
       </div>
       <div className="box-body" id="cups">
         <div className="row">
@@ -66,7 +66,8 @@ const Cups = (props) => {
                   Object.keys(props.sai.tub.cups).map(key =>
                     <tr key={key}>
                       <td>
-                        {key}
+                        {/* <a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>{ key }</a> */}
+                        { key }
                       </td>
                       <td>
                         { printNumber(props.tab(props.sai.tub.cups[key].art)) }
