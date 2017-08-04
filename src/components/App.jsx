@@ -1067,7 +1067,12 @@ class App extends Component {
   handleOpenCupHistoryModal = (e) => {
     e.preventDefault();
     const id = e.target.getAttribute('data-id');
-    this.setState({ cupHistoryModal: { show: true, id } });
+    const me = this;
+    this.setState({ cupHistoryModal: { show: true, id } }, () => {
+      Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
+        me.setState({ cupHistoryModal: { show: true, id, actions: response.results } });
+      });
+    });
   }
 
   handleCloseCupHistoryModal = (e) => {
@@ -1497,7 +1502,7 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
@@ -1526,7 +1531,7 @@ class App extends Component {
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
-          <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } />
+          <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
           <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>

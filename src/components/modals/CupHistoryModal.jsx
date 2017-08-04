@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
+import { etherscanAddress, etherscanTx, printNumber } from '../../helpers';
 
 class CupHistoryModal extends Component {
   render() {
@@ -32,31 +33,58 @@ class CupHistoryModal extends Component {
           contentLabel="Action Modal"
           style={ style } >
         <div id="termsWrapper">
-          <h2>CDP History</h2>
-          {/* <div className="content" ref="termsContent">
+          <a href="#action" className="close" onClick={ this.props.handleCloseCupHistoryModal }>X</a>
+          <h2>CDP { this.props.modal.id } History</h2>
+           <div className="content" ref="termsContent">
             <table>
               <thead>
                 <tr>
                   <th>
+                    Date
+                  </th>
+                  <th>
+                    Sender
+                  </th>
+                  <th>
                     Action
                   </th>
                   <th>
-                    Called by
+                    Value
                   </th>
                   <th>
-                    Amount
+                    Tx
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
+                {
+                this.props.modal.actions && this.props.modal.actions.length > 0
+                ?
+                  Object.keys(this.props.modal.actions).map(key =>
+                    <tr key={ key }>
+                      <td>
+                        { this.props.modal.actions[key].timestamp }
+                      </td>
+                      <td>
+                        { etherscanAddress(this.props.network, `${this.props.modal.actions[key].sender.substring(0,20)}...`, this.props.modal.actions[key].sender) }
+                      </td>
+                      <td>
+                        { this.props.modal.actions[key].action }
+                      </td>
+                      <td>
+                        { ['lock', 'free', 'draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1 ? printNumber(this.props.modal.actions[key].param) : this.props.modal.actions[key].param }
+                      </td>
+                      <td>
+                        { etherscanTx(this.props.network, `${this.props.modal.actions[key].transactionHash.substring(0,20)}...`, this.props.modal.actions[key].transactionHash) }
+                      </td>
+                    </tr>
+                  )
+                :
+                  ''
+                }
               </tbody>
             </table>
-          </div> */}
+          </div>
         </div>
       </ReactModal>
     )

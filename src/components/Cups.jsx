@@ -28,7 +28,7 @@ const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal,
       {
         Object.keys(actions).map(key =>
           <span key={ key }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : key }
+            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
             { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
           </span>
         )
@@ -64,7 +64,7 @@ const Cups = (props) => {
               <tbody>
                 {
                   Object.keys(props.sai.tub.cups).map(key =>
-                    <tr key={key}>
+                    <tr key={ key }>
                       <td>
                         {/* <a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>{ key }</a> */}
                         { key }
