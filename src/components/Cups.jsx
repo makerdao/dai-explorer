@@ -66,7 +66,7 @@ const Cups = (props) => {
                   Object.keys(props.sai.tub.cups).map(key =>
                     <tr key={ key }>
                       <td>
-                        {/* <a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>{ key }</a> */}
+                        {/* <a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>{ key }</a>  */}
                         { key }
                       </td>
                       <td>

@@ -42,6 +42,15 @@ export function formatNumber(number, decimals = false, isWei = true) {
   return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? `.${parts[1]}` : '');
 }
 
+export function formatDate(timestamp) {
+  const date = new Date(timestamp * 1000);
+  return `${date.getFullYear()}-${addZero(date.getMonth())}-${addZero(date.getDay())} ${addZero(date.getHours())}:${addZero(date.getMinutes())}:${addZero(date.getSeconds())}`;
+}
+
+function addZero(value) {
+  return value > 9 ? value: `0${value}`;
+}
+
 export function fromRaytoWad(x) {
   const y = web3.toBigNumber(x).div(web3.toBigNumber(10).pow(9))
   return y;

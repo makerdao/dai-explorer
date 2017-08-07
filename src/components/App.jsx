@@ -1069,9 +1069,11 @@ class App extends Component {
     const id = e.target.getAttribute('data-id');
     const me = this;
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
-      Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
-        me.setState({ cupHistoryModal: { show: true, id, actions: response.results } });
-      });
+      if (settings.chain[this.state.network.network]['service']) {
+        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
+          me.setState({ cupHistoryModal: { show: true, id, actions: response.results } });
+        });
+      }
     });
   }
 

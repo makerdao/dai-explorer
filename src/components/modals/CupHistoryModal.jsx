@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
-import { etherscanAddress, etherscanTx, printNumber } from '../../helpers';
+import { etherscanAddress, etherscanTx, printNumber, formatDate } from '../../helpers';
 
 class CupHistoryModal extends Component {
   render() {
@@ -63,7 +63,7 @@ class CupHistoryModal extends Component {
                   Object.keys(this.props.modal.actions).map(key =>
                     <tr key={ key }>
                       <td>
-                        { this.props.modal.actions[key].timestamp }
+                        { formatDate(this.props.modal.actions[key].timestamp) }
                       </td>
                       <td>
                         { etherscanAddress(this.props.network, `${this.props.modal.actions[key].sender.substring(0,20)}...`, this.props.modal.actions[key].sender) }
@@ -72,7 +72,15 @@ class CupHistoryModal extends Component {
                         { this.props.modal.actions[key].action }
                       </td>
                       <td>
-                        { ['lock', 'free', 'draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1 ? printNumber(this.props.modal.actions[key].param) : this.props.modal.actions[key].param }
+                        {
+                          ['lock', 'free', 'draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1
+                          ?
+                            printNumber(this.props.modal.actions[key].param)
+                          :
+                            this.props.modal.actions[key].action === 'give'
+                            ? etherscanAddress(this.props.network, `${this.props.modal.actions[key].param.substring(0,20)}...`, this.props.modal.actions[key].param)
+                            : this.props.modal.actions[key].param
+                        }
                       </td>
                       <td>
                         { etherscanTx(this.props.network, `${this.props.modal.actions[key].transactionHash.substring(0,20)}...`, this.props.modal.actions[key].transactionHash) }

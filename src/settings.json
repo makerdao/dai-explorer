@@ -1,5 +1,5 @@
 {
-  "nodeURL" : "http://localhost:8545",
+  "nodeURL" : "https://sai-service.makerdao.com/parity",
   "chain": {
     "private": {
       "top": "",

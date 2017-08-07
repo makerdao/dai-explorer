@@ -282,6 +282,12 @@ p.error {
   padding-top: 0px;
   word-break: break-word;
   overflow-y: scroll;
+  width: 100%;
+}
+
+#termsWrapper .content table {
+  word-break: initial;
+  overflow-x: auto;
 }
 
 #termsWrapper .content::-webkit-scrollbar {

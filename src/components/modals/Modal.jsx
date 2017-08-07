@@ -159,7 +159,7 @@ class Modal extends Component {
 
     let text = '';
     let type = '';
-    this.cond = null;
+    this.cond = () => { return false };
     switch(modal.method) {
       case 'open':
         text = 'Are you sure you want to open a new CDP?';
