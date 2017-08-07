@@ -2,6 +2,8 @@ import React from 'react';
 import web3 from '../web3';
 import { printNumber, wdiv } from '../helpers';
 
+const settings = require('../settings');
+
 const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
     lock: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
@@ -58,6 +60,11 @@ const Cups = (props) => {
                   <th title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
                   <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation price</th>
                   <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
+                  {
+                    settings.chain[props.network.network]['service']
+                    ?<th>History</th>
+                    :<th></th>
+                  }
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -66,7 +73,6 @@ const Cups = (props) => {
                   Object.keys(props.sai.tub.cups).map(key =>
                     <tr key={ key }>
                       <td>
-                        {/* <a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>{ key }</a>  */}
                         { key }
                       </td>
                       <td>
@@ -123,6 +129,11 @@ const Cups = (props) => {
                             '-'
                         }
                       </td>
+                      {
+                        settings.chain[props.network.network]['service']
+                        ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>show</a></td>
+                        :<td></td>
+                      }
                       <td className="text-left">
                         { renderCupActions(props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>

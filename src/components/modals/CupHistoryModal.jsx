@@ -71,7 +71,7 @@ class CupHistoryModal extends Component {
                       <td>
                         { this.props.modal.actions[key].action }
                       </td>
-                      <td>
+                      <td className="text-right">
                         {
                           ['lock', 'free', 'draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1
                           ?
@@ -80,6 +80,17 @@ class CupHistoryModal extends Component {
                             this.props.modal.actions[key].action === 'give'
                             ? etherscanAddress(this.props.network, `${this.props.modal.actions[key].param.substring(0,20)}...`, this.props.modal.actions[key].param)
                             : this.props.modal.actions[key].param
+                        }
+                        {
+                          ['lock', 'free'].indexOf(this.props.modal.actions[key].action) !== -1
+                          ?
+                            ' SKR'
+                          :
+                            ['draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1
+                            ?
+                              ' SAI'
+                            :
+                              ''
                         }
                       </td>
                       <td>
