@@ -50,14 +50,14 @@ const Cups = (props) => {
               <thead>
                 <tr>
                   <th>CDP Id</th>
-                  <th title="The amount of outstanding SAI debt in a CDP.">Debt (SAI)</th>
-                  <th title="The amount of SKR collateral in a CDP.">Locked (SKR)</th>
-                  <th title="The ratio of collateral SKR to total outstanding SKR.">% Tot SKR</th>
-                  <th title="The collateral ratio of the CDP.">% Ratio</th>
-                  <th title="The maximum Sai that can currently be drawn from a CDP.">Avail. SAI (to draw)</th>
-                  <th title="The maximum SKR that can currently be released from a CDP.">Avail. SKR (to free)</th>
-                  <th title="The Ethereum price at which a CDP will become unsafe and at risk of liquidation.">Liquidation price</th>
-                  <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed.">Status</th>
+                  <th title="Amount of outstanding SAI debt in a CDP">Debt (SAI)</th>
+                  <th title="Amount of SKR collateral in a CDP">Locked (SKR)</th>
+                  <th title="Ratio of collateral SKR to total outstanding SKR">% Tot (SKR)</th>
+                  <th title="Collateral ratio of the CDP">% Ratio</th>
+                  <th title="Maximum Sai that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
+                  <th title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
+                  <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation price</th>
+                  <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>

@@ -24,7 +24,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong title="The price of 1 SKR in ETH.">SKR/ETH</strong>
+              <strong title="Amount of collateral pool ETH claimed by 1 SKR">SKR/ETH</strong>
               {
                 props.sai.jar.per.gte(0)
                 ?
@@ -34,7 +34,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Price of 1 ETH in USD (as determined by the median of the feeds).">ETH/USD</strong>
+              <strong title="Price of 1 ETH in USD (as determined by the median of the feeds)">ETH/USD</strong>
               {
                 props.sai.pip.val.gte(0)
                 ?
@@ -44,7 +44,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Target price for 1 SAI in USD.">SAI/USD</strong>
+              <strong title="Target price for 1 SAI in USD">SAI/USD</strong>
               {
                 props.sai.tip.par.gte(0)
                 ?
@@ -54,7 +54,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="The collateralization ratio below which a CDP may be liquidated.">Liq. Ratio</strong>
+              <strong title="Collateralization ratio below which a CDP may be liquidated">Liq. Ratio</strong>
               {
                 props.sai.tub.mat.gte(0)
                 ?
@@ -64,7 +64,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="The penalty charged by the system upon liquidation, as a percentage of the CDP collateral.">Liq. Penalty</strong>
+              <strong title="Penalty charged by the system upon liquidation, as a percentage of the CDP collateral">Liq. Penalty</strong>
               {
                 props.sai.tub.axe.gte(0)
                 ?
@@ -74,7 +74,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="The maximum number of SAI that can be issued.">Debt Ceiling</strong>
+              <strong title="Maximum number of SAI that can be issued">Debt Ceiling</strong>
               {
                 props.sai.tub.hat.gte(0)
                 ?
@@ -84,7 +84,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong>Gap (join/exit)</strong>
+              <strong title="Discount/premium for converting between ETH and SKR via join and exit; the profits are accrued to the SKR collateral pool">Spread (join/exit)</strong>
               {
                 props.sai.jar.gap.gte(0)
                 ?
@@ -94,7 +94,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="The discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’).">Gap (boom/bust)</strong>
+              <strong title="Discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)">Spread (boom/bust)</strong>
               {
                 props.sai.tap.gap.gte(0)
                 ?
@@ -104,15 +104,15 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Whether the system is at less than 100% overall collateralisation.">Deficit</strong>
+              <strong title="Whether the system is at less than 100% overall collateralisation">Deficit</strong>
               <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek !== 'undefined' ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
-              <strong title="Whether the overall collateralization of the system is above the liquidation ratio.">Safe</strong>
+              <strong title="Whether the overall collateralization of the system is above the liquidation ratio">Safe</strong>
               <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
-              <strong title="CDP interest rate.">CDP Fee (365 days)</strong>
+              <strong title="CDP interest rate">CDP Fee (365 days)</strong>
               <span>
                 {
                   props.sai.tub.tax.gte(0)
@@ -124,7 +124,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong title="Annual % change of Sai target price in USD. This represents Sai deflation or inflation when positive or negative, respectively.">Interest Rate (365 days)</strong>
+              <strong title="Annual % change of Sai target price in USD. This represents Sai deflation or inflation when positive or negative, respectively">SAI Target Rate (365 days)</strong>
               <span>
                 {
                   props.sai.tip.way.gte(0)

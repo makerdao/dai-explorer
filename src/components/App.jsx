@@ -1437,8 +1437,8 @@ class App extends Component {
 
     const helpers = {
       open: 'Open a new CDP',
-      join: 'Deposit WETH in exchange of SKR',
-      exit: 'Withdraw WETH in exchange of SKR',
+      join: 'Exchange ETH for SKR',
+      exit: 'Exchange SKR for ETH',
       boom: 'Buy SAI with SKR',
       bust: 'Buy SKR with SAI',
     };
