@@ -331,24 +331,25 @@ class App extends Component {
           Promise.all(promises).then((r) => {
             this.initializeSystemStatus();
 
-            this.setUpPot();
-            this.setUpPit();
             this.setUpLPS();
-            this.setUpToken('gem');
-            this.setUpToken('skr');
-            this.setUpToken('sai');
-            this.setUpToken('sin');
+            const promises2 = [this.setUpPot(), this.setUpPit()];
+            Promise.all(promises2).then((r) => {
+              this.setUpToken('gem');
+              this.setUpToken('skr');
+              this.setUpToken('sai');
+              this.setUpToken('sin');
 
-            this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
-            this.setFiltersTap();
-            this.setFiltersTip();
-            this.setFiltersJar();
-            this.setFiltersLpc();
-            this.setFilterFeedValue();
-            this.setTimeVariablesInterval();
+              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+              this.setFiltersTap();
+              this.setFiltersTip();
+              this.setFiltersJar();
+              this.setFiltersLpc();
+              this.setFilterFeedValue();
+              this.setTimeVariablesInterval();
 
-            // This is necessary to finish transactions that failed after signing
-            this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+              // This is necessary to finish transactions that failed after signing
+              this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+            });
           });
         } else {
           alert('This is not a Top address');
@@ -441,9 +442,7 @@ class App extends Component {
           const sai = { ...this.state.sai };
           sai.jar.address = r;
           window.jarObj = this.jarObj = this.loadObject(jar.abi, r);
-          this.setState({ sai }, () => {
-            resolve(true);
-          });
+          this.setState({ sai }, resolve(true));
         } else {
           reject(e);
         }
@@ -459,9 +458,7 @@ class App extends Component {
           const sai = { ...this.state.sai };
           sai.tip.address = r;
           window.tipObj = this.tipObj = this.loadObject(tip.abi, r);
-          this.setState({ sai }, () => {
-            resolve(true);
-          });
+          this.setState({ sai }, () => resolve(true));
         } else {
           reject(e);
         }
@@ -471,23 +468,33 @@ class App extends Component {
   }
 
   setUpPot = (object) => {
-    this.tubObj.pot((e, r) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        sai.pot.address = r;
-        this.setState({ sai });
-      }
-    })
+    const p = new Promise((resolve, reject) => {
+      this.tubObj.pot((e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.pot.address = r;
+          this.setState({ sai }, () => resolve(true));
+        } else {
+          reject(e);
+        }
+      })
+    });
+    return p;
   }
 
   setUpPit = (object) => {
-    this.tubObj.pit((e, r) => {
-      if (!e) {
-        const sai = { ...this.state.sai };
-        sai.pit.address = r;
-        this.setState({ sai });
-      }
-    })
+    const p = new Promise((resolve, reject) => {
+      this.tubObj.pit((e, r) => {
+        if (!e) {
+          const sai = { ...this.state.sai };
+          sai.pit.address = r;
+          this.setState({ sai }, () => resolve(true));
+        } else {
+          reject(e);
+        }
+      })
+    });
+    return p;
   }
 
   setUpLPS = () => {
@@ -513,10 +520,10 @@ class App extends Component {
 
         const sai = { ...this.state.sai };
         sai[token].address = r;
-        this.setState({ sai });
-
-        this.getDataFromToken(token);
-        this.setFilterToken(token);
+        this.setState({ sai }, () => {
+          this.getDataFromToken(token);
+          this.setFilterToken(token);
+        });
       }
     })
   }
