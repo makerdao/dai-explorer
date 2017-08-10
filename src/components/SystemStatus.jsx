@@ -6,7 +6,7 @@ const SystemStatus = (props) => {
   return (
     <div className="box">
       <div className="box-header with-border">
-        <h3 className="box-title">SAI Status</h3>
+        <h3 className="box-title">Status</h3>
       </div>
       <div className="box-body">
         <div className="row">

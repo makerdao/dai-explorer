@@ -8,6 +8,7 @@ import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
 import Faucet from './Faucet';
+import Stats from './Stats';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Wrap from './Wrap';
@@ -158,6 +159,9 @@ class App extends Component {
           pips: {},
           pers: {},
           pars: {},
+        },
+        stats: {
+          error: false
         },
       },
     };
@@ -596,6 +600,8 @@ class App extends Component {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
           resolve(response);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
         }
       }
       xhr.send();
@@ -617,6 +623,8 @@ class App extends Component {
           me.getCup(toBytes32(v.cupi), address);
         });
         me.getCupsFromChain(address, conditions, response.last_block);
+      }).catch((error) => {
+        me.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
       });
     } else {
       this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
@@ -807,6 +815,7 @@ class App extends Component {
     this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
     if (settings.chain[this.state.network.network]['service']) {
       this.getGraphsData();
+      this.getStats();
     }
   }
 
@@ -1000,8 +1009,21 @@ class App extends Component {
         const sai = { ...this.state.sai };
         sai['graph'][value] = response;
         this.setState({ sai });
+      }).catch((error) => {
       });
     })
+  }
+
+  getStats = () => {
+    Promise.resolve(this.getFromService('cupStats')).then((response) => {
+      const sai = { ...this.state.sai };
+      sai['stats'] = { error: false, results: response.results };
+      this.setState({ sai });
+    }).catch((error) => {
+      const sai = { ...this.state.sai };
+      sai['stats'] = { error: true };
+      this.setState({ sai });
+    });
   }
 
   tab = (art) => {
@@ -1038,6 +1060,7 @@ class App extends Component {
     return web3.sha3(method).substring(0, 10)
   }
 
+  // Modals
   handleOpenModal = (e) => {
     e.preventDefault();
     const method = e.target.getAttribute('data-method');
@@ -1078,7 +1101,9 @@ class App extends Component {
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
       if (settings.chain[this.state.network.network]['service']) {
         Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
-          me.setState({ cupHistoryModal: { show: true, id, actions: response.results } });
+          me.setState({ cupHistoryModal: { show: true, error: false, id, actions: response.results } });
+        }).catch(error => {
+          me.setState({ cupHistoryModal: { show: true, error: true } });
         });
       }
     });
@@ -1089,6 +1114,16 @@ class App extends Component {
     this.setState({ cupHistoryModal: { show: false } });
   }
 
+  markAsAccepted = (type) => {
+    const termsModal = { ...this.state.termsModal };
+    termsModal[type] = false;
+    this.setState({ termsModal }, () => {
+      localStorage.setItem('termsModal', JSON.stringify(termsModal));
+    });
+  }
+  //
+
+  // Transactions
   checkPendingTransactions = () => {
     const transactions = { ...this.state.transactions };
     Object.keys(transactions).map(tx => {
@@ -1152,7 +1187,9 @@ class App extends Component {
       this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
     }
   }
+  //
 
+  // Actions
   executeMethod = (object, method) => {
     this[`${object}Obj`][method]({}, (e, tx) => {
       if (!e) {
@@ -1420,14 +1457,7 @@ class App extends Component {
       });
     }
   }
-
-  markAsAccepted = (type) => {
-    const termsModal = { ...this.state.termsModal };
-    termsModal[type] = false;
-    this.setState({ termsModal }, () => {
-      localStorage.setItem('termsModal', JSON.stringify(termsModal));
-    });
-  }
+  //
 
   hasUserRights = () => {
     return web3.isAddress(this.state.network.defaultAccount) && (!this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1);
@@ -1483,6 +1513,11 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9 main">
+                {
+                  settings.chain[this.state.network.network]['service']
+                  ? <Stats stats={ this.state.sai.stats } />
+                  : ''
+                }
                 <SystemStatus sai={ this.state.sai } />
                 {
                   web3.isAddress(this.state.network.defaultAccount)

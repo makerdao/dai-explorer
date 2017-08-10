@@ -83,10 +83,12 @@ const Cups = (props) => {
                       </td>
                       <td>
                         {
-                          props.sai.skr.totalSupply
-                            ? printNumber(wdiv(props.sai.tub.cups[key].ink, props.sai.skr.totalSupply).times(100))
-                            : <span title="0">0.000</span>
-                        }%
+                          props.sai.skr.totalSupply.gte(0)
+                            ? props.sai.skr.totalSupply.gt(0)
+                              ? <span>{ printNumber(wdiv(props.sai.tub.cups[key].ink, props.sai.skr.totalSupply).times(100)) }%</span>
+                              : <span title="0">0.000%</span>
+                            : 'Loading...'
+                        }
                       </td>
                       <td className={ props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].ratio && props.sai.tub.cups[key].art.gt(web3.toBigNumber(0))
                                       ? (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.1))
