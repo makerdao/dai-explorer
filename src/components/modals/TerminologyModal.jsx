@@ -65,6 +65,9 @@ const TerminologyModal = (props) => {
             <strong>Locked (SKR):</strong> Amount of SKR collateral in a CDP<br />
             <strong>Oracles:</strong> Ethereum accounts (contracts or users) selected to provide price feeds into various components of The Sai &amp; Sai Stablecoin System<br />
             <strong>Open:</strong> Open a new CDP<br />
+            <strong>Pending Sale (SAI):</strong> Amount of surplus SAI pending sale via boom<br />
+            <strong>Pending Sale (SKR):</strong> Amount of SKR collateral pending liquidation via bust<br />
+            <strong>Redeemable:</strong> Amount of ETH available to cash for SAI<br />
             <strong>Risk Parameters:</strong> The stability fee, liquidation ratio, boom/bust gap, and debt ceiling<br />
             <strong>Safe:</strong> Whether the overall collateralization of the system is above the liquidation ratio<br />
             <strong>SAI Target Rate:</strong> Annual % change of Sai target price in USD. This represents Sai deflation or inflation when positive or negative, respectively<br />
@@ -77,6 +80,8 @@ const TerminologyModal = (props) => {
             <strong>Status:</strong> Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed<br />
             <strong>Tap:</strong> Liquidator<br />
             <strong>Top:</strong> System overview / settlement<br />
+            <strong>Total Locked:</strong> Amount of SKR locked as collateral in CDPs<br />
+            <strong>Total Pooled:</strong> Amount of ETH in the SKR collateral pool<br />
             <strong>Tub:</strong> CDP engine<br />
             <strong>Wipe:</strong> Use Sai to cancel CDP debt<br />
             <strong>Wrap/Unwrap ETH:</strong> Convert Ethereum into an ERC-20 compatible token<br />

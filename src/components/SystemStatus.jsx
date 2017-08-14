@@ -141,8 +141,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>
-                      Sell { printNumber(props.sai.tub.avail_boom_skr) } SKR<br />
-                      Buy { printNumber(props.sai.tub.avail_boom_sai) } SAI
+                      Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
+                      Buy { printNumber(props.sai.tub.avail_bust_skr) } SKR
                     </span>
                   : '-'
                 }
@@ -151,8 +151,8 @@ const SystemStatus = (props) => {
                 {
                   props.sai.tub.reg.eq(0)
                   ? <span>
-                      Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
-                      Buy { printNumber(props.sai.tub.avail_bust_skr) } SKR
+                      Sell { printNumber(props.sai.tub.avail_boom_skr) } SKR<br />
+                      Buy { printNumber(props.sai.tub.avail_boom_sai) } SAI
                     </span>
                   : '-'
                 }
