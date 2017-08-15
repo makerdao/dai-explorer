@@ -83,6 +83,10 @@ class App extends Component {
           tax: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
           rho: web3.toBigNumber(-1),
+          avail_boom_skr: web3.toBigNumber(-1),
+          avail_boom_sai: web3.toBigNumber(-1),
+          avail_bust_skr: web3.toBigNumber(-1),
+          avail_bust_sai: web3.toBigNumber(-1),
           cups: {},
         },
         jar: {
@@ -328,31 +332,30 @@ class App extends Component {
           sai['tub'].address = r[0];
           sai['tap'].address = r[1];
 
-          this.setState({ sai });
+          this.setState({ sai }, () => {
+            const promises = [this.setUpJar(), this.setUpTip()];
+            Promise.all(promises).then((r) => {
+              this.initializeSystemStatus();
 
-          const promises = [this.setUpJar(), this.setUpTip()];
+              this.setUpLPS();
+              const promises2 = [this.setUpPot(), this.setUpPit()];
+              Promise.all(promises2).then((r) => {
+                this.setUpToken('gem');
+                this.setUpToken('skr');
+                this.setUpToken('sai');
+                this.setUpToken('sin');
 
-          Promise.all(promises).then((r) => {
-            this.initializeSystemStatus();
+                this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+                this.setFiltersTap();
+                this.setFiltersTip();
+                this.setFiltersJar();
+                this.setFiltersLpc();
+                this.setFilterFeedValue();
+                this.setTimeVariablesInterval();
 
-            this.setUpLPS();
-            const promises2 = [this.setUpPot(), this.setUpPit()];
-            Promise.all(promises2).then((r) => {
-              this.setUpToken('gem');
-              this.setUpToken('skr');
-              this.setUpToken('sai');
-              this.setUpToken('sin');
-
-              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
-              this.setFiltersTap();
-              this.setFiltersTip();
-              this.setFiltersJar();
-              this.setFiltersLpc();
-              this.setFilterFeedValue();
-              this.setTimeVariablesInterval();
-
-              // This is necessary to finish transactions that failed after signing
-              this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+                // This is necessary to finish transactions that failed after signing
+                this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+              });
             });
           });
         } else {
@@ -369,9 +372,13 @@ class App extends Component {
                       ];
     Promise.all(promises).then((r) => {
       if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
-        const sai = { ...this.state.sai };
-        sai.sin.issuerFee = this.state.sai.sin.potBalance.times(web3.fromWei(this.state.sai.tub.tax).pow(this.state.sai.tip.era.minus(this.state.sai.tub.rho))).minus(this.state.sai.sin.potBalance).round(0);
-        this.setState({ sai });
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const sin = {...sai.sin};
+          sin.issuerFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(sai.tip.era.minus(sai.tub.rho))).minus(sai.sin.potBalance).round(0);
+          sai.sin = sin;
+          return { sai };
+        });
       }
     });
   }
@@ -395,16 +402,25 @@ class App extends Component {
   checkUserAuth = () => {
     if (this.state.network && this.state.network.defaultAccount !== null && typeof this.rolesObj !== 'undefined') {
       this.rolesObj.isUserRoot.call(this.state.network.defaultAccount, (e, r) => {
-        const sai = { ...this.state.sai };
         if (!e) {
           if (r) {
-            sai.tub.role = 'root';
-            this.setState({ sai });
+            this.setState((prevState, props) => {
+              const sai = {...prevState.sai};
+              const tub = {...sai.tub};
+              tub.role = 'root';
+              sai.tub = tub;
+              return { sai };
+            });
           } else {
              this.rolesObj.hasUserRole.call(this.state.network.defaultAccount, 1, (e2, r2) => {
                if (!e2) {
-                sai.tub.role = r2 ? 'user' : 'public';
-                this.setState({ sai });
+                this.setState((prevState, props) => {
+                  const sai = {...prevState.sai};
+                  const tub = {...sai.tub};
+                  tub.role = r2 ? 'user' : 'public';
+                  sai.tub = tub;
+                  return { sai };
+                });
                }
              });
           }
@@ -443,10 +459,16 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tubObj.jar((e, r) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.jar.address = r;
-          window.jarObj = this.jarObj = this.loadObject(jar.abi, r);
-          this.setState({ sai }, resolve(true));
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const jar = {...sai.jar};
+            jar.address = r;
+            sai.jar = jar;
+            return { sai };
+          }, () => {
+            window.jarObj = this.jarObj = this.loadObject(jar.abi, r);
+            resolve(true);
+          });
         } else {
           reject(e);
         }
@@ -459,10 +481,16 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tubObj.tip((e, r) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.tip.address = r;
-          window.tipObj = this.tipObj = this.loadObject(tip.abi, r);
-          this.setState({ sai }, () => resolve(true));
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const tip = {...sai.tip};
+            tip.address = r;
+            sai.tip = tip;
+            return { sai };
+          }, () => {
+            window.tipObj = this.tipObj = this.loadObject(tip.abi, r);
+            resolve(true);
+          });
         } else {
           reject(e);
         }
@@ -475,9 +503,15 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tubObj.pot((e, r) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.pot.address = r;
-          this.setState({ sai }, () => resolve(true));
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const pot = {...sai.pot};
+            pot.address = r;
+            sai.pot = pot;
+            return { sai };
+          }, () => {
+            resolve(true);
+          });
         } else {
           reject(e);
         }
@@ -490,9 +524,15 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tubObj.pit((e, r) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.pit.address = r;
-          this.setState({ sai }, () => resolve(true));
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const pit = {...sai.pit};
+            pit.address = r;
+            sai.pit = pit;
+            return { sai };
+          }, () => {
+            resolve(true);
+          });
         } else {
           reject(e);
         }
@@ -505,10 +545,14 @@ class App extends Component {
     if (this.lpcObj.address) {
       this.lpcObj.lps((e, r) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.lps.address = r;
-          window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, sai.lps.address);
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const lps = {...sai.lps};
+            lps.address = r;
+            sai.lps = lps;
+            return { sai };
+          }, () => {
+            window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, this.state.sai.lps.address);
             this.getDataFromToken('lps');
             this.setFilterToken('lps');
           });
@@ -520,11 +564,14 @@ class App extends Component {
   setUpToken = (token) => {
     this.tubObj[token]((e, r) => {
       if (!e) {
-        window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'gem' ? dsethtoken.abi : dstoken.abi, r);
-
-        const sai = { ...this.state.sai };
-        sai[token].address = r;
-        this.setState({ sai }, () => {
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const tok = {...sai[token]};
+          tok.address = r;
+          sai[token] = tok;
+          return { sai };
+        }, () => {
+          window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'gem' ? dsethtoken.abi : dstoken.abi, r);
           this.getDataFromToken(token);
           this.setFilterToken(token);
         });
@@ -716,22 +763,27 @@ class App extends Component {
   setFilterFeedValue = () => {
     this.jarObj.pip.call((e, r) => {
       if (!e) {
-        window.pipObj = this.pipObj = this.loadObject(dsvalue.abi, r);
-        const sai = { ...this.state.sai };
-        sai.pip.address = r;
-        this.setState({ sai }, () => {
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const pip = {...sai.pip};
+          pip.address = r;
+          sai.pip = pip;
+          return { sai };
+        }, () => {
+          window.pipObj = this.pipObj = this.loadObject(dsvalue.abi, r);
           this.getValFromPip();
-        });
-        this.pipObj.LogNote({}, {}, (e, r) => {
-          if (!e) {
-            if (
-              r.args.sig === this.methodSig('poke(bytes32)') ||
-              r.args.sig === this.methodSig('poke()')
-            ) {
-              this.getParameterFromJar('tag');
-              this.getValFromPip();
+
+          this.pipObj.LogNote({}, {}, (e, r) => {
+            if (!e) {
+              if (
+                r.args.sig === this.methodSig('poke(bytes32)') ||
+                r.args.sig === this.methodSig('poke()')
+              ) {
+                this.getParameterFromJar('tag');
+                this.getValFromPip();
+              }
             }
-          }
+          });
         });
       }
     })
@@ -769,9 +821,13 @@ class App extends Component {
   getTotalSupply = (name) => {
     this[`${name}Obj`].totalSupply((e, r) => {
       if (!e) {
-        const sai = { ...this.state.sai };
-        sai[name].totalSupply = r;
-        this.setState({ sai }, () => {
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const tok = {...sai[name]};
+          tok.totalSupply = r;
+          sai[name] = tok;
+          return { sai };
+        }, () => {
           if (name === 'sin') {
             this.calculateSafetyAndDeficit();
           }
@@ -783,9 +839,13 @@ class App extends Component {
   getBalanceOf = (name, address, field) => {
     this[`${name}Obj`].balanceOf(address, (e, r) => {
       if (!e) {
-        const sai = { ...this.state.sai };
-        sai[name][field] = r;
-        this.setState({ sai }, () => {
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const tok = {...sai[name]};
+          tok[field] = r;
+          sai[name] = tok;
+          return { sai };
+        }, () => {
           if ((name === 'skr' || name === 'sai') && field === 'jarBalance') {
             this.calculateSafetyAndDeficit();
           }
@@ -820,18 +880,21 @@ class App extends Component {
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.sai.skr.jarBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
-      const pro = wmul(this.state.sai.skr.jarBalance, this.state.sai.jar.tag);
-      const con = this.state.sai.sin.totalSupply;
+    if (this.state.sai.tub.mat.gte(0) && this.state.sai.skr.jarBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+      this.setState((prevState, props) => {
+        const sai = {...prevState.sai};
+        const tub = {...sai.tub};
 
-      const sai = { ...this.state.sai };
-      sai.tub.eek = pro.lt(con);
+        const pro = wmul(sai.skr.jarBalance, sai.jar.tag);
+        const con = sai.sin.totalSupply;
+        tub.eek = pro.lt(con);
 
-      if (this.state.sai.tub.mat.gte(0)) {
-        const min = wmul(con, this.state.sai.tub.mat);
-        sai.tub.safe = pro.gte(min);
-      }
-      this.setState({ sai });
+        const min = wmul(con, tub.mat);
+        tub.safe = pro.gte(min);
+
+        sai.tub = tub;
+        return { sai };
+      });
     }
   }
 
@@ -839,19 +902,20 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tubObj[field].call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.tub[field] = ray ? fromRaytoWad(value) : value;
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const tub = {...sai.tub};
+            tub[field] = ray ? fromRaytoWad(value) : value;
+            sai.tub = tub;
+            return { sai };
+          }, () => {
             this.getBoomBustValues();
-
-            Object.keys(sai.tub.cups).map(key =>
+            Object.keys(this.state.sai.tub.cups).map(key =>
               this.updateCup(key)
             );
-
             if (callback) {
               callback(value);
             }
-
             resolve(true);
           });
         } else {
@@ -866,9 +930,13 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.jarObj[field].call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.jar[field] = ray ? fromRaytoWad(value) : value;
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const jar = {...sai.jar};
+            jar[field] = ray ? fromRaytoWad(value) : value;
+            sai.jar = jar;
+            return { sai };
+          }, () => {
             this.getBoomBustValues();
             resolve(true);
           });
@@ -884,9 +952,13 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tapObj[field].call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.tap[field] = ray ? fromRaytoWad(value) : value;
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const tap = {...sai.tap};
+            tap[field] = ray ? fromRaytoWad(value) : value;
+            sai.tap = tap;
+            return { sai };
+          }, () => {
             resolve(true);
           });
         } else {
@@ -901,9 +973,13 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.tipObj[field].call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.tip[field] = ray ? fromRaytoWad(value) : value;
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const tip = {...sai.tip};
+            tip[field] = ray ? fromRaytoWad(value) : value;
+            sai.tip = tip;
+            return { sai };
+          }, () => {
             resolve(true);
           });
         } else {
@@ -918,9 +994,13 @@ class App extends Component {
     if (this.lpcObj.address) {
       this.lpcObj[field].call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.lpc[field] = ray ? fromRaytoWad(value) : value;
-          this.setState({ sai });
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const lpc = {...sai.lpc};
+            lpc[field] = ray ? fromRaytoWad(value) : value;
+            sai.lpc = lpc;
+            return { sai };
+          });
         }
       });
     }
@@ -930,9 +1010,13 @@ class App extends Component {
     const p = new Promise((resolve, reject) => {
       this.pipObj.read.call((e, value) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          sai.pip.val = web3.toBigNumber(parseInt(value, 16));
-          this.setState({ sai }, () => {
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const pip = {...sai.pip};
+            pip.val = web3.toBigNumber(parseInt(value, 16));
+            sai.pip = pip;
+            return { sai };
+          }, () => {
             this.getBoomBustValues();
             resolve(true);
           });
@@ -945,59 +1029,73 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.pitBalance && this.state.sai.sin.pitBalance && this.state.sai.pip.val) {
-      const sai = { ...this.state.sai };
-      const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
-      sai.tub.avail_boom_sai = sai.tub.avail_boom_skr = web3.toBigNumber(0);
-      sai.tub.avail_bust_sai = sai.tub.avail_bust_skr = web3.toBigNumber(0);
+    if (this.state.sai.sai.pitBalance.gt(-1) && this.state.sai.sin.pitBalance.gt(-1) && this.state.sai.pip.val.gt(-1)) {
+      this.setState((prevState, props) => {
+        const sai = {...prevState.sai};
+        const tub = {...sai.tub};
 
-      if (dif.gt(0)) {
-        // We can boom
-        sai.tub.avail_boom_sai = dif;
-        sai.tub.avail_boom_skr = wdiv(wdiv(wmul(sai.tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
-      }
+        const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
+        // console.log('dif', dif.valueOf());
+        tub.avail_boom_sai = tub.avail_boom_skr = web3.toBigNumber(0);
+        tub.avail_bust_sai = tub.avail_bust_skr = web3.toBigNumber(0);
 
-      if (sai.skr.pitBalance.gt(0) || dif.lt(0)) {
-        // We can bust
-
-        // This is a margin we need to take into account as bust quantity goes down per second
-        const futureFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
-        const saiNeeded = dif.abs().minus(futureFee);
-        const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, sai.tip.par), sai.jar.tag), sai.tap.gap);
-
-        if (sai.skr.pitBalance.gte(equivalentSKR)) {
-          sai.tub.avail_bust_skr = sai.skr.pitBalance;
-          sai.tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, sai.tip.par), sai.jar.tag), sai.tap.gap);
-          sai.tub.avail_bust_sai = wmul(sai.tub.avail_bust_skr, sai.tub.avail_bust_ratio);
-        } else {
-          sai.tub.avail_bust_sai = saiNeeded;
-          // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
-          sai.tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(sai.tub.avail_bust_sai, sai.tip.par)).minus(WAD));
-          sai.tub.avail_bust_ratio = wdiv(sai.tub.avail_bust_sai, sai.tub.avail_bust_skr);
+        if (dif.gt(0)) {
+          // We can boom
+          tub.avail_boom_sai = dif;
+          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
         }
-      }
-      this.setState({ sai });
+
+        if (sai.skr.pitBalance.gt(0) || dif.lt(0)) {
+          // We can bust
+
+          // This is a margin we need to take into account as bust quantity goes down per second
+          const futureFee = sai.sin.potBalance.times(web3.fromWei(tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
+          const saiNeeded = dif.abs().minus(futureFee);
+          const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, sai.tip.par), sai.jar.tag), sai.tap.gap);
+
+          if (sai.skr.pitBalance.gte(equivalentSKR)) {
+            tub.avail_bust_skr = sai.skr.pitBalance;
+            tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, sai.tip.par), sai.jar.tag), sai.tap.gap);
+            tub.avail_bust_sai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
+          } else {
+            tub.avail_bust_sai = saiNeeded;
+            // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
+            tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+            tub.avail_bust_ratio = wdiv(tub.avail_bust_sai, tub.avail_bust_skr);
+          }
+        }
+        sai.tub = tub;
+        return { sai };
+      });
     }
   }
 
   getCup = (idHex, address) => {
-    this.tubObj.cups(idHex, (e, cup) => {
+    this.tubObj.cups(idHex, (e, cupData) => {
       const id = parseInt(idHex, 16);
-      const sai = { ...this.state.sai };
-      const firstLoad = typeof sai.tub.cups[id] === 'undefined';
-      if (!address || address === cup[0]) {
+      const firstLoad = typeof this.state.sai.tub.cups[id] === 'undefined';
+      if (!address || address === cupData[0]) {
         // This verification needs to be done as the cup could have been given or closed by the user
-        sai.tub.cups[id] =  {
-          lad: cup[0],
-          art: cup[1],
-          ink: cup[2],
-          safe: firstLoad ? 'N/A' : sai.tub.cups[id]['safe']
-        };
-        this.setState({ sai });
-        this.updateCup(id);
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const tub = {...sai.tub};
+          const cups = {...tub.cups};
+          const cup = {
+            lad: cupData[0],
+            art: cupData[1],
+            ink: cupData[2],
+            safe: firstLoad ? 'N/A' : cups[id]['safe']
+          };
+          cups[id] = cup;
+          tub.cups = cups;
+          sai.tub = tub;
+          return { sai };
+        }, () => {
+          this.updateCup(id);
+        });
       } else if(!firstLoad) {
         // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
-        delete sai.tub.cups[id];
+        delete this.state.sai.tub.cups[id];
       }
     });
   }
@@ -1006,9 +1104,13 @@ class App extends Component {
     const data = ['pips', 'pers', 'pars'];
     data.forEach((value) => {
       Promise.resolve(this.getFromService(value)).then((response) => {
-        const sai = { ...this.state.sai };
-        sai['graph'][value] = response;
-        this.setState({ sai });
+        this.setState((prevState, props) => {
+          const sai = {...prevState.sai};
+          const graph = {...sai.graph};
+          graph[value] = response;
+          sai.graph = graph;
+          return { sai };
+        });
       }).catch((error) => {
       });
     })
@@ -1016,13 +1118,17 @@ class App extends Component {
 
   getStats = () => {
     Promise.resolve(this.getFromService('cupStats')).then((response) => {
-      const sai = { ...this.state.sai };
-      sai['stats'] = { error: false, results: response.results };
-      this.setState({ sai });
+      this.setState((prevState, props) => {
+        const sai = {...prevState.sai};
+        sai.stats = { error: false, results: response.results };
+        return { sai };
+      });
     }).catch((error) => {
-      const sai = { ...this.state.sai };
-      sai['stats'] = { error: true };
-      this.setState({ sai });
+      this.setState((prevState, props) => {
+        const sai = {...prevState.sai};
+        sai.stats = { error: true };
+        return { sai };
+      });
     });
   }
 
@@ -1031,26 +1137,42 @@ class App extends Component {
   }
 
   updateCup = (id) => {
-    const sai = { ...this.state.sai };
-    const cup = sai.tub.cups[id];
-    sai.tub.cups[id].pro = wmul(cup.ink, sai.jar.tag).round(0);
-    sai.tub.cups[id].ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
-    // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-    const marginTax = web3.fromWei(this.state.sai.tub.tax).pow(120);
-    sai.tub.cups[id].avail_sai = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
-    sai.tub.cups[id].avail_sai_with_margin = wdiv(cup.pro, wmul(sai.tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
-    sai.tub.cups[id].avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), sai.tub.mat), sai.tip.par), sai.jar.tag)).round(0);
-    sai.tub.cups[id].avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), sai.tub.mat), sai.tip.par), sai.jar.tag)).round(0);
-    sai.tub.cups[id].liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), sai.tub.mat), sai.jar.per), cup.ink) : web3.toBigNumber(0);
+    this.setState((prevState, props) => {
+      const sai = {...prevState.sai};
+      const tub = {...sai.tub};
+      const cups = {...tub.cups};
+      const cup = {...cups[id]};
 
-    this.setState({ sai }, () => {
+      cup.pro = wmul(cup.ink, sai.jar.tag).round(0);
+      cup.ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
+      // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
+      const marginTax = web3.fromWei(tub.tax).pow(120);
+      cup.avail_sai = wdiv(cup.pro, wmul(tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
+      cup.avail_sai_with_margin = wdiv(cup.pro, wmul(tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
+      cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), tub.mat), sai.tip.par), sai.jar.tag)).round(0);
+      cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), tub.mat), sai.tip.par), sai.jar.tag)).round(0);
+      cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), tub.mat), sai.jar.per), cup.ink) : web3.toBigNumber(0);
+
+      cups[id] = cup;
+      tub.cups = cups;
+      sai.tub = tub;
+      return { sai }
+    }, () => {
       this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
         if (!e) {
-          const sai = { ...this.state.sai };
-          if (sai.tub.cups[id]) {
-            sai.tub.cups[id]['safe'] = safe;
-            this.setState({ sai });
-          }
+          this.setState((prevState, props) => {
+            const sai = {...prevState.sai};
+            const tub = {...sai.tub};
+            const cups = {...tub.cups};
+            const cup = {...cups[id]};
+
+            cup['safe'] = safe;
+
+            cups[id] = cup;
+            tub.cups = cups;
+            sai.tub = tub;
+            return { sai }
+          });
         }
       });
     });

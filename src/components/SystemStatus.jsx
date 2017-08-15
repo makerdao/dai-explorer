@@ -139,22 +139,42 @@ const SystemStatus = (props) => {
               <strong>Total liquidity available via bust and boom</strong>
               <span className="boom-bust">
                 {
-                  props.sai.tub.reg.eq(0)
-                  ? <span>
-                      Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
-                      Buy { printNumber(props.sai.tub.avail_bust_skr) } SKR
-                    </span>
-                  : '-'
+                  props.sai.tub.reg.lt(0)
+                  ?
+                    'Loading...'
+                  :
+                    props.sai.tub.reg.eq(0)
+                    ?
+                      props.sai.tub.avail_boom_skr.gte(0) && props.sai.tub.avail_boom_sai.gte(0)
+                      ?
+                        <span>
+                          Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
+                          Buy { printNumber(props.sai.tub.avail_bust_skr) } SKR
+                        </span>
+                      :
+                        'Loading...'
+                    :
+                      '-'
                 }
               </span>
               <span className="boom-bust">
                 {
-                  props.sai.tub.reg.eq(0)
-                  ? <span>
-                      Sell { printNumber(props.sai.tub.avail_boom_skr) } SKR<br />
-                      Buy { printNumber(props.sai.tub.avail_boom_sai) } SAI
-                    </span>
-                  : '-'
+                  props.sai.tub.reg.lt(0)
+                  ?
+                    'Loading...'
+                  :
+                    props.sai.tub.reg.eq(0)
+                    ?
+                      props.sai.tub.avail_boom_skr.gte(0) && props.sai.tub.avail_boom_sai.gte(0)
+                      ?
+                        <span>
+                          Sell { printNumber(props.sai.tub.avail_boom_skr) } SKR<br />
+                          Buy { printNumber(props.sai.tub.avail_boom_sai) } SAI
+                        </span>
+                      :
+                        'Loading...'
+                    :
+                      '-'
                 }
               </span>
             </div>

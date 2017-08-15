@@ -19,7 +19,7 @@ const Stats = (props) => {
           :
             <div className="col-md-12 system-status">
               <div>
-                <strong>Open Count</strong>
+                <strong>CDPs opened</strong>
                 <span>
                   {
                     props.stats.results
@@ -31,7 +31,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Shut Count</strong>
+                <strong>CDPS shutted</strong>
                 <span>
                   {
                     props.stats.results
@@ -43,7 +43,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Bite Count</strong>
+                <strong>Bite Counter</strong>
                 <span>
                   {
                     props.stats.results
@@ -55,7 +55,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Give Count</strong>
+                <strong>Give Counter</strong>
                 <span>
                   {
                     props.stats.results
