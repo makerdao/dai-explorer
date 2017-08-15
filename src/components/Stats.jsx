@@ -31,7 +31,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>CDPS shutted</strong>
+                <strong>CDPS closed</strong>
                 <span>
                   {
                     props.stats.results
