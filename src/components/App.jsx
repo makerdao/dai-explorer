@@ -1029,7 +1029,19 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.pitBalance.gt(-1) && this.state.sai.sin.pitBalance.gt(-1) && this.state.sai.pip.val.gt(-1)) {
+    if (this.state.sai.sai.pitBalance.gte(0)
+        && this.state.sai.sin.issuerFee.gte(0)
+        && this.state.sai.sin.pitBalance.gte(0)
+        && this.state.sai.tip.par.gte(0)
+        && this.state.sai.jar.tag.gte(0)
+        && this.state.sai.tap.gap.gte(0)
+        && this.state.sai.pip.val.gte(0)
+        && this.state.sai.skr.pitBalance.gte(0)
+        && this.state.sai.sin.potBalance.gte(0)
+        && this.state.sai.tub.tax.gte(0)
+        && this.state.sai.skr.pitBalance.gte(0)
+        && this.state.sai.skr.totalSupply.gte(0)
+        && this.state.sai.gem.jarBalance.gte(0)) {
       this.setState((prevState, props) => {
         const sai = {...prevState.sai};
         const tub = {...sai.tub};
