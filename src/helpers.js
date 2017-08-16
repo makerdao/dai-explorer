@@ -44,7 +44,7 @@ export function formatNumber(number, decimals = false, isWei = true) {
 
 export function formatDate(timestamp) {
   const date = new Date(timestamp * 1000);
-  return `${date.getFullYear()}-${addZero(date.getMonth())}-${addZero(date.getDay())} ${addZero(date.getHours())}:${addZero(date.getMinutes())}:${addZero(date.getSeconds())}`;
+  return `${date.toDateString()} ${addZero(date.getHours())}:${addZero(date.getMinutes())}:${addZero(date.getSeconds())}`;
 }
 
 function addZero(value) {
