@@ -79,7 +79,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Tot SKR Free</strong>
+                <strong>Tot SKR Freed</strong>
                 <span>
                   {
                     props.stats.results
