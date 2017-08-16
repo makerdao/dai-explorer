@@ -145,7 +145,7 @@ const SystemStatus = (props) => {
                   :
                     props.sai.tub.reg.eq(0)
                     ?
-                      props.sai.tub.avail_boom_skr.gte(0) && props.sai.tub.avail_boom_sai.gte(0)
+                      props.sai.tub.avail_bust_skr.gte(0) && props.sai.tub.avail_bust_sai.gte(0)
                       ?
                         <span>
                           Sell { printNumber(props.sai.tub.avail_bust_sai) } SAI<br />
