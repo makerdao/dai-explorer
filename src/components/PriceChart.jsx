@@ -22,6 +22,18 @@ import {
 } from "react-stockcharts/lib/coordinates";
 
 class PriceChart extends React.Component {
+  state = {
+    priceChart: 'ETH/USD',
+    priceChartCollapsed: localStorage.getItem('priceChartCollapsed')
+  };
+
+  changePriceChart = (e) => {
+    this.setState({ priceChart: e.target.value });
+  }
+
+  saveStorage = (e) => {
+    localStorage.setItem('priceChartCollapsed', localStorage.getItem('priceChartCollapsed') === "true" ? false : true)
+  }
 
 	render() {
     const { type, width, ratio } = this.props;
@@ -41,51 +53,65 @@ class PriceChart extends React.Component {
     };
 
 		return (
-      <div className="box">
-        <div className="box-header with-border">
+      <div className="box collapsed">
+        <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" onClick={ this.saveStorage } href="#collapsePriceChart" aria-expanded={ localStorage.getItem('priceChartCollapsed') !== "true" }>
           <h3 className="box-title">Price Chart</h3>
         </div>
-        <div className="box-body" style={ {'padding-right': '50px'} }>
+        <div id="collapsePriceChart" className={ `box-body panel-collapse collapse${localStorage.getItem('priceChartCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('priceChartCollapsed') !== "true" } style={{ height: localStorage.getItem('priceChartCollapsed') !== "true" ? "auto" : "0px" }}>
           <div className="row">
             <div className="col-md-12">
               {
                 chart
                 ?
-                  <ChartCanvas height={400}
-                      ratio={ratio}
-                      width={width}
-                      margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
-                      type={type}
-                      seriesName="MSFT"
-                      data={data}
-                      xAccessor={xAccessor}
-                      displayXAccessor={xAccessor}
-                      xScale={scaleTime()}
-                      xExtents={xExtents}
-                      >
+                  <div>
+                    <select className="changePrice" ref={(input) => this.token = input} onChange={ this.changePriceChart }>
+                      <option value="ETH/USD">ETH/USD</option>
+                      <option value="ETH/SAI">ETH/SAI</option>
+                      <option value="SAI/USD">SAI/USD</option>
+                      <option value="SKR/ETH">SKR/ETH</option>
+                    </select>
+                    {
+                      this.state.priceChart === 'ETH/USD'
+                      ?
+                        <ChartCanvas height={400}
+                          ratio={ratio}
+                          width={width}
+                          margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
+                          type={type}
+                          seriesName="MSFT"
+                          data={data}
+                          xAccessor={xAccessor}
+                          displayXAccessor={xAccessor}
+                          xScale={scaleTime()}
+                          xExtents={xExtents}
+                          >
 
-                    <Chart id={1} yExtents={d => [d.high, d.low]} x={x}>
-                      <XAxis axisAt="bottom" orient="bottom" ticks={6}/>
-                      <YAxis axisAt="left" orient="left" ticks={5} />
-                      <MouseCoordinateX
-                        rectWidth={80}
-                        at="bottom"
-                        orient="bottom"
-                        displayFormat={timeFormat("%Y-%m-%d")} />
-                      <MouseCoordinateY
-                        at="right"
-                        orient="right"
-                        displayFormat={format(".2f")} />
+                        <Chart id={1} yExtents={d => [d.high, d.low]} x={x}>
+                          <XAxis axisAt="bottom" orient="bottom" ticks={6}/>
+                          <YAxis axisAt="left" orient="left" ticks={5} />
+                          <MouseCoordinateX
+                            rectWidth={80}
+                            at="bottom"
+                            orient="bottom"
+                            displayFormat={timeFormat("%Y-%m-%d")} />
+                          <MouseCoordinateY
+                            at="right"
+                            orient="right"
+                            displayFormat={format(".2f")} />
 
-                      <EdgeIndicator itemType="last" orient="right" edgeAt="right"
-                        yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
+                          <EdgeIndicator itemType="last" orient="right" edgeAt="right"
+                            yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
 
-                      <CandlestickSeries width={timeIntervalBarWidth(utcDay)}/>
-                    </Chart>
-                    <CrossHairCursor />
-                  </ChartCanvas>
+                          <CandlestickSeries width={timeIntervalBarWidth(utcDay)}/>
+                        </Chart>
+                        <CrossHairCursor />
+                      </ChartCanvas>
+                      :
+                        ''
+                    }
+                  </div>
                 :
-                  'Loading...'
+                  <div style={ {margin: '15px 0 15px 10px'} }>Loading...</div>
               }
             </div>
           </div>

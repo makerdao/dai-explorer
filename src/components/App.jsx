@@ -1677,12 +1677,12 @@ class App extends Component {
               <div className="col-md-9 main">
                 {
                   settings.chain[this.state.network.network]['service']
-                  ? <PriceChart chartData={ this.state.sai.chartData } />
+                  ? <Stats stats={ this.state.sai.stats } />
                   : ''
                 }
                 {
                   settings.chain[this.state.network.network]['service']
-                  ? <Stats stats={ this.state.sai.stats } />
+                  ? <PriceChart chartData={ this.state.sai.chartData } />
                   : ''
                 }
                 <SystemStatus sai={ this.state.sai } />

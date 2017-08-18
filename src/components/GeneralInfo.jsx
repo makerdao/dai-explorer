@@ -54,13 +54,11 @@ class GeneralInfo extends Component {
             </div>
             <div className="col-md-6">
               <div className="box-group" id="accordion">
-                <div className="panel box box-primary">
-                  <div className="box-header with-border">
-                    <h4 className="box-title">
-                      <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" className="collapsed">
-                        Change Top{ this.props.lpc ? ' and LPC' : '' }
-                      </a>
-                    </h4>
+                <div className="panel box box-primary collapsed">
+                  <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false">
+                    <h3 className="box-title">
+                      Change Top{ this.props.lpc ? ' and LPC' : '' }
+                    </h3>
                   </div>
                   <div id="collapseOne" className="panel-collapse collapse" aria-expanded="false" style={{ height: "0px" }}>
                     <div className="box-body">

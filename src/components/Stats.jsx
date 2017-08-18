@@ -2,13 +2,17 @@ import React from 'react';
 import web3 from  '../web3';
 import { printNumber } from '../helpers';
 
+const saveStorage = (e) => {
+  localStorage.setItem('statsCollapsed', localStorage.getItem('statsCollapsed') === "true" ? false : true)
+}
+
 const Stats = (props) => {
   return (
-    <div className="box">
-      <div className="box-header with-border">
+    <div className="box collapsed">
+      <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseStats" onClick={ saveStorage } aria-expanded={ localStorage.getItem('statsCollapsed') !== 'true' }>
         <h3 className="box-title">Stats</h3>
       </div>
-      <div className="box-body">
+      <div id="collapseStats" className={ `box-body panel-collapse collapse${localStorage.getItem('statsCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('statsCollapsed') !== 'true' } style={{ height: localStorage.getItem('statsCollapsed') !== 'true' ? "auto" : "0px" }}>
         <div className="row">
           {
           props.stats.error
