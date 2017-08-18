@@ -8,6 +8,7 @@ import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
 import Faucet from './Faucet';
+import PriceChart from './PriceChart';
 import Stats from './Stats';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
@@ -159,7 +160,7 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
         },
         whitelisted: true,
-        graph: {
+        chartData: {
           pips: {},
           pers: {},
           pars: {},
@@ -874,7 +875,7 @@ class App extends Component {
     this.getParameterFromLpc('gap');
     this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
     if (settings.chain[this.state.network.network]['service']) {
-      this.getGraphsData();
+      this.getChartData();
       this.getStats();
     }
   }
@@ -1112,15 +1113,42 @@ class App extends Component {
     });
   }
 
-  getGraphsData = () => {
+  parseCandleData = (data, ray = false) => {
+    const dataParsed = [];
+    data.forEach(value => {
+      const timestamp = (new Date(value.timestamp * 1000)).setHours(0,0,0);
+      const index = dataParsed.length - 1;
+      const noWei = value.value / 10 ** (ray ? 27 : 18);
+      if (dataParsed.length === 0 || timestamp !== dataParsed[index].date.getTime()) {
+        dataParsed.push({
+                          date: new Date(timestamp),
+                          open: noWei,
+                          high: noWei,
+                          low: noWei,
+                          close: noWei,
+                        });
+      } else {
+        dataParsed[index].high = dataParsed[index].high > noWei ? dataParsed[index].high : noWei;
+        dataParsed[index].low = dataParsed[index].low < noWei ? dataParsed[index].low : noWei;
+        dataParsed[index].close = noWei;
+      }
+    });
+
+    return dataParsed;
+  }
+
+  getChartData = () => {
     const data = ['pips', 'pers', 'pars'];
     data.forEach((value) => {
       Promise.resolve(this.getFromService(value)).then((response) => {
         this.setState((prevState, props) => {
           const sai = {...prevState.sai};
-          const graph = {...sai.graph};
-          graph[value] = response;
-          sai.graph = graph;
+          const chartData = {...sai.chartData};
+          if (response.results) {
+            response.results = this.parseCandleData(response.results, value === 'pers');
+          }
+          chartData[value] = response;
+          sai.chartData = chartData;
           return { sai };
         });
       }).catch((error) => {
@@ -1647,6 +1675,11 @@ class App extends Component {
             </div>
             <div className="row">
               <div className="col-md-9 main">
+                {
+                  settings.chain[this.state.network.network]['service']
+                  ? <PriceChart chartData={ this.state.sai.chartData } />
+                  : ''
+                }
                 {
                   settings.chain[this.state.network.network]['service']
                   ? <Stats stats={ this.state.sai.stats } />
