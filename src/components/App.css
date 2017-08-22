@@ -426,27 +426,13 @@ a.resource span {
 }
 
 .collapsed .box-header {
-  background-image: url("../arrow.svg");
+  background-image: url("../arrow_down.svg");
   background-position: right 15px top 10px;
   background-repeat: no-repeat;
 }
 
 .collapsed .box-header[aria-expanded="true"] {
-  -moz-transform: scaleY(-1);
-  -o-transform: scaleY(-1);
-  -webkit-transform: scaleY(-1);
-  transform: scaleY(-1);
-  filter: FlipV;
-  -ms-filter: "FlipV";
-}
-
-.collapsed .box-header[aria-expanded="true"] h3 {
-  -moz-transform: scaleY(-1);
-  -o-transform: scaleY(-1);
-  -webkit-transform: scaleY(-1);
-  transform: scaleY(-1);
-  filter: FlipV;
-  -ms-filter: "FlipV";
+  background-image: url("../arrow_up.svg");
 }
 
 .changePrice {
