@@ -16,7 +16,6 @@ import { timeFormat } from "d3-time-format";
 
 import {
 	CrossHairCursor,
-	EdgeIndicator,
 	MouseCoordinateX,
 	MouseCoordinateY,
 } from "react-stockcharts/lib/coordinates";
@@ -90,14 +89,12 @@ class PriceChart extends React.Component {
                       rectWidth={80}
                       at="bottom"
                       orient="bottom"
-                      displayFormat={timeFormat("%Y-%m-%d")} />
+                      displayFormat={timeFormat("%B %d")} />
                     <MouseCoordinateY
-                      at="right"
+                      rectWidth={this.state.priceChart === 'ethusd' ? 70 : 100}
+                      at="left"
                       orient="right"
-                      displayFormat={format(".2f")} />
-
-                    <EdgeIndicator itemType="last" orient="right" edgeAt="right"
-                      yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
+                      displayFormat={format(this.state.priceChart === 'ethusd' ? ".4f" : ".10f")} />
 
                     <CandlestickSeries width={timeIntervalBarWidth(utcDay)}/>
                   </Chart>

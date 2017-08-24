@@ -1173,7 +1173,7 @@ class App extends Component {
         const finalResponse = { last_block: response.last_block, results: [] };
 
         // If there is not result before 30 days ago, we assume that the value of SKR/ETH was 1 at that moment
-        finalResponse.results.push({ value: 10 ** 27, timestamp: timestamps[30] });
+        finalResponse.results.push({ value: 10 ** 18, timestamp: timestamps[30] });
 
         let lastIndex = 30;
         response.results.forEach(value => {
