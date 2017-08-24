@@ -1113,12 +1113,12 @@ class App extends Component {
     });
   }
 
-  parseCandleData = (data, ray = false) => {
+  parseCandleData = (data) => {
     const dataParsed = [];
     data.forEach(value => {
       const timestamp = (new Date(value.timestamp * 1000)).setHours(0,0,0);
       const index = dataParsed.length - 1;
-      const noWei = value.value / 10 ** (ray ? 27 : 18);
+      const noWei = value.value / 10 ** 18;
       if (dataParsed.length === 0 || timestamp !== dataParsed[index].date.getTime()) {
         dataParsed.push({
                           date: new Date(timestamp),
@@ -1137,23 +1137,111 @@ class App extends Component {
     return dataParsed;
   }
 
+  setChartState = (key, value) => {
+    this.setState((prevState, props) => {
+      const sai = {...prevState.sai};
+      const chartData = {...sai.chartData};
+      chartData[key] = value;
+      sai.chartData = chartData;
+      return { sai };
+    });
+  }
+
   getChartData = () => {
-    const data = ['pips', 'pers', 'pars'];
-    data.forEach((value) => {
-      Promise.resolve(this.getFromService(value)).then((response) => {
-        this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const chartData = {...sai.chartData};
-          if (response.results) {
-            response.results = this.parseCandleData(response.results, value === 'pers');
+    const timestamps = [];
+    for (let i = 0; i <= 30; i++) {
+      timestamps[i] = parseInt(((new Date()).setHours(0,0,0) - i*24*60*60*1000) / 1000, 10);
+    }
+
+    // ETH/USD
+    const pipsPromise = this.getFromService('pips', { 'timestamp.gte': timestamps[30] }, { 'timestamp': 'asc' });
+    Promise.resolve(pipsPromise).then((response) => {
+      response.results = this.parseCandleData(response.results);
+      this.setChartState('pips', response);
+    }).catch((error) => {
+    });
+
+    // SKR/ETH
+    const persPromise = this.getFromService('pers', {}, { 'timestamp': 'asc' });
+    Promise.resolve(persPromise).then((response) => {
+      const finalResponse = { last_block: response.last_block, results: [] };
+
+      // If there is not result before 30 days ago, we assume that the value of SKR/ETH was 1 at that moment
+      finalResponse.results.push({ value: 10 ** 27, timestamp: timestamps[30] });
+
+      let lastIndex = 30;
+      response.results.forEach(value => {
+        if (value.timestamp <= timestamps[30]) {
+          finalResponse.results[0] = { value: value.value, timestamp: timestamps[30] };
+        } else {
+          for (let i = lastIndex; i >= 0; i--) {
+            if (value.timestamp > timestamps[i]) {
+              finalResponse.results.push({ value: finalResponse.results[finalResponse.results.length - 1].value, timestamp: timestamps[i] });
+              lastIndex = i;
+            }
           }
-          chartData[value] = response;
-          sai.chartData = chartData;
-          return { sai };
-        });
-      }).catch((error) => {
+          finalResponse.results.push({ value: value.value, timestamp: value.timestamp });
+        }
       });
-    })
+      for (let i = lastIndex; i >= 0; i--) {
+        finalResponse.results.push({ value: finalResponse.results[finalResponse.results.length - 1].value, timestamp: timestamps[i] });
+        lastIndex = i - 1;
+      }
+      finalResponse.results = this.parseCandleData(finalResponse.results);
+      this.setChartState('pers', finalResponse);
+    }).catch((error) => {
+    });
+
+    // SAI/USD
+    const waysPromise = this.getFromService('ways');
+    Promise.resolve(waysPromise).then((response) => {
+      const finalResponse = { last_block: response.last_block, results: [] };
+
+      let lastIndex = 30;
+      let lastTimestamp = -1;
+      let lastRate = -1;
+      let price = web3.toBigNumber(10).pow(18);
+      // response.results = [{ timestamp: 1500662100, value: '999999999350000000000000000' }, { timestamp: 1501556300, value: '1000000000750000000000000000' }, { timestamp: 1502161100, value: '999999999350000000000000000' }, { timestamp: 1502852300, value: '1000000000350000000000000000' }];
+
+      if (response.results.length === 0) {
+        lastTimestamp = timestamps[30];
+        lastRate = web3.toBigNumber(1);
+      }
+      response.results.forEach(value => {
+        for (let i = lastIndex; i >= 0; i--) {
+          if (value.timestamp > timestamps[i]) {
+            price = price.times(lastRate.pow(timestamps[i] - lastTimestamp));
+            lastTimestamp = timestamps[i];
+            if (i !== 30) {
+              finalResponse.results.push({ value: price.valueOf(), timestamp: timestamps[i] - 1 });
+            }
+            finalResponse.results.push({ value: price.valueOf(), timestamp: timestamps[i] });
+            lastIndex = i - 1;
+          }
+        }
+        if (lastTimestamp !== -1) {
+          price = price.times(lastRate.pow(value.timestamp - lastTimestamp));
+        }
+        lastTimestamp = value.timestamp;
+        lastRate = web3.toBigNumber(value.value).div(web3.toBigNumber(10).pow(27));
+        if (value.timestamp >= timestamps[30]) {
+          finalResponse.results.push({ value: price.valueOf(), timestamp: value.timestamp });
+        }
+      });
+      for (let i = lastIndex; i >= 0; i--) {
+        price = price.times(lastRate.pow(timestamps[i] - lastTimestamp));
+        lastTimestamp = timestamps[i];
+        if (i !== 30) {
+          finalResponse.results.push({ value: price.valueOf(), timestamp: timestamps[i] - 1 });
+        }
+        finalResponse.results.push({ value: price.valueOf(), timestamp: timestamps[i] });
+        lastIndex = i - 1;
+      }
+
+      finalResponse.results = this.parseCandleData(finalResponse.results);
+      this.setChartState('pars', finalResponse);
+    }).catch((error) => {
+    });
   }
 
   getStats = () => {

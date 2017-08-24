@@ -40,7 +40,21 @@ class PriceChart extends React.Component {
 
     const chart = this.props.chartData.pips.results && this.props.chartData.pips.results.length > 0 ? this.props.chartData.pips.results : null;
 
-    const data = this.props.chartData.pips.results;
+    let data = null;
+    switch(this.state.priceChart) {
+      case 'ETH/USD':
+        data = this.props.chartData.pips.results;
+        break;
+      case 'SKR/ETH':
+        data = this.props.chartData.pers.results;
+        break;
+      case 'SAI/USD':
+        data = this.props.chartData.pars.results;
+        break;
+      default:
+        break;
+    }
+
 		const xAccessor = d => d.date;
 		const xExtents = chart ? [
                                 xAccessor(last(data)),
@@ -71,7 +85,7 @@ class PriceChart extends React.Component {
                       <option value="SKR/ETH">SKR/ETH</option>
                     </select>
                     {
-                      this.state.priceChart === 'ETH/USD'
+                      this.state.priceChart === 'ETH/USD' || this.state.priceChart === 'SKR/ETH' || this.state.priceChart === 'SAI/USD'
                       ?
                         <ChartCanvas height={400}
                           ratio={ratio}
