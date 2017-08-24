@@ -54,7 +54,7 @@ class PriceChart extends React.Component {
 		return (
       <div className="box collapsed">
         <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" onClick={ this.saveStorage } href="#collapsePriceChart" aria-expanded={ localStorage.getItem('priceChartCollapsed') !== "true" }>
-          <h3 className="box-title">Price Chart</h3>
+          <h3 className="box-title">Price History (Last 30 days)</h3>
         </div>
         <div id="collapsePriceChart" className={ `box-body panel-collapse collapse${localStorage.getItem('priceChartCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('priceChartCollapsed') !== "true" } style={{ height: localStorage.getItem('priceChartCollapsed') !== "true" ? "auto" : "0px" }}>
           <div className="row">
