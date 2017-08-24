@@ -38,13 +38,15 @@ class PriceChart extends React.Component {
 	render() {
     const { type, width, ratio } = this.props;
 
-    const data = this.props.chartData[this.state.priceChart] ? this.props.chartData[this.state.priceChart].results : null;
-
+    const data = this.props.chartData[this.state.priceChart] &&
+                 typeof this.props.chartData[this.state.priceChart].results !== 'undefined' &&
+                 this.props.chartData[this.state.priceChart].results.length > 0
+                 ? this.props.chartData[this.state.priceChart].results
+                 : null;
 		const xAccessor = d => d.date;
 		const xExtents = data ? [
                                 xAccessor(last(data)),
                                 xAccessor(data[0])
-                                // xAccessor(data[data.length - 100])
                               ]
                               : null;
     const x = (d) => {
