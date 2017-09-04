@@ -7,7 +7,8 @@
       "faucet": "",
       "whitelisted": false,
       "fromBlock": 0,
-      "service": ""
+      "service": "",
+      "chart": false
     },
     "kovan": {
       "top": "0xc25789084005dc4ed6be033a943f2c2f3efafcc1",
@@ -15,7 +16,8 @@
       "faucet": "",
       "whitelisted": false,
       "fromBlock": 2670325,
-      "service": ""
+      "service": "",
+      "chart": false
     },
     "main": {
       "top": "0x92bfd0e786e284429c96cf6a6e4a3ecf46fb3e9a",
@@ -23,7 +25,8 @@
       "faucet": "",
       "whitelisted": false,
       "fromBlock": 4030971,
-      "service": ""
+      "service": "",
+      "chart": false
     }
   }
 }
