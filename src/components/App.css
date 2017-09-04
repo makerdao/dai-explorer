@@ -419,3 +419,23 @@ a.resource span {
 #toggle-addresses[aria-expanded="true"] :first-child {
   display: none;
 }
+
+.collapsed {
+  border-top-color: #3c8dbc;
+  cursor: pointer;
+}
+
+.collapsed .box-header {
+  background-image: url("../arrow_down.svg");
+  background-position: right 15px top 10px;
+  background-repeat: no-repeat;
+}
+
+.collapsed .box-header[aria-expanded="true"] {
+  background-image: url("../arrow_up.svg");
+}
+
+.changePrice {
+  display: block;
+  margin: 10px 0 0 10px;
+}
