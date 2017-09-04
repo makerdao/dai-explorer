@@ -98,7 +98,7 @@ class FeedValue extends React.Component {
                     ''
                 }
                 { this.state.values.map(x => <DSValue key={ x } address={ x } />) }
-                <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/terra/#${this.props.address}` }>Details</a>
+                <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/feeds/#${this.props.address}` }>Details</a>
               </div>
             </div>
           </div>
