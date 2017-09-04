@@ -23,7 +23,7 @@ const Stats = (props) => {
           :
             <div className="col-md-12 system-status">
               <div>
-                <strong>CDPs opened</strong>
+                <strong>CDPs Opened</strong>
                 <span>
                   {
                     props.stats.results
@@ -35,7 +35,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>CDPS closed</strong>
+                <strong>CDPS Closed</strong>
                 <span>
                   {
                     props.stats.results

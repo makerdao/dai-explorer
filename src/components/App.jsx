@@ -1772,8 +1772,8 @@ class App extends Component {
       exit: this.hasUserRights() && this.state.sai.skr.myBalance.gt(0)
                           && (this.state.sai.tub.reg.eq(0) ||
                              (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
-      boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
       bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
     };
 
     const helpers = {
@@ -1853,7 +1853,7 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] } style={ {textTransform: 'capitalize'} }>{ key }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )

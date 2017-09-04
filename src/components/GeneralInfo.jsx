@@ -25,7 +25,7 @@ class GeneralInfo extends Component {
         <div className="box-body">
           <div className="row">
             <div className="col-md-6">
-              <div><strong>Network:</strong> { this.props.network === 'main' ? 'mainnet' : this.props.network }</div>
+              <div style={ {textTransform: 'capitalize'} }><strong>Network:</strong> { this.props.network === 'main' ? 'mainnet' : this.props.network }</div>
               { this.props.lpc ? <div><strong>LPC:</strong> { etherscanAddress(this.props.network, this.props.lpc, this.props.lpc) }</div> : '' }
               <div>
                 <strong>Account:</strong> { this.props.account
@@ -37,7 +37,7 @@ class GeneralInfo extends Component {
                                                 }
                                               </span> }
               </div>
-              <div>
+              <div style={ {textTransform: 'capitalize'} }>
                 <strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }
               </div>
               <a data-toggle="collapse" data-parent="#accordion" href="#collapseAddresses" aria-expanded="false" id="toggle-addresses" className="collapsed">

@@ -88,7 +88,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Discount/premium for converting between ETH and SKR via join and exit; the profits are accrued to the SKR collateral pool">Spread (join/exit)</strong>
+              <strong title="Discount/premium for converting between ETH and SKR via join and exit; the profits are accrued to the SKR collateral pool">Spread (Join/Exit)</strong>
               {
                 props.sai.jar.gap.gte(0)
                 ?
@@ -98,7 +98,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)">Spread (boom/bust)</strong>
+              <strong title="Discount/premium relative to Sai target price at which the system buys/sells collateral SKR for SAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)">Spread (Bust/Boom)</strong>
               {
                 props.sai.tap.gap.gte(0)
                 ?
@@ -140,7 +140,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong>Total liquidity available via bust and boom</strong>
+              <strong>Total Liquidity Available via Bust and Boom</strong>
               <span className="boom-bust">
                 {
                   props.sai.tub.reg.lt(0)

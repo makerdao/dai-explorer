@@ -30,7 +30,7 @@ const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal,
       {
         Object.keys(actions).map(key =>
           <span key={ key }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] } style={ {textTransform: 'capitalize'} }>{ key }</span> }
             { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
           </span>
         )
@@ -58,7 +58,7 @@ const Cups = (props) => {
                   <th title="Collateral ratio of the CDP">% Ratio</th>
                   <th title="Maximum Sai that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
                   <th title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
-                  <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation price</th>
+                  <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
                   <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
                   {
                     settings.chain[props.network.network]['service']
@@ -133,7 +133,7 @@ const Cups = (props) => {
                       </td>
                       {
                         settings.chain[props.network.network]['service']
-                        ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>show</a></td>
+                        ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>Show</a></td>
                         :<td></td>
                       }
                       <td className="text-left">

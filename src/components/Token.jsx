@@ -28,7 +28,7 @@ const Token = (props) => {
             token.myBalance
             ?
               <span className="info-box-number">
-                <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your balance', token.address, props.account) }</span>
+                <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your Balance', token.address, props.account) }</span>
                 <AnimatedNumber
                   value={ token.myBalance }
                   title={ formatNumber(token.myBalance, 18) }
@@ -67,7 +67,7 @@ const Token = (props) => {
             token.potBalance
             ?
               <span className="info-box-number">
-                <span>{ etherscanToken(props.network, 'Pot balance', token.address, props.sai.pot.address) }</span>
+                <span>{ etherscanToken(props.network, 'Pot Balance', token.address, props.sai.pot.address) }</span>
                 <AnimatedNumber
                   value={ potBalance }
                   title={ formatNumber(potBalance, 18) }
@@ -97,7 +97,7 @@ const Token = (props) => {
             props.sai.lpc.address && token.lpcBalance
             ?
               <span className="info-box-number">
-                <span>{ etherscanToken(props.network, 'Lpc balance', token.address, props.sai.lpc.address) }</span>
+                <span>{ etherscanToken(props.network, 'Lpc Balance', token.address, props.sai.lpc.address) }</span>
                 <AnimatedNumber
                   value={ token.lpcBalance }
                   title={ formatNumber(token.lpcBalance, 18) }
