@@ -875,8 +875,10 @@ class App extends Component {
     this.getParameterFromLpc('pie');
     this.getParameterFromLpc('gap');
     this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
-    if (settings.chain[this.state.network.network]['service'] && settings.chain[this.state.network.network]['chart']) {
-      this.getChartData();
+    if (settings.chain[this.state.network.network]['service']) {
+      if (settings.chain[this.state.network.network]['chart']) {
+        this.getChartData();
+      }
       this.getStats();
     }
   }
