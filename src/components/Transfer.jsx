@@ -55,7 +55,7 @@ class Transfer extends Component {
                   <label>To</label>
                   <input ref={(input) => this.to = input} type="text" placeholder="0x" />
                   <label>Amount</label>
-                  <input ref={(input) => this.amount = input} type="number" placeholder="0.00" step="0.001" />
+                  <input ref={(input) => this.amount = input} type="number" placeholder="0.00" step="0.000000000000000001" />
                   <label></label>
                   <input type="submit" />
                   { this.state.error ? this.renderError() : '' }
