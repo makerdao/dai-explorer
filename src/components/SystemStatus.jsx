@@ -1,6 +1,6 @@
 import React from 'react';
 import web3 from  '../web3';
-import { WAD, printNumber } from '../helpers';
+import { WAD, printNumber, wdiv, wmul } from '../helpers';
 
 const saveStorage = (e) => {
   localStorage.setItem('statusCollapsed', localStorage.getItem('statusCollapsed') === "true" ? false : true)
@@ -10,7 +10,7 @@ const SystemStatus = (props) => {
   return (
     <div className="box collapsed">
       <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseStatus" onClick={ saveStorage } aria-expanded={ localStorage.getItem('statusCollapsed') !== 'true' }>
-        <h3 className="box-title">System Variables</h3>
+        <h3 className="box-title">System Status</h3>
       </div>
       <div id="collapseStatus" className={ `box-body panel-collapse collapse${localStorage.getItem('statusCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('statusCollapsed') !== 'true' } style={{ height: localStorage.getItem('statusCollapsed') !== 'true' ? "auto" : "0px" }}>
         <div className="row">
@@ -106,6 +106,27 @@ const SystemStatus = (props) => {
                 :
                   <span>Loading...</span>
               }
+            </div>
+            <div>
+              <strong>System Collateralization</strong>
+              <span>
+                {
+                  props.sai.gem.jarBalance.gte(0) && props.sai.pip.val.gte(0) && props.sai.sai.totalSupply.gte(0) && props.sai.tip.par.gte(0)
+                  ?
+                    <span>
+                      {
+                        printNumber(
+                          props.sai.sai.totalSupply.eq(0)
+                          ? 0
+                          : wdiv(wmul(props.sai.gem.jarBalance, props.sai.pip.val), wmul(props.sai.sai.totalSupply, props.sai.tip.par)).times(100)
+                        )
+                      }
+                      %
+                    </span>
+                  :
+                    'Loading...'
+                }
+              </span>
             </div>
             <div>
               <strong title="Whether the system is at less than 100% overall collateralisation">Deficit</strong>
