@@ -16,7 +16,6 @@ import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
 import ResourceButtons from './ResourceButtons';
-import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
@@ -25,16 +24,15 @@ import './App.css';
 
 const settings = require('../settings');
 
-const tub = require('../abi/tub');
+const tub = require('../abi/saitub');
 const jar = require('../abi/saijar');
-const top = require('../abi/top');
-const tap = require('../abi/tap');
-const tip = require('../abi/tip');
+const top = require('../abi/saitop');
+const tap = require('../abi/saitap');
+const tip = require('../abi/saitip');
 const dsethtoken = require('../abi/dsethtoken');
 const dstoken = require('../abi/dstoken');
 const dsvalue = require('../abi/dsvalue');
 const dsroles = require('../abi/dsroles');
-const lpc = require('../abi/sailpc');
 
 class App extends Component {
   constructor() {
@@ -76,7 +74,7 @@ class App extends Component {
           role: 'undefined',
           eek: 'undefined',
           safe: 'undefined',
-          reg: web3.toBigNumber(-1),
+          off: -1,
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
           hat: web3.toBigNumber(-1),
@@ -115,51 +113,34 @@ class App extends Component {
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           jarBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
-          lpcBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
         },
         skr: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           jarBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
         },
         sai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
-          lpcBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
         },
         sin: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
-          potBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
           // This field will keep an estimated value of new sin which is being generated due the 'stability/issuer fee'.
           // It will return to zero each time 'drip' is called
           issuerFee: web3.toBigNumber(0),
-        },
-        pot: {
-          address: null,
-        },
-        pit: {
-          address: null,
         },
         pip: {
           address: null,
           val: web3.toBigNumber(-1),
         },
-        lpc: {
-          address: null,
-        },
-        lps: {
-          address: null,
-          totalSupply: web3.toBigNumber(-1),
-          myBalance: web3.toBigNumber(-1),
-        },
-        whitelisted: true,
         chartData: {
           ethusd: {},
           skreth: {},
@@ -241,11 +222,7 @@ class App extends Component {
 
     const addrs = settings.chain[this.state.network.network];
 
-    const saiState = { ...this.state.sai };
-    saiState['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
-    this.setState({ sai: saiState });
-
-    this.initContracts(addrs['top'], addrs['lpc']);
+    this.initContracts(addrs['top']);
   }
 
   checkAccounts = () => {
@@ -283,7 +260,7 @@ class App extends Component {
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.sai.top.address, this.state.sai.lpc.address);
+      this.initContracts(this.state.sai.top.address);
     }
 
     if (localStorage.getItem('termsModal')) {
@@ -304,12 +281,12 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateAddresses = (topAddress, lpcAddress) => {
-    return web3.isAddress(topAddress) && (web3.isAddress(lpcAddress) || lpcAddress === '' || lpcAddress === null);
+  validateAddresses = (topAddress) => {
+    return web3.isAddress(topAddress);
   }
 
-  initContracts = (topAddress, lpcAddress) => {
-    if (!this.validateAddresses(topAddress, lpcAddress)) {
+  initContracts = (topAddress) => {
+    if (!this.validateAddresses(topAddress)) {
       return;
     }
     web3.reset(true);
@@ -319,7 +296,6 @@ class App extends Component {
     }, () => {
       // We need to verify that tap and top correspond to the tub
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
-      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
 
       const setUpPromises = [this.getTubAddress(), this.getTapAddress()];
       Promise.all(setUpPromises).then((r) => {
@@ -328,9 +304,7 @@ class App extends Component {
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
           const sai = { ...this.state.sai };
 
-          sai['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
           sai['top'].address = topAddress;
-          sai['lpc'].address = lpcAddress;
           sai['tub'].address = r[0];
           sai['tap'].address = r[1];
 
@@ -339,25 +313,20 @@ class App extends Component {
             Promise.all(promises).then((r) => {
               this.initializeSystemStatus();
 
-              this.setUpLPS();
-              const promises2 = [this.setUpPot(), this.setUpPit()];
-              Promise.all(promises2).then((r) => {
-                this.setUpToken('gem');
-                this.setUpToken('skr');
-                this.setUpToken('sai');
-                this.setUpToken('sin');
+              this.setUpToken('gem');
+              this.setUpToken('skr');
+              this.setUpToken('sai');
+              this.setUpToken('sin');
 
-                this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
-                this.setFiltersTap();
-                this.setFiltersTip();
-                this.setFiltersJar();
-                this.setFiltersLpc();
-                this.setFilterFeedValue();
-                this.setTimeVariablesInterval();
+              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+              this.setFiltersTap();
+              this.setFiltersTip();
+              this.setFiltersJar();
+              this.setFilterFeedValue();
+              this.setTimeVariablesInterval();
 
-                // This is necessary to finish transactions that failed after signing
-                this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
-              });
+              // This is necessary to finish transactions that failed after signing
+              this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
             });
           });
         } else {
@@ -373,11 +342,11 @@ class App extends Component {
                       this.getParameterFromTip('era')
                       ];
     Promise.all(promises).then((r) => {
-      if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
+      if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.tubBalance.gte(0)) {
         this.setState((prevState, props) => {
           const sai = {...prevState.sai};
           const sin = {...sai.sin};
-          sin.issuerFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(sai.tip.era.minus(sai.tub.rho))).minus(sai.sin.potBalance).round(0);
+          sin.issuerFee = sai.sin.tubBalance.times(web3.fromWei(sai.tub.tax).pow(sai.tip.era.minus(sai.tub.rho))).minus(sai.sin.tubBalance).round(0);
           sai.sin = sin;
           return { sai };
         });
@@ -389,7 +358,6 @@ class App extends Component {
     setInterval(() => {
       this.getParameterFromTub('chi', true);
       this.getParameterFromTip('par');
-      this.getParameterFromLpc('per', true);
       this.loadEraRho();
     }, 5000);
   }
@@ -501,68 +469,6 @@ class App extends Component {
     return p;
   }
 
-  setUpPot = (object) => {
-    const p = new Promise((resolve, reject) => {
-      this.tubObj.pot((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const pot = {...sai.pot};
-            pot.address = r;
-            sai.pot = pot;
-            return { sai };
-          }, () => {
-            resolve(true);
-          });
-        } else {
-          reject(e);
-        }
-      })
-    });
-    return p;
-  }
-
-  setUpPit = (object) => {
-    const p = new Promise((resolve, reject) => {
-      this.tubObj.pit((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const pit = {...sai.pit};
-            pit.address = r;
-            sai.pit = pit;
-            return { sai };
-          }, () => {
-            resolve(true);
-          });
-        } else {
-          reject(e);
-        }
-      })
-    });
-    return p;
-  }
-
-  setUpLPS = () => {
-    if (this.lpcObj.address) {
-      this.lpcObj.lps((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const lps = {...sai.lps};
-            lps.address = r;
-            sai.lps = lps;
-            return { sai };
-          }, () => {
-            window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, this.state.sai.lps.address);
-            this.getDataFromToken('lps');
-            this.setFilterToken('lps');
-          });
-        }
-      });
-    }
-  }
-
   setUpToken = (token) => {
     this.tubObj[token]((e, r) => {
       if (!e) {
@@ -582,7 +488,7 @@ class App extends Component {
   }
 
   setFilterToken = (token) => {
-    const filters = ['Transfer', 'LogNoteMint', 'LogNoteBurn'];
+    const filters = ['Transfer', 'Mint', 'Burn'];
 
     if (token === 'gem') {
       filters.push('Deposit');
@@ -591,14 +497,6 @@ class App extends Component {
 
     for (let i = 0; i < filters.length; i++) {
       const conditions = {};
-      if (filters[i] === 'LogNoteMint') {
-        conditions.sig = this.methodSig('mint(uint128)');
-        filters[i] = 'LogNote';
-      }
-      if (filters[i] === 'LogNoteBurn') {
-        conditions.sig = this.methodSig('burn(uint128)');
-        filters[i] = 'LogNote';
-      }
       if (this[`${token}Obj`][filters[i]]) {
         this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
           if (!e) {
@@ -680,10 +578,10 @@ class App extends Component {
     }
 
     const cupSignatures = [
-      'lock(bytes32,uint128)',
-      'free(bytes32,uint128)',
-      'draw(bytes32,uint128)',
-      'wipe(bytes32,uint128)',
+      'lock(bytes32,uint256)',
+      'free(bytes32,uint256)',
+      'draw(bytes32,uint256)',
+      'wipe(bytes32,uint256)',
       'bite(bytes32)',
       'shut(bytes32)',
       'give(bytes32,address)',
@@ -694,19 +592,17 @@ class App extends Component {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           this.getCup(r.args.foo, address);
-        } else if (r.args.sig === this.methodSig('cage()')) {
-          this.getParameterFromTub('reg');
+        } else if (r.args.sig === this.methodSig('cage(uint256)')) {
+          this.getParameterFromTub('off');
           this.getParameterFromTub('fit');
-        } else if (r.args.sig === this.methodSig('chop(uint128)')) {
+        } else if (r.args.sig === this.methodSig('chop(uint256)')) {
           this.getParameterFromTub('axe', true);
-        } else if (r.args.sig === this.methodSig('cuff(uint128)')) {
+        } else if (r.args.sig === this.methodSig('cuff(uint256)')) {
           this.getParameterFromTub('mat', true);
-        } else if (r.args.sig === this.methodSig('cork(uint128)')) {
+        } else if (r.args.sig === this.methodSig('cork(uint256)')) {
           this.getParameterFromTub('hat');
-        } else if (r.args.sig === this.methodSig('vent()')) {
-          this.getParameterFromTub('reg');
-        } else if (r.args.sig === this.methodSig('crop(uint128)') || r.args.sig === this.methodSig('warp(uint64)') || r.args.sig === this.methodSig('drip()')) {
-          if (r.args.sig === this.methodSig('crop(uint128)')) {
+        } else if (r.args.sig === this.methodSig('crop(uint256)') || r.args.sig === this.methodSig('warp(uint64)') || r.args.sig === this.methodSig('drip()')) {
+          if (r.args.sig === this.methodSig('crop(uint256)')) {
             this.getParameterFromTub('tax', true);
           }
           this.getParameterFromTub('chi', true);
@@ -720,7 +616,7 @@ class App extends Component {
     this.tapObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('jump(uint128)')) {
+        if (r.args.sig === this.methodSig('calk(uint256)')) {
           this.getParameterFromTap('gap', false, this.getBoomBustValues());
         }
       }
@@ -731,7 +627,7 @@ class App extends Component {
     this.tipObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('coax(uint128)')) {
+        if (r.args.sig === this.methodSig('coax(uint256)')) {
           this.getParameterFromTip('way', true);
         }
       }
@@ -742,24 +638,11 @@ class App extends Component {
     this.jarObj.LogNote({}, {}, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('jump(uint128)')) {
+        if (r.args.sig === this.methodSig('calk(uint256)')) {
           this.getParameterFromJar('gap');
         }
       }
     });
-  }
-
-  setFiltersLpc = () => {
-    if (this.lpcObj.address) {
-      this.lpcObj.LogNote({}, {}, (e, r) => {
-        if (!e) {
-          this.logTransactionConfirmed(r.transactionHash);
-          if (r.args.sig === this.methodSig('jump(uint128)')) {
-            this.getParameterFromLpc('gap');
-          }
-        }
-      });
-    }
   }
 
   setFilterFeedValue = () => {
@@ -794,25 +677,17 @@ class App extends Component {
   getDataFromToken = (token) => {
     this.getTotalSupply(token);
 
-    if (token !== 'lps') {
-      this.getParameterFromLpc('pie');
-      this.getParameterFromLpc('gap');
-      this.getParameterFromLpc('per', true);
-    }
     if (token !== 'sin') {
       this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
     }
     if (token === 'sin') {
-      this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
+      this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
     }
     if (token === 'gem' || token === 'skr') {
       this.getBalanceOf(token, this.state.sai.jar.address, 'jarBalance');
     }
-    if (token === 'sai' || token === 'gem') {
-      this.getBalanceOf(token, this.state.sai.lpc.address, 'lpcBalance');
-    }
     if (token === 'gem' || token === 'skr' || token === 'sai' || token === 'sin') {
-      this.getBalanceOf(token, this.state.sai.pit.address, 'pitBalance');
+      this.getBalanceOf(token, this.state.sai.tap.address, 'tapBalance');
       this.getBoomBustValues();
     }
     if (token === 'gem' || token === 'skr') {
@@ -858,7 +733,7 @@ class App extends Component {
 
   initializeSystemStatus = () => {
     this.getParameterFromTub('authority', false, this.loadRoles());
-    this.getParameterFromTub('reg', false);
+    this.getParameterFromTub('off', false);
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
@@ -872,9 +747,6 @@ class App extends Component {
     this.getParameterFromTip('way', true);
     this.getParameterFromTip('par');
     this.loadEraRho();
-    this.getParameterFromLpc('pie');
-    this.getParameterFromLpc('gap');
-    this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
     if (settings.chain[this.state.network.network]['service']) {
       if (settings.chain[this.state.network.network]['chart']) {
         this.getChartData();
@@ -994,22 +866,6 @@ class App extends Component {
     return p;
   }
 
-  getParameterFromLpc = (field, ray = false) => {
-    if (this.lpcObj.address) {
-      this.lpcObj[field].call((e, value) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const lpc = {...sai.lpc};
-            lpc[field] = ray ? fromRaytoWad(value) : value;
-            sai.lpc = lpc;
-            return { sai };
-          });
-        }
-      });
-    }
-  }
-
   getValFromPip = (field) => {
     const p = new Promise((resolve, reject) => {
       this.pipObj.read.call((e, value) => {
@@ -1033,50 +889,55 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.pitBalance.gte(0)
-        && this.state.sai.sin.issuerFee.gte(0)
-        && this.state.sai.sin.pitBalance.gte(0)
+    if (this.state.sai.sai.tapBalance.gte(0)
+        //&& this.state.sai.sin.issuerFee.gte(0)
+        && this.state.sai.sin.tapBalance.gte(0)
         && this.state.sai.tip.par.gte(0)
         && this.state.sai.jar.tag.gte(0)
         && this.state.sai.tap.gap.gte(0)
         && this.state.sai.pip.val.gte(0)
-        && this.state.sai.skr.pitBalance.gte(0)
-        && this.state.sai.sin.potBalance.gte(0)
+        && this.state.sai.skr.tapBalance.gte(0)
+        && this.state.sai.sin.tubBalance.gte(0)
         && this.state.sai.tub.tax.gte(0)
-        && this.state.sai.skr.pitBalance.gte(0)
+        && this.state.sai.skr.tapBalance.gte(0)
         && this.state.sai.skr.totalSupply.gte(0)
         && this.state.sai.gem.jarBalance.gte(0)) {
       this.setState((prevState, props) => {
         const sai = {...prevState.sai};
         const tub = {...sai.tub};
 
-        const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
-        // console.log('dif', dif.valueOf());
+        // const dif = sai.sai.tapBalance.add(sai.sin.issuerFee).minus(sai.sin.tapBalance); bust & boom don't execute drip anymore so we do not need to do the estimation
+        const dif = sai.sai.tapBalance.minus(sai.sin.tapBalance);
         tub.avail_boom_sai = tub.avail_boom_skr = web3.toBigNumber(0);
         tub.avail_bust_sai = tub.avail_bust_skr = web3.toBigNumber(0);
+
+        // if higher or equal, it means tip.par is static or increases over the time
+        // if lower, it means it decreases over the time, so we calculate a future par (in 10 minutes) to reduce risk of tx failures
+        const futurePar = sai.tip.way.gte(WAD) ? sai.tip.par : sai.tip.par.times(web3.fromWei(sai.tip.way).pow(10*60));
 
         if (dif.gt(0)) {
           // We can boom
           tub.avail_boom_sai = dif;
-          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
+          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_sai, futurePar), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
         }
 
-        if (sai.skr.pitBalance.gt(0) || dif.lt(0)) {
+        if (sai.skr.tapBalance.gt(0) || dif.lt(0)) {
           // We can bust
 
           // This is a margin we need to take into account as bust quantity goes down per second
-          const futureFee = sai.sin.potBalance.times(web3.fromWei(tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
-          const saiNeeded = dif.abs().minus(futureFee);
-          const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, sai.tip.par), sai.jar.tag), sai.tap.gap);
+          // const futureFee = sai.sin.tubBalance.times(web3.fromWei(tub.tax).pow(120)).minus(sai.sin.tubBalance).round(0); No Drip anymore!!!
+          // const saiNeeded = dif.abs().minus(futureFee);
+          const saiNeeded = dif.gte(0) ? 0 : dif.abs();
+          const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, futurePar), sai.jar.tag), sai.tap.gap);
 
-          if (sai.skr.pitBalance.gte(equivalentSKR)) {
-            tub.avail_bust_skr = sai.skr.pitBalance;
+          if (sai.skr.tapBalance.gte(equivalentSKR)) {
+            tub.avail_bust_skr = sai.skr.tapBalance;
             tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, sai.tip.par), sai.jar.tag), sai.tap.gap);
             tub.avail_bust_sai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
           } else {
             tub.avail_bust_sai = saiNeeded;
             // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
-            tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(tub.avail_bust_sai, sai.tip.par)).minus(WAD));
+            tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.tapBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(tub.avail_bust_sai, sai.tip.par)).minus(WAD));
             tub.avail_bust_ratio = wdiv(tub.avail_bust_sai, tub.avail_bust_skr);
           }
         }
@@ -1463,18 +1324,16 @@ class App extends Component {
       this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
       const c = transactions[tx].callback;
       if (c.method) {
-        if(c.method.indexOf('lpc-') !== -1) {
-          this.executeLpcMethod(c.method, c.token, c.value);
-        } else if (c.method === 'shut') {
+        if (c.method === 'shut') {
           this.executeMethodCup(c.method, c.cup)
         } else if (c.cup && c.value) {
           this.executeMethodCupValue(c.method, c.cup, c.value);
         } else if (c.value) {
-          this.executeMethodValue((c.method === 'bust' || c.method === 'boom') ? 'tap' : 'tub', c.method, c.value);
+          this.executeMethodValue((c.method === 'bust' || c.method === 'boom') ? 'tap' : ((c.method === 'join' || c.method === 'exit') ? 'jar' : 'tub'), c.method, c.value);
         } else if (c.cup) {
           this.executeMethodCup(c.method, c.cup);
         } else {
-          this.executeMethod(c.method === 'cash' ? 'top' : 'tub', c.method);
+          this.executeMethod(c.method === 'cash' ? 'tap' : 'tub', c.method);
         }
       }
     }
@@ -1532,90 +1391,61 @@ class App extends Component {
     });
   }
 
-  pitAllowance = (token, method, value, value2 = false) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pit.address, (e, r) => {
+  tapAllowance = (token, method, value, value2 = false) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.tap.address, (e, r) => {
       if (!e) {
         const valueAllowance = value2 ? value2 : value;
         const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pit.address, web3.toWei(valueAllowance), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.state.sai.tap.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
               value = method === 'cash' ? false : value;
-              this.logPendingTransaction(tx, `${token}: approve pit ${valueAllowance}`, { method, value });
+              this.logPendingTransaction(tx, `${token}: approve tap ${valueAllowance}`, { method, value });
             } else {
               console.log(e);
             }
           });
         } else {
-          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodValue('tap', method, value);
+          method === 'cash' ? this.executeMethod('tap', method) : this.executeMethodValue('tap', method, value);
         }
       }
     });
   }
 
-  jarAllowance = (token, method, cup, value) => {
+  jarAllowance = (token, method, cup, value, value2 = false) => {
     this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.jarObj.address, (e, r) => {
       if (!e) {
-        const valueObj = web3.toBigNumber(web3.toWei(value));
+        const valueAllowance = value2 ? value2 : value;
+        const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(valueAllowance), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token.replace('gem', 'weth')}: approve jar ${value}`, { method, cup, value });
+              this.logPendingTransaction(tx, `${token.replace('gem', 'weth')}: approve jar ${valueAllowance}`, { method, cup, value });
             } else {
               console.log(e);
             }
           });
         } else {
-          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('tub', method, value);
+          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('jar', method, value);
         }
       }
     });
   }
 
-  potAllowance = (token, method, cup, value) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pot.address, (e, r) => {
+  tubAllowance = (token, method, cup, value) => {
+    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.tub.address, (e, r) => {
       if (!e) {
         const valueObj = web3.toBigNumber(web3.toWei(value));
         if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), {}, (e, tx) => {
+          this[`${token}Obj`].approve(this.state.sai.tub.address, web3.toWei(value), {}, (e, tx) => {
             if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve pot ${value}`, { method, cup, value });
+              this.logPendingTransaction(tx, `${token}: approve tub ${value}`, { method, cup, value });
             } else {
               console.log(e);
             }
           });
         } else {
           method === 'shut' ? this.executeMethodCup(method, cup) : this.executeMethodCupValue(method, cup, value);
-        }
-      }
-    });
-  }
-
-  executeLpcMethod = (method, token, value) => {
-    const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
-      if (!e) {
-        this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
-      } else {
-        console.log(e);
-      }
-    });
-  }
-
-  lpcAllowance = (tokenMethod, tokenAllowance, method, value, valueAllowance) => {
-    this[`${tokenAllowance}Obj`].allowance(this.state.network.defaultAccount, this.lpcObj.address, (e, r) => {
-      if (!e) {
-        const valueObj = web3.toBigNumber(valueAllowance);
-        if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, {}, (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
-            } else {
-              console.log(e);
-            }
-          });
-        } else {
-          this.executeLpcMethod(method, tokenMethod, value);
         }
       }
     });
@@ -1635,28 +1465,28 @@ class App extends Component {
         if (this.state.sai.sai.myBalance.lt(debt)) {
           error = `Not enough balance of SAI to shut CDP ${cup}.`;
         } else {
-          this.potAllowance('sai', method, cup, web3.fromWei(debt));
+          this.tubAllowance('sai', method, cup, web3.fromWei(debt));
         }
         break;
       case 'bite':
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.jarAllowance('gem', method, false, value);
+        this.jarAllowance('gem', method, false, value, web3.fromWei(web3.toBigNumber(value).times(this.state.sai.jar.per).valueOf()));
         break;
       case 'exit':
-        if (this.state.sai.tub.reg.eq(1)) {
+        if (this.state.sai.tub.off === true) {
           this.jarAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
-        } else if (this.state.sai.tub.reg.eq(0)) {
+        } else if (this.state.sai.tub.off === false) {
           this.jarAllowance('skr', method, false, value);
         }
         break;
       case 'boom':
-        this.pitAllowance('skr', method, value);
+        this.tapAllowance('skr', method, value);
         break;
       case 'bust':
         const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.tub.avail_bust_ratio).ceil();
-        this.pitAllowance('sai', method, value, valueSAI);
+        this.tapAllowance('sai', method, value, valueSAI);
         break;
       case 'lock':
         this.jarAllowance('skr', method, cup, value);
@@ -1666,56 +1496,16 @@ class App extends Component {
         this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        this.potAllowance('sai', method, cup, value);
+        this.tubAllowance('sai', method, cup, value);
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.pitAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
+        this.tapAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
         break;
       case 'vent':
-        this.executeMethod('top', method);
-        break;
-      case 'lpc-pool':
-        this.lpcAllowance(token, token, method, value, web3.toWei(value));
-        break;
-      case 'lpc-exit':
-        let lpsEq = null;
-        if (token === 'gem') {
-          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.per)), this.state.sai.tip.par);
-        } else {
-          lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
-        }
-        lpsEq = lpsEq.round(0);
-        if (lpsEq.lt(this.state.sai.lpc.pie)) {
-          lpsEq = wmul(lpsEq, this.state.sai.lpc.gap);
-        }
-
-        if (this.state.sai.lps.myBalance.lt(lpsEq)) {
-          error = 'Not enough balance in LPS to exit this amount of TOKEN.'.replace('TOKEN', token.toUpperCase());
-        } else {
-          // Margin in allowance to solve dynamic 'par' value
-          lpsEq = lpsEq.times(1.01);
-          this.lpcAllowance(token, 'lps', method, value, lpsEq);
-        }
-        break;
-      case 'lpc-take':
-        if (token === 'gem') {
-          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.gap));
-          if (this.state.sai.sai.myBalance.lt(valueSai)) {
-            error = `Not enough balance in SAI to take ${value} WETH.`;
-          } else {
-            this.lpcAllowance(token, 'sai', method, value, valueSai);
-          }
-        } else if (token === 'sai') {
-          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.pip.val)).round(0);
-          if (this.state.sai.gem.myBalance.lt(valueGem)) {
-            error = `Not enough balance in WETH to take ${value} SAI.`;
-          } else {
-            this.lpcAllowance(token, 'gem', method, value, valueGem);
-          }
-        }
+        this.executeMethod('tap', method);
         break;
       default:
         break;
@@ -1762,18 +1552,18 @@ class App extends Component {
   //
 
   hasUserRights = () => {
-    return web3.isAddress(this.state.network.defaultAccount) && (!this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1);
+    return web3.isAddress(this.state.network.defaultAccount);
   }
 
   renderMain() {
     const actions = {
-      open: this.hasUserRights() && this.state.sai.tub.reg.eq(0),
-      join: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
+      open: this.hasUserRights() && this.state.sai.tub.off === false,
+      join: this.hasUserRights() && this.state.sai.tub.off === false && this.state.sai.gem.myBalance.gt(0),
       exit: this.hasUserRights() && this.state.sai.skr.myBalance.gt(0)
-                          && (this.state.sai.tub.reg.eq(0) ||
-                             (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
-      bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
-      boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+                          && (this.state.sai.tub.off === false ||
+                             (this.state.sai.tub.off === true && this.state.sai.sin.tubBalance.eq(0) && this.state.sai.skr.tapBalance.eq(0))),
+      bust: this.hasUserRights() && this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      boom: this.hasUserRights() && this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
     };
 
     const helpers = {
@@ -1784,9 +1574,9 @@ class App extends Component {
       bust: 'Buy SKR with SAI',
     };
 
-    if (this.state.sai.tub.reg.eq(1)) {
+    if (this.state.sai.tub.off === true) {
       actions.cash = this.hasUserRights() && this.state.sai.sai.myBalance.gt(0);
-      actions.vent = this.hasUserRights() && this.state.sai.skr.pitBalance.gt(0);
+      actions.vent = this.hasUserRights() && this.state.sai.skr.tapBalance.gt(0);
       helpers.cash = 'Exchange your SAI for ETH at the cage price';
       helpers.vent = 'Clean up the CDP state after cage';
     }
@@ -1802,16 +1592,15 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
+                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' reg={ this.state.sai.tub.reg } />
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.sai.tub.off } />
               <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
               <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
               {/* <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
-              {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
             </div>
             <div className="row">
               <div className="col-md-9 main">
@@ -1868,10 +1657,6 @@ class App extends Component {
                   </div>
                 </div>
                 {
-                  this.state.sai.lpc.address &&
-                  <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
-                }
-                {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
                 }
@@ -1883,7 +1668,7 @@ class App extends Component {
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
-          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
+          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.sai.tub.off } tab={ this.tab } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

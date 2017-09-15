@@ -17,11 +17,11 @@ const SystemStatus = (props) => {
           <div className="col-md-12 system-status">
             <div>
               <strong>Status</strong>
-              <span className={ props.sai.tub.reg.gt(0) ? 'error-color' : 'success-color' }>
+              <span className={ props.sai.tub.off === true ? 'error-color' : 'success-color' }>
                 {
-                  props.sai.tub.reg.gte(0)
+                  props.sai.tub.off !== -1
                   ?
-                    (props.sai.tub.reg.eq(0) ? 'Active' : (props.sai.tub.reg.eq(1) ? 'Inactive' : 'Unknown'))
+                    props.sai.tub.off === false ? 'Active' : 'Inactive'
                   :
                     'Loading...'
                 }
@@ -130,11 +130,11 @@ const SystemStatus = (props) => {
             </div>
             <div>
               <strong title="Whether the system is at less than 100% overall collateralisation">Deficit</strong>
-              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.eek !== 'undefined' ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.eek !== 'undefined' ? (props.sai.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
               <strong title="Whether the overall collateralization of the system is above the liquidation ratio">Safe</strong>
-              <span>{ props.sai.tub.reg.eq(0) ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
+              <span>{ props.sai.tub.off === false ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
               <strong title="CDP interest rate">CDP Fee (365 days)</strong>
@@ -164,11 +164,11 @@ const SystemStatus = (props) => {
               <strong>Total Liquidity Available via Bust and Boom</strong>
               <span className="boom-bust">
                 {
-                  props.sai.tub.reg.lt(0)
+                  props.sai.tub.off === -1
                   ?
                     'Loading...'
                   :
-                    props.sai.tub.reg.eq(0)
+                    props.sai.tub.off === false
                     ?
                       props.sai.tub.avail_bust_skr.gte(0) && props.sai.tub.avail_bust_sai.gte(0)
                       ?
@@ -184,11 +184,11 @@ const SystemStatus = (props) => {
               </span>
               <span className="boom-bust">
                 {
-                  props.sai.tub.reg.lt(0)
+                  props.sai.tub.off === -1
                   ?
                     'Loading...'
                   :
-                    props.sai.tub.reg.eq(0)
+                    props.sai.tub.off === false
                     ?
                       props.sai.tub.avail_boom_skr.gte(0) && props.sai.tub.avail_boom_sai.gte(0)
                       ?

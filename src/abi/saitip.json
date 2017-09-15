@@ -1,0 +1,221 @@
+{
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "ray",
+          "type": "uint256"
+        }
+      ],
+      "name": "coax",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "prod",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "owner_",
+          "type": "address"
+        }
+      ],
+      "name": "setOwner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "era",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "par",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "way",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "authority_",
+          "type": "address"
+        }
+      ],
+      "name": "setAuthority",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "authority",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "age",
+          "type": "uint64"
+        }
+      ],
+      "name": "warp",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "tau",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": true,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "sig",
+          "type": "bytes4"
+        },
+        {
+          "indexed": true,
+          "name": "guy",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "foo",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "name": "bar",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "wad",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "fax",
+          "type": "bytes"
+        }
+      ],
+      "name": "LogNote",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "authority",
+          "type": "address"
+        }
+      ],
+      "name": "LogSetAuthority",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "LogSetOwner",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b5b5b5b60018054600160a060020a03191633600160a060020a03169081179091557fce241d7ca1f669fee44b6fc00b8eba2df3bb514eed0f6f668f8f89096e81ed9460405160405180910390a25b6001805460a060020a60e060020a03191674010000000000000000000000000000000000000000426001604060020a0316021790555b6b033b2e3c9fd0803ce8000000600255670de0b6b3a764000060045560015460038054740100000000000000000000000000000000000000009092046001604060020a031667ffffffffffffffff199092169190911790555b5b610864806100fc6000396000f300606060405236156100ab5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041662ebc1af81146100b05780630302c688146100c857806313af4035146100dd578063143e55e0146100fe578063495d32cb1461012e5780635d6542af146101535780637a9e5e4b146101785780638da5cb5b14610199578063bf7e214f146101c8578063c8d10f40146101f7578063cfc4af5514610219575b600080fd5b34156100bb57600080fd5b6100c6600435610249565b005b34156100d357600080fd5b6100c6610300565b005b34156100e857600080fd5b6100c6600160a060020a03600435166103c3565b005b341561010957600080fd5b610111610444565b60405167ffffffffffffffff909116815260200160405180910390f35b341561013957600080fd5b610141610481565b60405190815260200160405180910390f35b341561015e57600080fd5b610141610493565b60405190815260200160405180910390f35b341561018357600080fd5b6100c6600160a060020a0360043516610499565b005b34156101a457600080fd5b6101ac61051a565b604051600160a060020a03909116815260200160405180910390f35b34156101d357600080fd5b6101ac610529565b604051600160a060020a03909116815260200160405180910390f35b341561020257600080fd5b6100c667ffffffffffffffff60043516610538565b005b341561022457600080fd5b61011161060a565b60405167ffffffffffffffff909116815260200160405180910390f35b600435602435808233600160a060020a031660008035600160e060020a0319169034903660405183815260406020820181815290820183905260608201848480828437820191505094505050505060405180910390a46102b533600035600160e060020a03191661061a565b15156102c057600080fd5b60028390556b033b5896a56042d2d500000083106102dd57600080fd5b6002546b033b03e29a40bda6fb00000090116102f857600080fd5b5b5b5b505050565b60006004356024358082600160a060020a033316600160e060020a031986351634873660405183815260406020820181815290820183905260608201848480828437820191505094505050505060405180910390a4610376610360610444565b60035467ffffffffffffffff918216911661072e565b925061038f60045461038a60025486610745565b6107ad565b60045561039a610444565b6003805467ffffffffffffffff191667ffffffffffffffff929092169190911790555b5b505050565b6103d933600035600160e060020a03191661061a565b15156103e457600080fd5b6001805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a038381169190911791829055167fce241d7ca1f669fee44b6fc00b8eba2df3bb514eed0f6f668f8f89096e81ed9460405160405180910390a25b5b50565b60015460009060a060020a900467ffffffffffffffff16156104795760015460a060020a900467ffffffffffffffff1661047b565b425b90505b90565b600061048b610300565b506004545b90565b60025481565b6104af33600035600160e060020a03191661061a565b15156104ba57600080fd5b6000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a038381169190911791829055167f1abebea81bfa2637f28358c371278fb15ede7ea8dd28d2e03b112ff6d936ada460405160405180910390a25b5b50565b600154600160a060020a031681565b600054600160a060020a031681565b600435602435808233600160a060020a031660008035600160e060020a0319169034903660405183815260406020820181815290820183905260608201848480828437820191505094505050505060405180910390a460015460a060020a900467ffffffffffffffff1615156105ad57600080fd5b67ffffffffffffffff8316156105d85760015460a060020a900467ffffffffffffffff1683016105db565b60005b600160146101000a81548167ffffffffffffffff021916908367ffffffffffffffff1602179055505b5b505050565b60035467ffffffffffffffff1681565b600030600160a060020a031683600160a060020a0316141561063e57506001610725565b600154600160a060020a038481169116141561065c57506001610725565b600054600160a060020a0316151561067657506000610725565b60008054600160a060020a03169063b700961390859030908690604051602001526040517c010000000000000000000000000000000000000000000000000000000063ffffffff8616028152600160a060020a039384166004820152919092166024820152600160e060020a03199091166044820152606401602060405180830381600087803b151561070857600080fd5b6102c65a03f1151561071957600080fd5b50505060405180519150505b5b5b5b92915050565b8082038281111561072557600080fd5b5b92915050565b60006002825b061515610764576b033b2e3c9fd0803ce8000000610766565b825b90506002825b0491505b81156107255761078083846107ad565b92506002825b06156107995761079681846107ad565b90505b5b6002825b049150610770565b5b92915050565b60006b033b2e3c9fd0803ce80000006107df6107c985856107f2565b60026b033b2e3c9fd0803ce80000005b04610821565b8115156107e857fe5b0490505b92915050565b600081158061080f57505080820282828281151561080c57fe5b04145b151561072557600080fd5b5b92915050565b8082018281101561072557600080fd5b5b929150505600a165627a7a7230582092b6bb12b295a18a089484519c94037d9eed04357e480163c580d5021f17c5120029"
+}

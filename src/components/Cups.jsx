@@ -4,15 +4,15 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (hasUserRights, off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
-    lock: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
+    lock: hasUserRights && off === false && cup.lad === defaultAccount && lock,
     free: hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    give: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    bite: hasUserRights && ((reg.eq(1) && cup.art.gt(0)) || cup.safe === false),
+    draw: hasUserRights && off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: hasUserRights && off === false && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: hasUserRights && off === false && cup.lad === defaultAccount,
+    give: hasUserRights && off === false && cup.lad === defaultAccount,
+    bite: hasUserRights && ((off === true && cup.art.gt(0)) || cup.safe === false),
   };
 
   const helpers = {
@@ -90,13 +90,13 @@ const Cups = (props) => {
                             : 'Loading...'
                         }
                       </td>
-                      <td className={ props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].ratio && props.sai.tub.cups[key].art.gt(web3.toBigNumber(0))
+                      <td className={ props.sai.tub.off === false && props.sai.tub.cups[key].ratio && props.sai.tub.cups[key].art.gt(web3.toBigNumber(0))
                                       ? (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.1))
                                         ? 'error-color'
                                         : (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
                                       : '' }>
                         {
-                          props.sai.tub.reg.eq(0)
+                          props.sai.tub.off === false
                             ? props.sai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
                               ? <span>
                                   { printNumber(web3.toWei(props.sai.tub.cups[key].ratio).times(100)) }%
@@ -106,17 +106,17 @@ const Cups = (props) => {
                         }
                       </td>
                       <td>
-                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_sai) : '-' }
+                        { props.sai.tub.off === false ? printNumber(props.sai.tub.cups[key].avail_sai) : '-' }
                       </td>
                       <td>
-                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_skr) : '-' }
+                        { props.sai.tub.off === false ? printNumber(props.sai.tub.cups[key].avail_skr) : '-' }
                       </td>
                       <td>
-                        { props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].liq_price && props.sai.tub.cups[key].liq_price.gt(0) ? printNumber(props.sai.tub.cups[key].liq_price) : '-' }
+                        { props.sai.tub.off === false && props.sai.tub.cups[key].liq_price && props.sai.tub.cups[key].liq_price.gt(0) ? printNumber(props.sai.tub.cups[key].liq_price) : '-' }
                       </td>
-                      <td className={ `text-center ${ props.sai.tub.reg.eq(0) ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
+                      <td className={ `text-center ${ props.sai.tub.off === false ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                         {
-                          props.sai.tub.reg.eq(0)
+                          props.sai.tub.off === false
                           ?
                             (
                             props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
@@ -137,7 +137,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.hasUserRights(), props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )

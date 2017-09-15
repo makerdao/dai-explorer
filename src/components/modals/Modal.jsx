@@ -26,7 +26,7 @@ class Modal extends Component {
     let value = web3.toBigNumber(0);
     switch(this.props.modal.method) {
       case 'join':
-        value = this.props.sai.gem.myBalance;
+        value = wdiv(this.props.sai.gem.myBalance, this.props.sai.jar.per);
         break;
       case 'exit':
       case 'lock':
@@ -46,35 +46,6 @@ class Modal extends Component {
         break;
       case 'bust':
         value = this.props.sai.tub.avail_bust_skr.floor();
-        break;
-      case 'lpc-pool':
-        value = this.props.sai[document.getElementById('selectToken').value].myBalance;
-        break;
-      case 'lpc-exit':
-        value = this.props.sai.lps.myBalance && this.props.sai.lpc.per && this.props.sai.lpc.gap
-                ? wdiv(this.props.sai.lps.myBalance, this.props.sai.lpc.per)
-                : value;
-        value = !this.props.sai.lps.myBalance.eq(this.props.sai.lps.totalSupply)
-                ? wdiv(value, this.props.sai.lpc.gap)
-                : value;
-        if (document.getElementById('selectToken').value === 'sai') {
-          value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
-        } else if (document.getElementById('selectToken').value === 'gem') {
-          value = this.props.sai.pip.val.gt(0)
-                  ? wmul(wdiv(value, this.props.sai.pip.val), this.props.sai.tip.par)
-                  : value;
-          
-          value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
-        }
-        break;
-      case 'lpc-take':
-        if (document.getElementById('selectToken').value === 'sai') {
-          value = this.props.sai.gem.myBalance.times(this.props.sai.pip.val).div(this.props.sai.lpc.gap).round(0);
-          value = web3.BigNumber.min(value, this.props.sai.sai.lpcBalance);
-        } else if (document.getElementById('selectToken').value === 'gem') {
-          value = wmul(wdiv(wdiv(this.props.sai.sai.myBalance, this.props.sai.pip.val), this.props.sai.lpc.gap), this.props.sai.tip.par).round(0);
-          value = web3.BigNumber.min(value, this.props.sai.gem.lpcBalance);
-        }
         break;
       default:
         break;
@@ -106,24 +77,6 @@ class Modal extends Component {
           ? <span>&nbsp;<a href="#action" onClick={ this.setMax }>Set max</a></span>
           : ''
         }
-        <p id="warningMessage" className="error">
-          { this.props.modal.error }
-        </p>
-        <br />
-        <input type="submit" />
-      </form>
-    )
-  }
-
-  renderLPCForm = () => {
-    return (
-      <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <select ref={(input) => this.token = input} id="selectToken">
-          <option value="gem">WETH</option>
-          <option value="sai">SAI</option>
-        </select>
-        <input ref={(input) => this.updateVal = input} type="number" id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
-        &nbsp;<a href="#action" onClick={ this.setMax }>Set max</a>
         <p id="warningMessage" className="error">
           { this.props.modal.error }
         </p>
@@ -178,7 +131,7 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'join':
-        text = 'Please set amount of WETH you want to convert to collateral (SKR).<br />' +
+        text = 'Please set amount of SKR you want to get in exchange of your WETH.<br />' +
                'You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
@@ -193,7 +146,7 @@ class Modal extends Component {
         }
         break;
       case 'exit':
-        if (this.props.reg.eq(1)) {
+        if (this.props.off === true) {
           text = 'Are you sure you want to exit all your SKR?<br />' +
                  'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           type = 'yesno';
@@ -278,7 +231,7 @@ class Modal extends Component {
           if (this.props.sai.tub.cups[cup].avail_skr.lt(valueWei)) {
             error = 'This amount of SKR exceeds the maximum available to free.';
             this.submitEnabled = false;
-          } else if (this.props.sai.tub.reg.eq(0) && this.props.sai.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
+          } else if (this.props.sai.tub.off === false && this.props.sai.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.sai.tub.cups[cup].avail_skr.times(0.9))) {
             error = 'This amount puts your CDP in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -339,62 +292,6 @@ class Modal extends Component {
         type = 'yesno';
         this.submitEnabled = true;
         break;
-      case 'lpc-pool':
-        text = `Please set the coin and amount you want to deposit in exchange of LPS`;
-        type = 'lpc';
-        this.cond = (value) => {
-          const valueWei = web3.toBigNumber(web3.toWei(value));
-          let error = '';
-          this.submitEnabled = true;
-          const token = document.getElementById('selectToken').value;
-          if (token === 'sai' && this.props.sai.sai.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to pool this amount of SAI.';
-            this.submitEnabled = false;
-          } else if (token === 'gem' && this.props.sai.gem.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to pool this amount of WETH.';
-            this.submitEnabled = false;
-          }
-          document.getElementById('warningMessage').innerHTML = error;
-        }
-        break;
-      case 'lpc-exit':
-        text = `Please set the coin and amount you want to exit`;
-        type = 'lpc';
-
-        this.cond = (value) => {
-          const valueWei = web3.toBigNumber(web3.toWei(value));
-          let error = '';
-          this.submitEnabled = true;
-          const token = document.getElementById('selectToken').value;
-          if (token === 'gem' && this.props.sai.gem.lpcBalance.lt(valueWei)) {
-            error = 'Not enough funds in LPC to exit this amount of WETH.';
-            this.submitEnabled = false;
-          } else if (token === 'sai' && this.props.sai.sai.lpcBalance.lt(valueWei)) {
-            error = 'Not enough funds in LPC to exit this amount of SAI.';
-            this.submitEnabled = false;
-          }
-          document.getElementById('warningMessage').innerHTML = error;
-        }
-        break;
-      case 'lpc-take':
-        text = `Please set the coin and amount you want to take`;
-        type = 'lpc';
-
-        this.cond = (value) => {
-          const valueWei = web3.toBigNumber(web3.toWei(value));
-          let error = '';
-          this.submitEnabled = true;
-          const token = document.getElementById('selectToken').value;
-          if (token === 'gem' && this.props.sai.gem.lpcBalance.lt(valueWei)) {
-            error = 'Not enough balance in LPC to take this amount of WETH.';
-            this.submitEnabled = false;
-          } else if (token === 'sai' && this.props.sai.sai.lpcBalance.lt(valueWei)) {
-            error = 'Not enough balance in LPC to take this amount of SAI.';
-            this.submitEnabled = false;
-          }
-          document.getElementById('warningMessage').innerHTML = error;
-        }
-        break;
       default:
         break;
     }
@@ -407,7 +304,7 @@ class Modal extends Component {
         <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
-          { type === 'lpc' ? this.renderLPCForm() : (type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type)) }
+          { type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type) }
         </div>
       </ReactModal>
     )

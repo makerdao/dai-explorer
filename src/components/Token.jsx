@@ -4,13 +4,16 @@ import { formatNumber, copyToClipboard, etherscanToken } from '../helpers';
 
 const Token = (props) => {
   const token = props.sai[props.token];
-  const totalSupply = props.token === 'sai' || props.token === 'sin' ? token.totalSupply.add(props.sai.sin.issuerFee) : token.totalSupply;
-  const pitBalance = props.token === 'sai' ? token.pitBalance.add(props.sai.sin.issuerFee) : token.pitBalance;
-  const potBalance = props.token === 'sin' ? token.potBalance.add(props.sai.sin.issuerFee) : token.potBalance;
+  // const totalSupply = props.token === 'sai' || props.token === 'sin' ? token.totalSupply.add(props.sai.sin.issuerFee) : token.totalSupply;
+  // const tapBalance = props.token === 'sai' ? token.tapBalance.add(props.sai.sin.issuerFee) : token.tapBalance;
+  // const tubBalance = props.token === 'sin' ? token.tubBalance.add(props.sai.sin.issuerFee) : token.tubBalance;
+  const totalSupply = token.totalSupply;
+  const tapBalance = token.tapBalance;
+  const tubBalance = token.tubBalance;
   const jarBalanceLabel = props.token === 'gem' ? 'Total Pooled' : 'Total Locked';
   const jarBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the SKR collateral pool' : 'Amount of SKR locked as collateral in CDPs';
-  const pitBalanceLabel = props.token === 'gem' ? 'Redeemable' : (props.token === 'skr' ? 'Pending Sale' : (props.token === 'sai' ? 'Pending Sale' : 'Pit Balance'));
-  const pitBalanceDesc = props.token === 'gem'
+  const tapBalanceLabel = props.token === 'gem' ? 'Redeemable' : (props.token === 'skr' ? 'Pending Sale' : (props.token === 'sai' ? 'Pending Sale' : 'Tap Balance'));
+  const tapBalanceDesc = props.token === 'gem'
                           ? 'Amount of ETH available to cash for SAI'
                           : (props.token === 'skr'
                             ? 'Amount of SKR collateral pending liquidation via bust'
@@ -19,7 +22,7 @@ const Token = (props) => {
                               : ''));
   return (
     <div className="col-md-4 col-sm-4 col-xs-12">
-      <div className={ props.sai.lpc.address ? 'info-box big' : 'info-box'}>
+      <div className="info-box">
         <span className={`info-box-icon ${props.color}`}>
           { etherscanToken(props.network, props.token === 'gem' ? 'WETH' : props.token, token.address) }
         </span>
@@ -64,13 +67,13 @@ const Token = (props) => {
               ''
           }
           {
-            token.potBalance
+            token.tubBalance
             ?
               <span className="info-box-number">
-                <span>{ etherscanToken(props.network, 'Pot Balance', token.address, props.sai.pot.address) }</span>
+                <span>{ etherscanToken(props.network, 'Tub Balance', token.address, props.sai.tub.address) }</span>
                 <AnimatedNumber
-                  value={ potBalance }
-                  title={ formatNumber(potBalance, 18) }
+                  value={ tubBalance }
+                  title={ formatNumber(tubBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />
@@ -79,28 +82,13 @@ const Token = (props) => {
               ''
           }
           {
-            token.pitBalance && (props.token !== 'gem' || props.reg.eq(1))
+            token.tapBalance && (props.token !== 'gem' || props.off === true)
             ?
               <span className="info-box-number">
-                <span title={ pitBalanceDesc }>{ etherscanToken(props.network, pitBalanceLabel, token.address, props.sai.pit.address) }</span>
+                <span title={ tapBalanceDesc }>{ etherscanToken(props.network, tapBalanceLabel, token.address, props.sai.tap.address) }</span>
                 <AnimatedNumber
-                  value={ pitBalance }
-                  title={ formatNumber(pitBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
-          }
-          {
-            props.sai.lpc.address && token.lpcBalance
-            ?
-              <span className="info-box-number">
-                <span>{ etherscanToken(props.network, 'Lpc Balance', token.address, props.sai.lpc.address) }</span>
-                <AnimatedNumber
-                  value={ token.lpcBalance }
-                  title={ formatNumber(token.lpcBalance, 18) }
+                  value={ tapBalance }
+                  title={ formatNumber(tapBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />

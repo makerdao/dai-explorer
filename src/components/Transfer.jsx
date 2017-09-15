@@ -50,7 +50,6 @@ class Transfer extends Component {
                     <option value="gem">WETH</option>
                     <option value="sai">SAI</option>
                     <option value="skr">SKR</option>
-                    { this.props.sai.lpc.address ? <option value="lps">LPS</option> : '' }
                   </select>
                   <label>To</label>
                   <input ref={(input) => this.to = input} type="text" placeholder="0x" />
