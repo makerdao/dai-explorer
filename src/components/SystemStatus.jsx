@@ -30,9 +30,9 @@ const SystemStatus = (props) => {
             <div>
               <strong title="Amount of collateral pool ETH claimed by 1 SKR">SKR/ETH</strong>
               {
-                props.sai.jar.per.gte(0)
+                props.sai.tub.per.gte(0)
                 ?
-                  printNumber(props.sai.jar.per)
+                  printNumber(props.sai.tub.per)
                 :
                   <span>Loading...</span>
               }
@@ -50,9 +50,9 @@ const SystemStatus = (props) => {
             <div>
               <strong title="Target price for 1 SAI in USD">SAI/USD</strong>
               {
-                props.sai.tip.par.gte(0)
+                props.sai.vox.par.gte(0)
                 ?
-                  printNumber(props.sai.tip.par)
+                  printNumber(props.sai.vox.par)
                 :
                   <span>Loading...</span>
               }
@@ -90,9 +90,9 @@ const SystemStatus = (props) => {
             <div>
               <strong title="Discount/premium for converting between ETH and SKR via join and exit; the profits are accrued to the SKR collateral pool">Spread (Join/Exit)</strong>
               {
-                props.sai.jar.gap.gte(0)
+                props.sai.tub.gap.gte(0)
                 ?
-                  <span>{ printNumber(props.sai.jar.gap.times(100).minus(WAD.times(100))) }%</span>
+                  <span>{ printNumber(props.sai.tub.gap.times(100).minus(WAD.times(100))) }%</span>
                 :
                   <span>Loading...</span>
               }
@@ -111,14 +111,14 @@ const SystemStatus = (props) => {
               <strong>System Collateralization</strong>
               <span>
                 {
-                  props.sai.gem.jarBalance.gte(0) && props.sai.pip.val.gte(0) && props.sai.sai.totalSupply.gte(0) && props.sai.tip.par.gte(0)
+                  props.sai.gem.tubBalance.gte(0) && props.sai.pip.val.gte(0) && props.sai.sai.totalSupply.gte(0) && props.sai.vox.par.gte(0)
                   ?
                     <span>
                       {
                         printNumber(
                           props.sai.sai.totalSupply.eq(0)
                           ? 0
-                          : wdiv(wmul(props.sai.gem.jarBalance, props.sai.pip.val), wmul(props.sai.sai.totalSupply, props.sai.tip.par)).times(100)
+                          : wdiv(wmul(props.sai.gem.tubBalance, props.sai.pip.val), wmul(props.sai.sai.totalSupply, props.sai.vox.par)).times(100)
                         )
                       }
                       %
@@ -152,9 +152,9 @@ const SystemStatus = (props) => {
               <strong title="Annual % change of Sai target price in USD. This represents Sai deflation or inflation when positive or negative, respectively">SAI Target Rate (365 days)</strong>
               <span>
                 {
-                  props.sai.tip.way.gte(0)
+                  props.sai.vox.way.gte(0)
                   ?
-                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tip.way).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.vox.way).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }

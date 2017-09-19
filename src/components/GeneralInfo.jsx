@@ -35,9 +35,6 @@ class GeneralInfo extends Component {
                                                 }
                                               </span> }
               </div>
-              {/* <div style={ {textTransform: 'capitalize'} }>
-                <strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }
-              </div> */}
               <a data-toggle="collapse" data-parent="#accordion" href="#collapseAddresses" aria-expanded="false" id="toggle-addresses" className="collapsed">
                 <span>Show</span><span>Hide</span> contracts addresses
               </a>
@@ -46,8 +43,7 @@ class GeneralInfo extends Component {
                 <div><strong>Top:</strong> { etherscanAddress(this.props.network, this.props.top, this.props.top) }</div>
                 <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
                 <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>
-                <div><strong>Jar:</strong> { etherscanAddress(this.props.network, this.props.jar, this.props.jar) }</div>
-                <div><strong>Tip:</strong> { etherscanAddress(this.props.network, this.props.tip, this.props.tip) }</div>
+                <div><strong>Vox:</strong> { etherscanAddress(this.props.network, this.props.vox, this.props.vox) }</div>
               </div>
             </div>
             <div className="col-md-6">

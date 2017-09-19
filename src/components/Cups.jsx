@@ -4,15 +4,15 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (hasUserRights, off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
-    lock: hasUserRights && off === false && cup.lad === defaultAccount && lock,
-    free: hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: hasUserRights && off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: hasUserRights && off === false && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: hasUserRights && off === false && cup.lad === defaultAccount,
-    give: hasUserRights && off === false && cup.lad === defaultAccount,
-    bite: hasUserRights && ((off === true && cup.art.gt(0)) || cup.safe === false),
+    lock: off === false && cup.lad === defaultAccount && lock,
+    free: cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    draw: off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: off === false && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: off === false && cup.lad === defaultAccount,
+    give: off === false && cup.lad === defaultAccount,
+    bite: ((off === true && cup.art.gt(0)) || cup.safe === false),
   };
 
   const helpers = {
@@ -137,7 +137,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.hasUserRights(), props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )

@@ -26,7 +26,7 @@ class Modal extends Component {
     let value = web3.toBigNumber(0);
     switch(this.props.modal.method) {
       case 'join':
-        value = wdiv(this.props.sai.gem.myBalance, this.props.sai.jar.per);
+        value = wdiv(this.props.sai.gem.myBalance, this.props.sai.tub.per);
         break;
       case 'exit':
       case 'lock':

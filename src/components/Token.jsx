@@ -10,8 +10,8 @@ const Token = (props) => {
   const totalSupply = token.totalSupply;
   const tapBalance = token.tapBalance;
   const tubBalance = token.tubBalance;
-  const jarBalanceLabel = props.token === 'gem' ? 'Total Pooled' : 'Total Locked';
-  const jarBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the SKR collateral pool' : 'Amount of SKR locked as collateral in CDPs';
+  const tubBalanceLabel = props.token === 'gem' ? 'Total Pooled' : 'Total Locked';
+  const tubBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the SKR collateral pool' : 'Amount of SKR locked as collateral in CDPs';
   const tapBalanceLabel = props.token === 'gem' ? 'Redeemable' : (props.token === 'skr' ? 'Pending Sale' : (props.token === 'sai' ? 'Pending Sale' : 'Tap Balance'));
   const tapBalanceDesc = props.token === 'gem'
                           ? 'Amount of ETH available to cash for SAI'
@@ -52,25 +52,10 @@ const Token = (props) => {
               onClick = { copyToClipboard } />
           </span>
           {
-            token.jarBalance
-            ?
-              <span className="info-box-number">
-                <span title={ jarBalanceDesc }>{ etherscanToken(props.network, jarBalanceLabel, token.address, props.sai.jar.address) }</span>
-                <AnimatedNumber
-                  value={ token.jarBalance }
-                  title={ formatNumber(token.jarBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
-          }
-          {
             token.tubBalance
             ?
               <span className="info-box-number">
-                <span>{ etherscanToken(props.network, 'Tub Balance', token.address, props.sai.tub.address) }</span>
+                <span title={ tubBalanceDesc }>{ etherscanToken(props.network, tubBalanceLabel, token.address, props.sai.tub.address) }</span>
                 <AnimatedNumber
                   value={ tubBalance }
                   title={ formatNumber(tubBalance, 18) }

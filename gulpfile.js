@@ -11,7 +11,7 @@ var LIB_PATH = 'lib/sai/';
 var LIB_OUT  = LIB_PATH + 'out/';
 var OUT      = 'src/abi/';
 
-var files = ['SaiTub', 'SaiJar', 'SaiTop', 'SaiTap', 'SaiTip', 'DSToken', 'DSValue', 'DSRoles'];
+var files = ['SaiTub', 'SaiTap', 'SaiTop', 'SaiVox', 'DSToken', 'DSValue'];
 
 gulp.task('default', gulpsync.sync(['update', 'build', 'generate']));
 
