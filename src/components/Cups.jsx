@@ -29,8 +29,8 @@ const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount
     <span>
       {
         Object.keys(actions).map(key =>
-          <span key={ key }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] } style={ {textTransform: 'capitalize'} }>{ key }</span> }
+          <span key={ key } style={ {textTransform: 'capitalize'} }>
+            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
             { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
           </span>
         )

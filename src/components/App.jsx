@@ -1547,8 +1547,8 @@ class App extends Component {
                       <div className="col-md-12">
                         {
                           Object.keys(actions).map(key =>
-                            <span key={ key }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] } style={ {textTransform: 'capitalize'} }>{ key }</span> }
+                            <span key={ key } style={ {textTransform: 'capitalize'} }>
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
