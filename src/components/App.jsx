@@ -73,6 +73,7 @@ class App extends Component {
           eek: 'undefined',
           safe: 'undefined',
           off: -1,
+          out: -1,
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
           hat: web3.toBigNumber(-1),
@@ -533,13 +534,15 @@ class App extends Component {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           this.getCup(r.args.foo, address);
-        } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
-          this.getParameterFromTub('off');
-          this.getParameterFromTub('fit');
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           const ray = ['axe', 'mat', 'tax'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
           const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};          
           this.getParameterFromTub(web3.toAscii(r.args.foo).substring(0,3), ray, callback);
+        } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
+          this.getParameterFromTub('off');
+          this.getParameterFromTub('fit');
+        } else if (r.args.sig === this.methodSig('flow()')) {
+          this.getParameterFromTub('out');
         }
         if (r.args.sig === this.methodSig('drip()') ||
             r.args.sig === this.methodSig('chi()') ||
@@ -676,8 +679,9 @@ class App extends Component {
   }
 
   initializeSystemStatus = () => {
-    this.getParameterFromTub('authority', false);
-    this.getParameterFromTub('off', false);
+    this.getParameterFromTub('authority');
+    this.getParameterFromTub('off');
+    this.getParameterFromTub('out');
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
     this.getParameterFromTub('hat');
@@ -1502,7 +1506,7 @@ class App extends Component {
       join: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.gem.myBalance.gt(0),
       exit: this.state.network.defaultAccount && this.state.sai.skr.myBalance.gt(0)
                           && (this.state.sai.tub.off === false ||
-                             (this.state.sai.tub.off === true && this.state.sai.sin.tubBalance.eq(0) && this.state.sai.skr.tapBalance.eq(0))),
+                             (this.state.sai.tub.off === true && this.state.sai.tub.out === true && this.state.sai.sin.tubBalance.eq(0) && this.state.sai.skr.tapBalance.eq(0))),
       bust: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
       boom: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
     };
