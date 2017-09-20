@@ -7,6 +7,7 @@ import TerminologyModal from './modals/TerminologyModal';
 import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
+import TokenAllowance from './TokenAllowance';
 import Faucet from './Faucet';
 import PriceChart from './PriceChart';
 import Stats from './Stats';
@@ -115,12 +116,16 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
           tubBalance: web3.toBigNumber(-1),
           tapBalance: web3.toBigNumber(-1),
+          tubTrusted: -1,
+          tapTrusted: -1,
         },
         sai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           tapBalance: web3.toBigNumber(-1),
+          tubTrusted: -1,
+          tapTrusted: -1,
         },
         sin: {
           address: null,
@@ -420,11 +425,15 @@ class App extends Component {
   }
 
   setFilterToken = (token) => {
-    const filters = ['Transfer', 'Mint', 'Burn'];
+    const filters = ['Transfer'];
 
     if (token === 'gem') {
       filters.push('Deposit');
       filters.push('Withdrawal');
+    } else {
+      filters.push('Mint');
+      filters.push('Burn');
+      filters.push('Trust');
     }
 
     for (let i = 0; i < filters.length; i++) {
@@ -612,6 +621,22 @@ class App extends Component {
     if (token === 'gem' || token === 'skr') {
       this.getParameterFromTub('per', true);
     }
+    if (token === 'skr' || token === 'sai') {
+      this.getTrust(token, 'tub');
+      this.getTrust(token, 'tap');
+    }
+  }
+
+  getTrust = (token, dst) => {
+    Promise.resolve(this.trusted(token, dst)).then(r => {
+      this.setState((prevState, props) => {
+        const sai = {...prevState.sai};
+        const tok = {...sai[token]};
+        tok[`${dst}Trusted`] = r;
+        sai[token] = tok;
+        return { sai };
+      });
+    });
   }
 
   getTotalSupply = (name) => {
@@ -1459,6 +1484,16 @@ class App extends Component {
       });
     }
   }
+
+  trust = (token, dst, val) => {
+    this[`${token}Obj`].trust(this[`${dst}Obj`].address, val, (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(tx, `${token}: ${val ? 'trust': 'deny'} ${dst}`);
+      } else {
+        console.log(e);
+      }
+    });
+  }
   //
 
   renderMain() {
@@ -1562,6 +1597,7 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
+                <TokenAllowance sai={ this.state.sai } trust={ this.trust } />
                 {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
