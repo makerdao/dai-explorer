@@ -8,7 +8,6 @@ import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
 import TokenAllowance from './TokenAllowance';
-import Faucet from './Faucet';
 import PriceChart from './PriceChart';
 import Stats from './Stats';
 import SystemStatus from './SystemStatus';
@@ -1592,11 +1591,6 @@ class App extends Component {
                             </span>
                           )
                         }
-                      </div>
-                      <div className="row">
-                        <div className="col-md-12">
-                          { this.state.network.network === 'kovan' && <Faucet account={ this.state.network.defaultAccount } gem={ this.state.sai.gem.address } /> }
-                        </div>
                       </div>
                     </div>
                   </div>
