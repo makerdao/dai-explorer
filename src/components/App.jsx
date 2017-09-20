@@ -849,7 +849,7 @@ class App extends Component {
           // This is a margin we need to take into account as bust quantity goes down per second
           // const futureFee = sai.sin.tubBalance.times(web3.fromWei(tub.tax).pow(120)).minus(sai.sin.tubBalance).round(0); No Drip anymore!!!
           // const saiNeeded = dif.abs().minus(futureFee);
-          const saiNeeded = dif.gte(0) ? 0 : dif.abs();
+          const saiNeeded = dif.gte(0) ? web3.toBigNumber(0) : dif.abs();
           const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, futurePar), sai.tub.tag), sai.tap.gap);
 
           if (sai.skr.tapBalance.gte(equivalentSKR)) {
@@ -1498,13 +1498,13 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      open: this.state.sai.tub.off === false,
-      join: this.state.sai.tub.off === false && this.state.sai.gem.myBalance.gt(0),
-      exit: this.state.sai.skr.myBalance.gt(0)
+      open: this.state.network.defaultAccount && this.state.sai.tub.off === false,
+      join: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.gem.myBalance.gt(0),
+      exit: this.state.network.defaultAccount && this.state.sai.skr.myBalance.gt(0)
                           && (this.state.sai.tub.off === false ||
                              (this.state.sai.tub.off === true && this.state.sai.sin.tubBalance.eq(0) && this.state.sai.skr.tapBalance.eq(0))),
-      bust: this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
-      boom: this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+      bust: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
+      boom: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
     };
 
     const helpers = {
@@ -1597,7 +1597,11 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <TokenAllowance sai={ this.state.sai } trust={ this.trust } />
+                {
+                  this.state.network.defaultAccount
+                  ? <TokenAllowance sai={ this.state.sai } trust={ this.trust } />
+                  : ''
+                }
                 {
                   this.state.sai.pip.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />

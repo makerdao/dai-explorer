@@ -70,7 +70,7 @@ class TokenAllowance extends Component {
                 </div>
                 <div>
                   <span>SAI</span>
-                  <span>Bust/Cage</span>
+                  <span>Bust/Cash</span>
                   <span>
                     {
                       this.props.sai.sai.tapTrusted === -1

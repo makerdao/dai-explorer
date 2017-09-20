@@ -4,15 +4,15 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (account, off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
-    lock: off === false && cup.lad === defaultAccount && lock,
-    free: cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: off === false && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: off === false && cup.lad === defaultAccount,
-    give: off === false && cup.lad === defaultAccount,
-    bite: ((off === true && cup.art.gt(0)) || cup.safe === false),
+    lock: account && off === false && cup.lad === defaultAccount && lock,
+    free: account && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    draw: account && off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: account && off === false && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: account && off === false && cup.lad === defaultAccount,
+    give: account && off === false && cup.lad === defaultAccount,
+    bite: account && ((off === true && cup.art.gt(0)) || cup.safe === false),
   };
 
   const helpers = {
@@ -137,7 +137,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.network.defaultAccount, props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )
