@@ -3,6 +3,7 @@
   "chain": {
     "private": {
       "top": "",
+      "proxyFactory": "",
       "faucet": "",
       "fromBlock": 0,
       "service": "",
@@ -10,6 +11,7 @@
     },
     "kovan": {
       "top": "",
+      "proxyFactory": "",
       "faucet": "",
       "fromBlock": 0,
       "service": "",
@@ -17,6 +19,7 @@
     },
     "main": {
       "top": "",
+      "proxyFactory": "",
       "faucet": "",
       "fromBlock": 0,
       "service": "",

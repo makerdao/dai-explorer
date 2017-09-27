@@ -4,14 +4,14 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (account, off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
-    lock: account && off === false && cup.lad === defaultAccount && lock,
-    free: account && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: account && off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: account && off === false && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: account && off === false && cup.lad === defaultAccount,
-    give: account && off === false && cup.lad === defaultAccount,
+    lock: account && off === false && cup.lad === account && lock,
+    free: account && cup.lad === account && cup.ink.gt(0) && cup.safe,
+    draw: account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
+    wipe: account && off === false && cup.lad === account && cup.art.gt(0),
+    shut: account && off === false && cup.lad === account,
+    give: account && off === false && cup.lad === account,
     bite: account && ((off === true && cup.art.gt(0)) || cup.safe === false),
   };
 
@@ -61,7 +61,7 @@ const Cups = (props) => {
                   <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
                   <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
                   {
-                    settings.chain[props.network.network]['service']
+                    settings.chain[props.network].service
                     ?<th>History</th>
                     :<th></th>
                   }
@@ -132,12 +132,12 @@ const Cups = (props) => {
                         }
                       </td>
                       {
-                        settings.chain[props.network.network]['service']
+                        settings.chain[props.network].service
                         ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>Show</a></td>
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.network.defaultAccount, props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.profile, props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal) }
                       </td>
                     </tr>
                   )

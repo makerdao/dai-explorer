@@ -8,19 +8,26 @@ var padLeft = function (string, chars, sign) {
   return new Array(chars - string.length + 1).join(sign ? sign : "0") + string;
 };
 
-export function toBytes32(x) {
+export function toBytes32(x, prefix = true) {
   let y = web3.toHex(x);
   y = y.replace('0x', '');
   y = padLeft(y, 64);
-  y = '0x' + y;
+  if (prefix) y = '0x' + y;
   return y;
 }
 
-export function toBytes12(x) {
+export function toBytes12(x, prefix = true) {
   let y = web3.toHex(x);
   y = y.replace('0x', '');
   y = padLeft(y, 24);
-  y = '0x' + y;
+  if (prefix) y = '0x' + y;
+  return y;
+}
+
+export function addressToBytes32(x, prefix = true) {
+  let y = x.replace('0x', '');
+  y = padLeft(y, 64);
+  if (prefix) y = '0x' + y;
   return y;
 }
 

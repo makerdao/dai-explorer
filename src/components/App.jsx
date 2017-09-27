@@ -18,7 +18,7 @@ import FeedValue from './FeedValue';
 import ResourceButtons from './ResourceButtons';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
+import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 import logo from '../makerdao.svg';
 import './App.css';
 
@@ -28,9 +28,13 @@ const tub = require('../abi/saitub');
 const top = require('../abi/saitop');
 const tap = require('../abi/saitap');
 const vox = require('../abi/saivox');
+const dsproxyfactory = require('../abi/dsproxyfactory');
+const dsproxy = require('../abi/dsproxy');
 const dsethtoken = require('../abi/dsethtoken');
 const dstoken = require('../abi/dstoken');
 const dsvalue = require('../abi/dsvalue');
+
+const proxyActions = require('../proxyActions');
 
 class App extends Component {
   constructor() {
@@ -38,7 +42,11 @@ class App extends Component {
     const initialState = this.getInitialState();
     this.state = {
       ...initialState,
-      network: {
+      network: {},
+      profile: {
+        mode: localStorage.getItem('mode') || 'account',
+        proxy: null,
+        activeProfile: null,
         accountBalance: web3.toBigNumber(-1),
       },
       transactions: {},
@@ -165,8 +173,8 @@ class App extends Component {
           }
           if (res.number >= this.state.network.latestBlock) {
             const networkState = { ...this.state.network };
-            networkState['latestBlock'] = res.number;
-            networkState['outOfSync'] = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
+            networkState.latestBlock = res.number;
+            networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
             this.setState({ network: networkState });
           } else {
             // XXX MetaMask frequently returns old blocks
@@ -202,9 +210,9 @@ class App extends Component {
           });
         } else {
           const networkState = { ...this.state.network };
-          networkState['isConnected'] = isConnected;
-          networkState['network'] = false;
-          networkState['latestBlock'] = 0;
+          networkState.isConnected = isConnected;
+          networkState.network = false;
+          networkState.latestBlock = 0;
           this.setState({ network: networkState });
         }
       }
@@ -214,32 +222,24 @@ class App extends Component {
   initNetwork = (newNetwork) => {
     //checkAccounts();
     const networkState = { ...this.state.network };
-    networkState['network'] = newNetwork;
-    networkState['isConnected'] = true;
-    networkState['latestBlock'] = 0;
+    networkState.network = newNetwork;
+    networkState.isConnected = true;
+    networkState.latestBlock = 0;
     this.setState({ network: networkState });
 
     const addrs = settings.chain[this.state.network.network];
 
-    this.initContracts(addrs['top']);
+    this.initContracts(addrs.top);
   }
 
   checkAccounts = () => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
         const networkState = { ...this.state.network };
-        networkState['accounts'] = accounts;
-        networkState['defaultAccount'] = accounts[0];
-        web3.eth.defaultAccount = networkState['defaultAccount'];
-        this.setState({ network: networkState }, () => {
-          if (web3.isAddress(this.state.network.defaultAccount)) {
-            web3.eth.getBalance(this.state.network.defaultAccount, (e, r) => {
-              const networkState = { ...this.state.network };
-              networkState['accountBalance'] = r;
-              this.setState({ network: networkState });
-            });
-          }
-        });
+        networkState.accounts = accounts;
+        networkState.defaultAccount = accounts[0];
+        web3.eth.defaultAccount = networkState.defaultAccount;
+        this.setState({ network: networkState });
       }
     });
   }
@@ -291,21 +291,33 @@ class App extends Component {
     this.setState({
       ...initialState
     }, () => {
-      // We need to verify that tap and top correspond to the tub
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
+      const addrs = settings.chain[this.state.network.network];
+      window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
 
-      const setUpPromises = [this.getTubAddress(), this.getTapAddress()];
+      const setUpPromises = [this.getTubAddress(), this.getTapAddress(), this.getProxyAddress()];
       Promise.all(setUpPromises).then((r) => {
-        if (r[0] && r[1] && web3.isAddress(r[0]) &&web3.isAddress(r[1])) {
+        if (r[0] && r[1] && web3.isAddress(r[0]) && web3.isAddress(r[1])) {
           window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
           const sai = { ...this.state.sai };
+          const profile = { ...this.state.profile };
 
-          sai['top'].address = topAddress;
-          sai['tub'].address = r[0];
-          sai['tap'].address = r[1];
+          sai.top.address = topAddress;
+          sai.tub.address = r[0];
+          sai.tap.address = r[1];
 
-          this.setState({ sai }, () => {
+          if (r[2].length > 0) {
+            profile.proxy = r[2][r[2].length - 1].args.proxy;
+            profile.activeProfile = localStorage.getItem('mode') === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
+            window.proxyObj = this.proxyObj = this.loadObject(dsproxy.abi, profile.proxy);
+          } else {
+            profile.activeProfile = this.state.network.defaultAccount;
+            profile.mode = 'account';
+            localStorage.setItem('mode', 'account');
+          }
+
+          this.setState({ sai, profile }, () => {
             const promises = [this.setUpVox()];
             Promise.all(promises).then((r) => {
               this.initializeSystemStatus();
@@ -315,7 +327,7 @@ class App extends Component {
               this.setUpToken('sai');
               this.setUpToken('sin');
 
-              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
+              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.profile.activeProfile);
               this.setFiltersTap();
               this.setFiltersVox();
               this.setFilterFeedValue();
@@ -355,7 +367,18 @@ class App extends Component {
       this.getParameterFromTub('chi', true);
       this.getParameterFromVox('par', true);
       this.loadEraRho();
+      this.getAccountBalance();
     }, 5000);
+  }
+
+  getAccountBalance = () => {
+    if (web3.isAddress(this.state.profile.activeProfile)) {
+      web3.eth.getBalance(this.state.profile.activeProfile, (e, r) => {
+        const profile = { ...this.state.profile };
+        profile.accountBalance = r;
+        this.setState({ profile });
+      });
+    }
   }
 
   getTubAddress = () => {
@@ -374,6 +397,20 @@ class App extends Component {
   getTapAddress = () => {
     const p = new Promise((resolve, reject) => {
       this.topObj.tap.call((e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+    return p;
+  }
+
+  getProxyAddress = () => {
+    const p = new Promise((resolve, reject) => {
+      const addrs = settings.chain[this.state.network.network];
+      this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: addrs.fromBlock }).get((e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -452,7 +489,7 @@ class App extends Component {
   getCupsFromChain = (address, conditions, fromBlock) => {
     this.tubObj.LogNewCup(conditions, { fromBlock }, (e, r) => {
       if (!e) {
-        this.getCup(r.args['cup'], address);
+        this.getCup(r.args.cup, address);
       }
     });
     if (address) {
@@ -505,17 +542,17 @@ class App extends Component {
     }
 
     const me = this;
-    if (settings.chain[this.state.network.network]['service']) {
+    if (settings.chain[this.state.network.network].service) {
       Promise.resolve(this.getFromService('cups', conditions, { cupi:'desc' })).then((response) => {
         response.results.forEach(function (v) {
           me.getCup(toBytes32(v.cupi), address);
         });
         me.getCupsFromChain(address, conditions, response.last_block);
       }).catch((error) => {
-        me.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
+        me.getCupsFromChain(address, conditions, settings.chain[this.state.network.network].fromBlock);
       });
     } else {
-      this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
+      this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network].fromBlock);
     }
 
     const cupSignatures = [
@@ -611,7 +648,7 @@ class App extends Component {
     this.getTotalSupply(token);
 
     if (token !== 'sin') {
-      this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
+      this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
     }
     if (token === 'gem' || token === 'skr' || token === 'sin') {
       this.getBalanceOf(token, this.state.sai.tub.address, 'tubBalance');
@@ -694,8 +731,8 @@ class App extends Component {
     this.getParameterFromVox('way', true);
     this.getParameterFromVox('par', true);
     this.loadEraRho();
-    if (settings.chain[this.state.network.network]['service']) {
-      if (settings.chain[this.state.network.network]['chart']) {
+    if (settings.chain[this.state.network.network].service) {
+      if (settings.chain[this.state.network.network].chart) {
         this.getChartData();
       }
       this.getStats();
@@ -886,7 +923,7 @@ class App extends Component {
             lad: cupData[0],
             ink: cupData[1],
             art: cupData[2],
-            safe: firstLoad ? 'N/A' : cups[id]['safe']
+            safe: firstLoad ? 'N/A' : cups[id].safe
           };
           cups[id] = cup;
           tub.cups = cups;
@@ -1124,7 +1161,7 @@ class App extends Component {
       sai.tub = tub;
       return { sai }
     }, () => {
-      this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
+      this.tubObj.safe.bytes32(toBytes32(id), (e, safe) => {
         if (!e) {
           this.setState((prevState, props) => {
             const sai = {...prevState.sai};
@@ -1132,7 +1169,7 @@ class App extends Component {
             const cups = {...tub.cups};
             const cup = {...cups[id]};
 
-            cup['safe'] = safe;
+            cup.safe = safe;
 
             cups[id] = cup;
             tub.cups = cups;
@@ -1187,7 +1224,7 @@ class App extends Component {
     const id = e.target.getAttribute('data-id');
     const me = this;
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
-      if (settings.chain[this.state.network.network]['service']) {
+      if (settings.chain[this.state.network.network].service) {
         Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
           me.setState({ cupHistoryModal: { show: true, error: false, id, actions: response.results } });
         }).catch(error => {
@@ -1277,48 +1314,76 @@ class App extends Component {
 
   // Actions
   executeMethod = (object, method) => {
-    this[`${object}Obj`][method]({}, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${object}: ${method}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions[method],
+                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.tubObj.address, false)}`,
+                            log);
+    } else {
+      this[`${object}Obj`][method]({}, log);
+    }
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), {}, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions[method],
+                            `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
+                            log);
+    } else {
+      this.tubObj[method](toBytes32(cup), {}, log);
+    }
   }
 
   executeMethodValue = (object, method, value) => {
-    this[`${object}Obj`][method](web3.toWei(value), {}, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions[method],
+                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(web3.toWei(value), false)}`,
+                            log);
+    } else {
+      this[`${object}Obj`][method](web3.toWei(value), {}, log);
+    }
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions[method],
+                            `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
+                            log);
+    } else {
+      this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, log);
+    }
   }
 
   trusted = (token, dst) => {
     return new Promise((resolve, reject) => {
-      this[`${token}Obj`].trusted.call(this.state.network.defaultAccount, this[`${dst}Obj`].address, (e, r) => {
+      this[`${token}Obj`].trusted.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -1330,7 +1395,7 @@ class App extends Component {
 
   allowance = (token, dst) => {
     return new Promise((resolve, reject) => {
-      this[`${token}Obj`].allowance.call(this.state.network.defaultAccount, this[`${dst}Obj`].address, (e, r) => {
+      this[`${token}Obj`].allowance.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -1353,14 +1418,21 @@ class App extends Component {
       if (r[0].gte(valueObj) || (typeof r[1] !== 'undefined' && r[1])) {
         method === 'cash' ? this.executeMethod('tap', method) : this.executeMethodValue('tap', method, value);
       } else {
-        this[`${token}Obj`].approve(this.state.sai.tap.address, web3.toWei(valueAllowance), {}, (e, tx) => {
+        value = method === 'cash' ? false : value;
+        const log = (e, tx) => {
           if (!e) {
-            value = method === 'cash' ? false : value;
             this.logPendingTransaction(tx, `${token}: approve tap ${valueAllowance}`, { method, value });
           } else {
             console.log(e);
           }
-        });
+        }
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.proxyObj.execute(proxyActions.approve,
+                                `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai.tap.address, false)}${toBytes32(web3.toWei(valueAllowance), false)}`,
+                                log);
+        } else {
+          this[`${token}Obj`].approve(this.state.sai.tap.address, web3.toWei(valueAllowance), {}, log);
+        }
       }
     });
   }
@@ -1378,13 +1450,20 @@ class App extends Component {
       if (r[0].gte(valueObj) || (typeof r[1] !== 'undefined' && r[1])) {
         method === 'shut' ? this.executeMethodCup(method, cup) : (cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('tub', method, value));
       } else {
-        this[`${token}Obj`].approve(this.state.sai.tub.address, web3.toWei(valueAllowance), {}, (e, tx) => {
+        const log = (e, tx) => {
           if (!e) {
-            this.logPendingTransaction(tx, `${token}: approve tub ${valueAllowance}`, { method, cup, value });
+            this.logPendingTransaction(tx, `${token}: approve tap ${valueAllowance}`, { method, value });
           } else {
             console.log(e);
           }
-        });
+        }
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.proxyObj.execute(proxyActions.approve,
+                                `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai.tub.address, false)}${toBytes32(web3.toWei(valueAllowance), false)}`,
+                                log);
+        } else {
+          this[`${token}Obj`].approve(this.state.sai.tub.address, web3.toWei(valueAllowance), {}, log);
+        }
       }
     });
   }
@@ -1394,6 +1473,26 @@ class App extends Component {
     const cup = this.state.modal.cup;
     let error = false;
     switch(method) {
+      case 'proxy':
+        this.proxyFactoryObj.build((e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(tx, 'Proxy: create new profile', {});
+            this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: 'latest' }, (e, r) => {
+              if (!e) {
+                const profile = { ...this.state.profile }
+                profile.proxy = r.args.proxy;
+                this.setState({ profile }, () => {
+                  this.changeMode();
+                });
+              } else {
+                console.log(e);
+              }
+            });
+          } else {
+            console.log(e);
+          }
+        });
+      break;
       case 'open':
         this.executeMethod('tub', method);
         break;
@@ -1459,43 +1558,79 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions.transfer,
+                            `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
+                            log);
+    } else {
+      this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, log);
+    }
   }
 
   wrapUnwrap = (operation, amount) => {
+    const log = (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
+      } else {
+        console.log(e);
+      }
+    }
     if (operation === 'wrap') {
-      this.gemObj.deposit({ value: web3.toWei(amount) }, (e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
-        } else {
-          console.log(e);
-        }
-      });
+      if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+        this.proxyObj.execute(proxyActions.deposit,
+          `${this.methodSig(`deposit(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
+          log);
+      } else {
+        this.gemObj.deposit({ value: web3.toWei(amount) }, log);
+      }
     } else if (operation === 'unwrap') {
-      this.gemObj.withdraw(web3.toWei(amount), {}, (e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
-        } else {
-          console.log(e);
-        }
-      });
+      if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+        this.proxyObj.execute(proxyActions.withdraw,
+          `${this.methodSig(`withdraw(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
+          log);
+      } else {
+        this.gemObj.withdraw(web3.toWei(amount), {}, log);
+      }
     }
   }
 
   trust = (token, dst, val) => {
-    this[`${token}Obj`].trust(this[`${dst}Obj`].address, val, (e, tx) => {
+    const log = (e, tx) => {
       if (!e) {
         this.logPendingTransaction(tx, `${token}: ${val ? 'trust': 'deny'} ${dst}`);
       } else {
         console.log(e);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions.trust,
+                            `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
+                            log);
+    } else {
+      this[`${token}Obj`].trust(this[`${dst}Obj`].address, val, (e, tx) => log(e, tx));
+    }
+  }
+
+  changeMode = () => {
+    const profile = { ...this.state.profile };
+    profile.mode = profile.mode === 'account' ? 'proxy' : 'account';
+    profile.activeProfile = profile.mode === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
+    profile.accountBalance = web3.toBigNumber(-1);
+    if (profile.mode === 'proxy' && !web3.isAddress(profile.proxy)) {
+      this.setState({ modal: { show: true, method: 'proxy' } });
+    } else {
+      this.setState({ profile }, () => {
+        localStorage.setItem('mode', profile.mode);
+        this.initContracts(this.state.sai.top.address);
+      });
+    }
   }
   //
 
@@ -1531,30 +1666,37 @@ class App extends Component {
           <h1>
             <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
           </h1>
+          <div className="onoffswitch mode-box">
+            <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={ this.state.profile.mode === 'proxy' } onChange={ this.changeMode } />
+            <label className="onoffswitch-label" htmlFor="myonoffswitchpMode">
+                <span className="onoffswitch-inner"></span>
+                <span className="onoffswitch-switch"></span>
+            </label>
+          </div>
         </section>
         <section className="content">
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } vox={ this.state.sai.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount }
+                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } vox={ this.state.sai.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.sai.tub.off } />
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
-              {/* <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.profile.activeProfile } token='gem' color='' off={ this.state.sai.tub.off } />
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.profile.activeProfile } token='skr' color='bg-aqua' />
+              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.profile.activeProfile } token='sai' color='bg-green' />
+              {/* <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.profile.activeProfile } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
               <div className="col-md-9 main">
                 {
-                  settings.chain[this.state.network.network]['service']
+                  settings.chain[this.state.network.network].service
                   ? <Stats stats={ this.state.sai.stats } />
                   : ''
                 }
                 {
-                  settings.chain[this.state.network.network]['service'] && settings.chain[this.state.network.network]['chart']
+                  settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
                   ? <PriceChart chartData={ this.state.sai.chartData } />
                   : ''
                 }
@@ -1564,7 +1706,7 @@ class App extends Component {
                   ?
                     <div className="row">
                       <div className="col-md-6">
-                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } sai={ this.state.sai } />
                       </div>
                       <div className="col-md-6">
                         <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
@@ -1573,7 +1715,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                <Cups sai={ this.state.sai } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
               </div>
               <div className="col-md-3 right-sidebar">
                 <div className="box">

@@ -500,3 +500,20 @@ a.resource span {
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
   right: 0px;
 }
+
+.onoffswitch.mode-box {
+  display: block;
+  float: right;
+  width: 140px;
+}
+
+.onoffswitch.mode-box .onoffswitch-switch {
+  right: 120px;
+}
+
+.onoffswitch.mode-box .onoffswitch-inner:before {
+  content: "Proxy Profile";
+}
+.onoffswitch.mode-box .onoffswitch-inner:after {
+  content: "Simple Account";
+}
