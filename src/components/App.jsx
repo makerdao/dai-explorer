@@ -1489,7 +1489,7 @@ class App extends Component {
       case 'proxy':
         this.proxyFactoryObj.build((e, tx) => {
           if (!e) {
-            this.logPendingTransaction(tx, 'Proxy: create new profile', {});
+            this.logPendingTransaction(tx, 'proxy: create new profile', {});
             this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: 'latest' }, (e, r) => {
               if (!e) {
                 const profile = { ...this.state.profile }
@@ -1631,6 +1631,21 @@ class App extends Component {
     }
   }
 
+  trustAll = (val) => {
+    const log = (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(tx, `skr/sai: ${val ? 'trust': 'deny'} all`);
+      } else {
+        console.log(e);
+      }
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute(proxyActions.trustAll,
+                            `${this.methodSig('trustAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
+                            log);
+    }
+  }
+
   changeMode = () => {
     const profile = { ...this.state.profile };
     profile.mode = profile.mode === 'account' ? 'proxy' : 'account';
@@ -1752,7 +1767,7 @@ class App extends Component {
                 </div>
                 {
                   this.state.network.defaultAccount
-                  ? <TokenAllowance sai={ this.state.sai } trust={ this.trust } />
+                  ? <TokenAllowance sai={ this.state.sai } mode={ this.state.profile.mode } trust={ this.trust } trustAll={ this.trustAll } />
                   : ''
                 }
                 {
