@@ -237,9 +237,14 @@ class App extends Component {
       if (!error) {
         const networkState = { ...this.state.network };
         networkState.accounts = accounts;
+        const oldDefaultAccount = networkState.defaultAccount;
         networkState.defaultAccount = accounts[0];
         web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({ network: networkState });
+        this.setState({ network: networkState }, () => {
+          if (oldDefaultAccount !== networkState.defaultAccount) {
+            this.initContracts(this.state.sai.top.address);
+          }
+        });
       }
     });
   }
