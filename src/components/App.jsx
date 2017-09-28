@@ -287,6 +287,8 @@ class App extends Component {
       return;
     }
     web3.reset(true);
+    if (typeof this.systemInterval !== 'undefined') clearInterval(this.systemInterval);
+    if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
     this.setState({
       ...initialState
@@ -331,10 +333,9 @@ class App extends Component {
               this.setFiltersTap();
               this.setFiltersVox();
               this.setFilterFeedValue();
-              this.setTimeVariablesInterval();
-
+              this.setSystemInterval();
               // This is necessary to finish transactions that failed after signing
-              this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
+              this.setPendingTxInterval();
             });
           });
         } else {
@@ -362,13 +363,19 @@ class App extends Component {
     });
   }
 
-  setTimeVariablesInterval = () => {
-    setInterval(() => {
+  setSystemInterval = () => {
+    this.systemInterval = setInterval(() => {
       this.getParameterFromTub('chi', true);
       this.getParameterFromVox('par', true);
       this.loadEraRho();
       this.getAccountBalance();
     }, 5000);
+  }
+
+  setPendingTxInterval = () => {
+    this.pendingTxInterval = setInterval(() => {
+      this.checkPendingTransactions()
+    }, 10000);
   }
 
   getAccountBalance = () => {
@@ -731,6 +738,7 @@ class App extends Component {
     this.getParameterFromVox('way', true);
     this.getParameterFromVox('par', true);
     this.loadEraRho();
+    this.getAccountBalance();
     if (settings.chain[this.state.network.network].service) {
       if (settings.chain[this.state.network.network].chart) {
         this.getChartData();

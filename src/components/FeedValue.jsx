@@ -15,7 +15,7 @@ class FeedValue extends React.Component {
       values: []
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     this.m = web3.eth.contract(medianizer.abi).at(this.props.address);
     window.m = this.m;
     this.get(this.m, 'next')

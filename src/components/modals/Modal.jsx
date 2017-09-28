@@ -115,7 +115,9 @@ class Modal extends Component {
     this.cond = () => { return false };
     switch(modal.method) {
       case 'proxy':
-        text = 'Are you sure you want to create a Profile?';
+        text = '';
+        text = '[ADD EXPLANATION WHAT IS A PROFILE].<br />' +
+        'Are you sure you want to create a Profile?';
         type = 'yesno';
         this.submitEnabled = true;
         break;
