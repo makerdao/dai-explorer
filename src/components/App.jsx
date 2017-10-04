@@ -439,7 +439,7 @@ class App extends Component {
     for (let i = 0; i < filters.length; i++) {
       const conditions = {};
       if (this[`${token}Obj`][filters[i]]) {
-        this[`${token}Obj`][filters[i]](conditions, {}, (e, r) => {
+        this[`${token}Obj`][filters[i]](conditions, { fromBlock: 'latest' }, (e, r) => {
           if (!e) {
             this.logTransactionConfirmed(r.transactionHash);
             this.getDataFromToken(token);
@@ -528,7 +528,7 @@ class App extends Component {
       'give(bytes32,address)',
     ].map((v) => this.methodSig(v));
 
-    this.tubObj.LogNote({}, {}, (e, r) => {
+    this.tubObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
@@ -557,7 +557,7 @@ class App extends Component {
   }
 
   setFiltersTap = () => {
-    this.tapObj.LogNote({}, {}, (e, r) => {
+    this.tapObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
@@ -568,7 +568,7 @@ class App extends Component {
   }
 
   setFiltersVox = () => {
-    this.voxObj.LogNote({}, {}, (e, r) => {
+    this.voxObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
@@ -591,7 +591,7 @@ class App extends Component {
           window.pipObj = this.pipObj = this.loadObject(dsvalue.abi, r);
           this.getValFromPip();
 
-          this.pipObj.LogNote({}, {}, (e, r) => {
+          this.pipObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
             if (!e) {
               if (
                 r.args.sig === this.methodSig('poke(bytes32)') ||
