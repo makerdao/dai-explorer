@@ -10,10 +10,10 @@
       "chart": false
     },
     "kovan": {
-      "top": "",
-      "proxyFactory": "",
+      "top": "0x00084578c458b2136c2e2ba0b4fef1e838e2e220",
+      "proxyFactory": "0xe82f08b89f5269570fea634f87a848614afca1a1",
       "faucet": "",
-      "fromBlock": 0,
+      "fromBlock": 3922760,
       "service": "",
       "chart": false
     },

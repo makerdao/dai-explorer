@@ -225,14 +225,13 @@ class App extends Component {
     networkState.network = newNetwork;
     networkState.isConnected = true;
     networkState.latestBlock = 0;
-    this.setState({ network: networkState });
-
-    const addrs = settings.chain[this.state.network.network];
-
-    this.initContracts(addrs.top);
+    this.setState({ network: networkState }, () => {
+      const addrs = settings.chain[this.state.network.network];
+      this.initContracts(addrs.top);
+    });
   }
 
-  checkAccounts = () => {
+  checkAccounts = (checkAccountChange = true) => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
         const networkState = { ...this.state.network };
@@ -241,7 +240,7 @@ class App extends Component {
         networkState.defaultAccount = accounts[0];
         web3.eth.defaultAccount = networkState.defaultAccount;
         this.setState({ network: networkState }, () => {
-          if (oldDefaultAccount !== networkState.defaultAccount) {
+          if (checkAccountChange && oldDefaultAccount !== networkState.defaultAccount) {
             this.initContracts(this.state.sai.top.address);
           }
         });
@@ -257,7 +256,7 @@ class App extends Component {
     initWeb3(web3);
 
     this.checkNetwork();
-    this.checkAccounts();
+    this.checkAccounts(false);
 
     this.setHashParams();
     window.onhashchange = () => {
