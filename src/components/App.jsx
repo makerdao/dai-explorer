@@ -842,12 +842,12 @@ class App extends Component {
 
   getValFromPip = (field) => {
     const p = new Promise((resolve, reject) => {
-      this.pipObj.read.call((e, value) => {
+      this.pipObj.peek.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
             const sai = {...prevState.sai};
             const pip = {...sai.pip};
-            pip.val = web3.toBigNumber(parseInt(value, 16));
+            pip.val = web3.toBigNumber(r[1] ? parseInt(r[0], 16) : -2);
             sai.pip = pip;
             return { sai };
           }, () => {
