@@ -44,7 +44,11 @@ const SystemStatus = (props) => {
                 ?
                   printNumber(props.sai.pip.val)
                 :
-                  <span>Loading...</span>
+                  props.sai.pip.val.eq(-2)
+                  ?
+                    <span style={ {color: 'red'} }>Invalid Feed</span>
+                  :
+                    <span>Loading...</span>
               }
             </div>
             <div>

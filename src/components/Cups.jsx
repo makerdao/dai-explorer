@@ -4,15 +4,15 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (feedValue, hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
   const actions = {
-    lock: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
-    free: hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    give: hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    bite: hasUserRights && ((reg.eq(1) && cup.art.gt(0)) || cup.safe === false),
+    lock: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
+    free: feedValue.gt(0) && hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    draw: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
+    wipe: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
+    shut: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
+    give: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
+    bite: feedValue.gt(0) && hasUserRights && ((reg.eq(1) && cup.art.gt(0)) || cup.safe === false),
   };
 
   const helpers = {
@@ -118,15 +118,19 @@ const Cups = (props) => {
                         {
                           props.sai.tub.reg.eq(0)
                           ?
-                            (
                             props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
                             ?
                               'Closed'
                             :
-                              (props.sai.tub.cups[key].safe === 'N/A'
-                              ? 'N/A'
-                              : props.sai.tub.cups[key].safe ? 'Safe' : 'Unsafe')
-                            )
+                              props.sai.tub.cups[key].safe === 'N/A' || props.sai.pip.val.lt(0)
+                              ?
+                                'N/A'
+                              :
+                                props.sai.tub.cups[key].safe
+                                ?
+                                  'Safe'
+                                :
+                                  'Unsafe'
                           :
                             '-'
                         }
@@ -137,7 +141,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.sai.pip.val, props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
                       </td>
                     </tr>
                   )
