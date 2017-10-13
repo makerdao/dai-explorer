@@ -4,14 +4,14 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
-    lock: feedValue.gt(0) && account && off === false && cup.lad === defaultAccount && lock,
-    free: feedValue.gt(0) && account && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: feedValue.gt(0) && account && off === false && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: feedValue.gt(0) && account && off === false && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: feedValue.gt(0) && account && off === false && cup.lad === defaultAccount,
-    give: feedValue.gt(0) && account && off === false && cup.lad === defaultAccount,
+    lock: feedValue.gt(0) && account && off === false && cup.lad === account && lock,
+    free: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe,
+    draw: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
+    wipe: feedValue.gt(0) && account && off === false && cup.lad === account && cup.art.gt(0),
+    shut: feedValue.gt(0) && account && off === false && cup.lad === account,
+    give: feedValue.gt(0) && account && off === false && cup.lad === account,
     bite: feedValue.gt(0) && account && ((off === true && cup.art.gt(0)) || cup.safe === false),
   };
 
@@ -141,7 +141,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.sai.pip.val, props.network.defaultAccount, props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
+                        { renderCupActions(props.sai.pip.val, props.network.defaultAccount, props.sai.tub.off, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal) }
                       </td>
                     </tr>
                   )
