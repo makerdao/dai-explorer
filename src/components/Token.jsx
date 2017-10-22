@@ -7,6 +7,7 @@ const Token = (props) => {
   // const totalSupply = props.token === 'sai' || props.token === 'sin' ? token.totalSupply.add(props.sai.sin.issuerFee) : token.totalSupply;
   // const tapBalance = props.token === 'sai' ? token.tapBalance.add(props.sai.sin.issuerFee) : token.tapBalance;
   // const tubBalance = props.token === 'sin' ? token.tubBalance.add(props.sai.sin.issuerFee) : token.tubBalance;
+  const name = props.token === 'gem' ? 'WETH' : (props.token === 'gov' ? 'MKR' : props.token);
   const totalSupply = token.totalSupply;
   const tapBalance = token.tapBalance;
   const tubBalance = token.tubBalance;
@@ -21,10 +22,10 @@ const Token = (props) => {
                               ? 'Amount of surplus SAI pending sale via boom'
                               : ''));
   return (
-    <div className="col-md-4 col-sm-4 col-xs-12">
+    <div className="col-md-6 col-sm-6 col-xs-12">
       <div className="info-box">
         <span className={`info-box-icon ${props.color}`}>
-          { etherscanToken(props.network, props.token === 'gem' ? 'WETH' : props.token, token.address) }
+          { etherscanToken(props.network, name, token.address) }
         </span>
         <div className="info-box-content">
           {
@@ -74,6 +75,21 @@ const Token = (props) => {
                 <AnimatedNumber
                   value={ tapBalance }
                   title={ formatNumber(tapBalance, 18) }
+                  formatValue={ n => formatNumber(n, 3) }
+                  className="printedNumber"
+                  onClick = { copyToClipboard } />
+              </span>
+            :
+              ''
+          }
+          {
+            token.pitBalance
+            ?
+              <span className="info-box-number">
+                <span title="Burner">{ etherscanToken(props.network, "Burner", token.address, props.sai.pit.address) }</span>
+                <AnimatedNumber
+                  value={ token.pitBalance }
+                  title={ formatNumber(token.pitBalance, 18) }
                   formatValue={ n => formatNumber(n, 3) }
                   className="printedNumber"
                   onClick = { copyToClipboard } />

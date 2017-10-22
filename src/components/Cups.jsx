@@ -51,15 +51,16 @@ const Cups = (props) => {
             <table className="text-right">
               <thead>
                 <tr>
-                  <th>CDP Id</th>
-                  <th title="Amount of outstanding SAI debt in a CDP">Debt (SAI)</th>
-                  <th title="Amount of SKR collateral in a CDP">Locked (SKR)</th>
-                  <th title="Ratio of collateral SKR to total outstanding SKR">% Tot (SKR)</th>
-                  <th title="Collateral ratio of the CDP">% Ratio</th>
-                  <th title="Maximum Sai that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
-                  <th title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
-                  <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
-                  <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
+                  <th className="text-right">CDP Id</th>
+                  <th className="text-right" title="Amount of outstanding SAI debt in a CDP">Stability Debt (SAI)</th>
+                  <th className="text-right" title="">Governance Debt (MKR)</th>
+                  <th className="text-right" title="Amount of SKR collateral in a CDP">Locked (SKR)</th>
+                  <th className="text-right" title="Ratio of collateral SKR to total outstanding SKR">% Tot (SKR)</th>
+                  <th className="text-right" title="Collateral ratio of the CDP">% Ratio</th>
+                  <th className="text-right" title="Maximum Sai that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
+                  <th className="text-right" title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
+                  <th className="text-right" title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
+                  <th className="text-right" title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
                   {
                     settings.chain[props.network.network]['service']
                     ?<th>History</th>
@@ -76,7 +77,14 @@ const Cups = (props) => {
                         { key }
                       </td>
                       <td>
-                        { printNumber(props.tab(props.sai.tub.cups[key].art)) }
+                        { printNumber(props.tab(props.sai.tub.cups[key])) }
+                      </td>
+                      <td>
+                        {
+                          props.sai.pep.val.gte(0)
+                          ? printNumber(wdiv(props.rap(props.sai.tub.cups[key]), props.sai.pep.val))
+                          : 'Loading...'
+                        }
                       </td>
                       <td>
                         { printNumber(props.sai.tub.cups[key].ink) }

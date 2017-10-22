@@ -52,6 +52,20 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
+              <strong title="Price of 1 MKR in USD (as determined by the median of the feeds)">MKR/USD</strong>
+              {
+                props.sai.pep.val.gte(0)
+                ?
+                  printNumber(props.sai.pep.val)
+                :
+                  props.sai.pep.val.eq(-2)
+                  ?
+                    <span style={ {color: 'red'} }>Invalid Feed</span>
+                  :
+                    <span>Loading...</span>
+              }
+            </div>
+            <div>
               <strong title="Target price for 1 SAI in USD">SAI/USD</strong>
               {
                 props.sai.vox.par.gte(0)
@@ -141,12 +155,24 @@ const SystemStatus = (props) => {
               <span>{ props.sai.tub.off === false ? (props.sai.tub.safe !== 'undefined' ? (props.sai.tub.safe ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
             <div>
-              <strong title="CDP interest rate">CDP Fee (365 days)</strong>
+              <strong title="CDP interest rate">Stability Fee (365 days)</strong>
               <span>
                 {
                   props.sai.tub.tax.gte(0)
                   ?
                     <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tub.tax).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
+                  :
+                    <span>Loading...</span>
+                }
+              </span>
+            </div>
+            <div>
+              <strong title="">Governance Fee (365 days)</strong>
+              <span>
+                {
+                  props.sai.tub.fee.gte(0)
+                  ?
+                    <span>{ printNumber(web3.toWei(web3.fromWei(props.sai.tub.fee).pow(60 * 60 * 24 * 365)).times(100).minus(web3.toWei(100))) }%</span>
                   :
                     <span>Loading...</span>
                 }

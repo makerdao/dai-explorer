@@ -39,7 +39,7 @@ class Modal extends Component {
         value = this.props.sai.tub.cups[this.props.modal.cup].avail_sai_with_margin;
         break;
       case 'wipe':
-        value = web3.BigNumber.min(this.props.sai.sai.myBalance, this.props.tab(this.props.sai.tub.cups[this.props.modal.cup].art));
+        value = web3.BigNumber.min(this.props.sai.sai.myBalance, this.props.tab(this.props.sai.tub.cups[this.props.modal.cup]));
         break;
       case 'boom':
         value = this.props.sai.tub.avail_boom_skr.floor();
@@ -121,7 +121,7 @@ class Modal extends Component {
         break;
       case 'shut':
         text = `Are you sure you want to close CDP ${modal.cup}?.<br />` +
-               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+               'You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
         type = 'yesno';
         this.submitEnabled = true;
         break;
@@ -259,7 +259,7 @@ class Modal extends Component {
         break;
       case 'wipe':
         text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CDP ${modal.cup}.<br />` +
-               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+               'You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -267,11 +267,30 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.sai.sai.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to wipe this amount of SAI.';
+            error = 'Not enough balance of SAI to wipe this amount.';
             this.submitEnabled = false;
-          } else if (this.props.tab(this.props.sai.tub.cups[cup].art).lt(valueWei)) {
+          } else if (this.props.tab(this.props.sai.tub.cups[cup]).lt(valueWei)) {
             error = `Debt in CDP ${cup} is lower than this amount of SAI.`;
             this.submitEnabled = false;
+          } else {
+            const futureGovFee = web3.fromWei(wdiv(this.props.sai.tub.fee, this.props.sai.tub.tax)).pow(180).round(0); // 3 minutes of future fee
+            const govDebt = wmul(
+                              wmul(
+                                wmul(
+                                  valueWei,
+                                  wdiv(
+                                    this.props.rap(this.props.sai.tub.cups[cup]),
+                                    this.props.tab(this.props.sai.tub.cups[cup])
+                                  )
+                                ),
+                                this.props.sai.pep.val
+                              ),
+                              futureGovFee
+                            );
+            if (govDebt.gt(this.props.sai.gov.myBalance)) {
+              error = `Not enough balance of MKR to wipe this amount.`;
+              this.submitEnabled = false;
+            }
           }
           document.getElementById('warningMessage').innerHTML = error;
         }

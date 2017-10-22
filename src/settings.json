@@ -9,7 +9,7 @@
       "chart": false
     },
     "kovan": {
-      "top": "",
+      "top": "0xacef2f726cd1500c49cf727729ff3aa0511d12f3",
       "faucet": "",
       "fromBlock": 0,
       "service": "",

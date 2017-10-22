@@ -58,6 +58,17 @@ class TokenAllowance extends Component {
                   </span>
                 </div>
                 <div>
+                  <span>MKR</span>
+                  <span>Wipe/Shut</span>
+                  <span>
+                    {
+                      this.props.sai.gov.tubTrusted === -1
+                      ? 'Loading...'
+                      : this.onOff('gov', 'tub')
+                    }
+                  </span>
+                </div>
+                <div>
                   <span>SAI</span>
                   <span>Wipe/Shut</span>
                   <span>
