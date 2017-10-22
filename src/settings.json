@@ -10,7 +10,7 @@
       "chart": false
     },
     "kovan": {
-      "top": "0x00084578c458b2136c2e2ba0b4fef1e838e2e220",
+      "top": "0xacef2f726cd1500c49cf727729ff3aa0511d12f3",
       "proxyFactory": "0xe82f08b89f5269570fea634f87a848614afca1a1",
       "faucet": "",
       "fromBlock": 3922760,
