@@ -318,6 +318,16 @@ class Modal extends Component {
         type = 'yesno';
         this.submitEnabled = true;
         break;
+      case 'drip':
+        text = 'Are you sure you want to drip the system?';
+        type = 'yesno';
+        this.submitEnabled = true;
+        break;
+      case 'heal':
+        text = 'Are you sure you want to heal the system?';
+        type = 'yesno';
+        this.submitEnabled = true;
+        break;
       default:
         break;
     }

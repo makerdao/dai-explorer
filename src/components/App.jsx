@@ -1379,7 +1379,7 @@ class App extends Component {
   executeMethod = (object, method) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object}: ${method}`);
+        this.logPendingTransaction(tx, `${object.toUpperCase()}: ${method}`);
       } else {
         console.log(e);
       }
@@ -1396,7 +1396,7 @@ class App extends Component {
   executeMethodCup = (method, cup) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
+        this.logPendingTransaction(tx, `TUB: ${method} ${cup}`);
       } else {
         console.log(e);
       }
@@ -1413,7 +1413,7 @@ class App extends Component {
   executeMethodValue = (object, method, value) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
+        this.logPendingTransaction(tx, `${object.toUpperCase()}: ${method} ${value}`);
       } else {
         console.log(e);
       }
@@ -1430,7 +1430,7 @@ class App extends Component {
   executeMethodCupValue = (method, cup, value, toWei = true) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
+        this.logPendingTransaction(tx, `TUB: ${method} ${cup} ${value}`);
       } else {
         console.log(e);
       }
@@ -1473,14 +1473,14 @@ class App extends Component {
     this[method](...args);
   }
 
-  checkAllowance = (token, requester, value, callback) => {
+  checkAllowance = (token, dst, value, callback) => {
     let promise;
     let valueObj;
     if (token === 'gem') {
       valueObj = web3.toBigNumber(web3.toWei(value));
-      promise = this.allowance(token, requester);
+      promise = this.allowance(token, dst);
     } else {
-      promise = this.trusted(token, requester);
+      promise = this.trusted(token, dst);
     }
 
     Promise.resolve(promise).then((r) => {
@@ -1490,7 +1490,22 @@ class App extends Component {
         const operation = token === 'gem' ? 'approve' : 'trust';
         const log = (e, tx) => {
           if (!e) {
-            this.logPendingTransaction(tx, `${token}: ${operation} ${requester}${token === 'gem' ? ` ${value}` : ''}`, callback);
+            const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+            const action = {
+              skr: {
+                tub: 'Exit/Lock',
+                tap: 'Boom'
+              },
+              sai: {
+                tub: 'Wipe/Shut',
+                tap: 'Bust/Cash'
+              },
+              gov: {
+                tub: 'Wipe/Shut'
+              }
+            }
+            console.log(token, dst);
+            this.logPendingTransaction(tx, `${tokenName}: ${operation} ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`, callback);
           } else {
             console.log(e);
           }
@@ -1506,7 +1521,7 @@ class App extends Component {
               log);
           }
         } else {
-          this[`${token}Obj`][operation](this.state.sai[requester].address, token === 'gem' ? valueObj : true, {}, log);
+          this[`${token}Obj`][operation](this.state.sai[dst].address, token === 'gem' ? valueObj : true, {}, log);
         }
       }
     });
@@ -1538,6 +1553,7 @@ class App extends Component {
         });
       break;
       case 'open':
+      case 'drip':
         this.executeMethod('tub', method);
         break;
       case 'shut':
@@ -1546,9 +1562,9 @@ class App extends Component {
         if (this.state.sai.sai.myBalance.lt(debt)) {
           error = `Not enough balance of SAI to shut CDP ${cup}.`;
         } else {
-          const futureGovFee = web3.fromWei(wdiv(this.props.sai.tub.fee, this.props.sai.tub.tax)).pow(180).round(0); // 3 minutes of future fee
-          const govDebt = wmul(wdiv(this.props.rap(this.props.sai.tub.cups[cup]), this.props.sai.pep.val), futureGovFee);
-          if (govDebt.gt(this.props.sai.gov.myBalance)) {
+          const futureGovFee = web3.fromWei(wdiv(this.state.sai.tub.fee, this.state.sai.tub.tax)).pow(180).round(0); // 3 minutes of future fee
+          const govDebt = wmul(wdiv(this.rap(this.state.sai.tub.cups[cup]), this.state.sai.pep.val), futureGovFee);
+          if (govDebt.gt(this.state.sai.gov.myBalance)) {
             error = `Not enough balance of MKR to shut CDP ${cup}.`;
           } else {
             this.checkAllowance('sai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCup', method, cup]]);
@@ -1590,6 +1606,7 @@ class App extends Component {
         this.checkAllowance('sai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.sai.sai.myBalance)]);
         break;
       case 'vent':
+      case 'heal':
         this.executeMethod('tap', method);
         break;
       default:
@@ -1652,7 +1669,21 @@ class App extends Component {
   trust = (token, dst, val) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${token}: ${val ? 'trust': 'deny'} ${dst}`);
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+        const action = {
+          skr: {
+            tub: 'Exit/Lock',
+            tap: 'Boom'
+          },
+          sai: {
+            tub: 'Wipe/Shut',
+            tap: 'Bust/Cash'
+          },
+          gov: {
+            tub: 'Wipe/Shut'
+          }
+        }
+        this.logPendingTransaction(tx, `${tokenName}: ${val ? 'trust': 'deny'} ${action[token][dst]}`);
       } else {
         console.log(e);
       }
