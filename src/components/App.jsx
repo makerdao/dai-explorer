@@ -1492,6 +1492,9 @@ class App extends Component {
           if (!e) {
             const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
             const action = {
+              gem: {
+                tub: 'Join'
+              },
               skr: {
                 tub: 'Exit/Lock',
                 tap: 'Boom'
@@ -1575,7 +1578,7 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.sai.tub.per).valueOf());
+        const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.sai.tub.per).round().add(1).valueOf());
         this.checkAllowance('gem', 'tub', valAllowanceJoin, ['executeMethodValue', 'tub', method, value]);
         break;
       case 'exit':
