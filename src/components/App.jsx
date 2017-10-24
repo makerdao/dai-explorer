@@ -1223,6 +1223,7 @@ class App extends Component {
       const marginTax = web3.fromWei(tub.tax).pow(120);
       cup.avail_sai = wdiv(cup.pro, wmul(tub.mat, sai.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
       cup.avail_sai_with_margin = wdiv(cup.pro, wmul(tub.mat, sai.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
+      cup.avail_sai_with_margin = cup.avail_sai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_sai_with_margin;
       cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), sai.vox.par), sai.tub.tag)).round(0);
       cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), sai.vox.par), sai.tub.tag)).round(0);
       cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
@@ -1705,6 +1706,8 @@ class App extends Component {
                              (this.state.sai.tub.off === true && this.state.sai.tub.out === true && this.state.sai.sin.tubBalance.eq(0) && this.state.sai.skr.tapBalance.eq(0))),
       bust: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
       boom: this.state.network.defaultAccount && this.state.sai.tub.off === false && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
+      heal: this.state.sai.sai.tapBalance.gt(0),
+      drip: this.state.sai.tub.off === false
     };
 
     const helpers = {
@@ -1713,6 +1716,8 @@ class App extends Component {
       exit: 'Exchange SKR for ETH',
       boom: 'Buy SAI with SKR',
       bust: 'Buy SKR with SAI',
+      heal: '',
+      drip: ''
     };
 
     if (this.state.sai.tub.off === true) {
@@ -1791,7 +1796,7 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key } style={ {textTransform: 'capitalize'} }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
