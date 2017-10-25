@@ -34,8 +34,6 @@ const dsethtoken = require('../abi/dsethtoken');
 const dstoken = require('../abi/dstoken');
 const dsvalue = require('../abi/dsvalue');
 
-const proxyActions = require('../proxyActions');
-
 class App extends Component {
   constructor() {
     super();
@@ -1388,7 +1386,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
                             `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.sai[object].address, false)}`,
                             log);
     } else {
@@ -1405,7 +1403,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
                             `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
                             log);
     } else {
@@ -1422,8 +1420,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      console.log(proxyActions[method], method, object, this.state.sai[object].address);
-      this.proxyObj.execute['address,bytes'](proxyActions[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
                             `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.sai[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
                             log);
     } else {
@@ -1440,7 +1437,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
                             `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
                             log);
     } else {
@@ -1518,11 +1515,11 @@ class App extends Component {
         }
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           if (operation === 'approve') {
-            this.proxyObj.execute['address,bytes'](proxyActions.approve,
+            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.approve,
               `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
               log);
           } else {
-            this.proxyObj.execute['address,bytes'](proxyActions.trust,
+            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trust,
               `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(true, false)}`,
               log);
           }
@@ -1638,7 +1635,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions.transfer,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.transfer,
                             `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
                             log);
     } else {
@@ -1656,7 +1653,7 @@ class App extends Component {
     }
     if (operation === 'wrap') {
       if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-        this.proxyObj.execute['address,bytes'](proxyActions.deposit,
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.deposit,
           `${this.methodSig(`deposit(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
@@ -1664,7 +1661,7 @@ class App extends Component {
       }
     } else if (operation === 'unwrap') {
       if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-        this.proxyObj.execute['address,bytes'](proxyActions.withdraw,
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.withdraw,
           `${this.methodSig(`withdraw(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
@@ -1696,7 +1693,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions.trust,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trust,
                             `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
                             log);
     } else {
@@ -1713,7 +1710,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](proxyActions.trustAll,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trustAll,
                             `${this.methodSig('trustAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
                             log);
     }
