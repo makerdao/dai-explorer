@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import web3 from  '../web3';
-
 import { etherscanAddress } from '../helpers';
+
+const settings = require('../settings');
 
 class GeneralInfo extends Component {
 
@@ -35,11 +36,17 @@ class GeneralInfo extends Component {
                                                 }
                                               </span> }
               </div>
-              <div>
-                <strong>Proxy Profile:</strong> { this.props.proxy
-                                                  ? etherscanAddress(this.props.network, this.props.proxy, this.props.proxy)
-                                                  : 'No Proxy Profile created for this Account'}
-              </div>
+              {
+                settings.chain[this.props.network].proxyFactory
+                ?
+                  <div>
+                    <strong>Proxy Profile:</strong> { this.props.proxy
+                                                      ? etherscanAddress(this.props.network, this.props.proxy, this.props.proxy)
+                                                      : 'No Proxy Profile created for this Account'}
+                  </div>
+                :
+                  ''
+              }
               <a data-toggle="collapse" data-parent="#accordion" href="#collapseAddresses" aria-expanded="false" id="toggle-addresses" className="collapsed">
                 <span>Show</span><span>Hide</span> contracts addresses
               </a>

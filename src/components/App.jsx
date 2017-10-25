@@ -315,9 +315,12 @@ class App extends Component {
     }, () => {
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
       const addrs = settings.chain[this.state.network.network];
-      window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
 
-      const setUpPromises = [this.getTubAddress(), this.getTapAddress(), this.getProxyAddress()];
+      const setUpPromises = [this.getTubAddress(), this.getTapAddress()];
+      if (addrs.proxyFactory) {
+        window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
+        setUpPromises.push(this.getProxyAddress());
+      }
       Promise.all(setUpPromises).then((r) => {
         if (r[0] && r[1] && web3.isAddress(r[0]) && web3.isAddress(r[1])) {
           window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
@@ -329,7 +332,7 @@ class App extends Component {
           sai.tub.address = r[0];
           sai.tap.address = r[1];
 
-          if (r[2].length > 0) {
+          if (addrs.proxyFactory && r[2].length > 0) {
             profile.proxy = r[2][r[2].length - 1].args.proxy;
             profile.activeProfile = localStorage.getItem('mode') === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
             window.proxyObj = this.proxyObj = this.loadObject(dsproxy.abi, profile.proxy);
@@ -1767,13 +1770,19 @@ class App extends Component {
           <h1>
             <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
           </h1>
-          <div className="onoffswitch mode-box">
-            <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={ this.state.profile.mode === 'proxy' } onChange={ this.changeMode } />
-            <label className="onoffswitch-label" htmlFor="myonoffswitchpMode">
-                <span className="onoffswitch-inner"></span>
-                <span className="onoffswitch-switch"></span>
-            </label>
-          </div>
+          {
+            settings.chain[this.state.network.network].proxyFactory
+            ?
+              <div className="onoffswitch mode-box">
+                <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={ this.state.profile.mode === 'proxy' } onChange={ this.changeMode } />
+                <label className="onoffswitch-label" htmlFor="myonoffswitchpMode">
+                    <span className="onoffswitch-inner"></span>
+                    <span className="onoffswitch-switch"></span>
+                </label>
+              </div>
+            :
+              ''
+          }
         </section>
         <section className="content">
           <div>
