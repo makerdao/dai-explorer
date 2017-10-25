@@ -1386,7 +1386,7 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute(proxyActions[method],
-                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.tubObj.address, false)}`,
+                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.sai[object].address, false)}`,
                             log);
     } else {
       this[`${object}Obj`][method]({}, log);
@@ -1419,8 +1419,9 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      console.log(proxyActions[method], method, object, this.state.sai[object].address);
       this.proxyObj.execute(proxyActions[method],
-                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(web3.toWei(value), false)}`,
+                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.sai[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
                             log);
     } else {
       this[`${object}Obj`][method](web3.toWei(value), {}, log);
@@ -1507,7 +1508,6 @@ class App extends Component {
                 tub: 'Wipe/Shut'
               }
             }
-            console.log(token, dst);
             this.logPendingTransaction(tx, `${tokenName}: ${operation} ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`, callback);
           } else {
             console.log(e);
@@ -1516,11 +1516,11 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           if (operation === 'approve') {
             this.proxyObj.execute(proxyActions.approve,
-              `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai.tub.address, false)}${toBytes32(valueObj.valueOf(), false)}`,
+              `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
               log);
           } else {
             this.proxyObj.execute(proxyActions.trust,
-              `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai.tub.address, false)}${toBytes32(true, false)}`,
+              `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(true, false)}`,
               log);
           }
         } else {
