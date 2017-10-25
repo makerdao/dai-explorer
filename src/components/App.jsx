@@ -307,7 +307,7 @@ class App extends Component {
       return;
     }
     web3.reset(true);
-    if (typeof this.setTimeVariablesInterval !== 'undefined') clearInterval(this.setTimeVariablesInterval);
+    if (typeof this.timeVariablesInterval !== 'undefined') clearInterval(this.timeVariablesInterval);
     if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
     this.setState({
@@ -387,7 +387,7 @@ class App extends Component {
   }
 
   setTimeVariablesInterval = () => {
-    this.setTimeVariablesInterval = setInterval(() => {
+    this.timeVariablesInterval = setInterval(() => {
       this.getParameterFromTub('chi', true);
       this.getParameterFromTub('rhi', true);
       this.getParameterFromVox('par', true);
