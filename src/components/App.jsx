@@ -1631,7 +1631,8 @@ class App extends Component {
   transferToken = (token, to, amount) => {
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+        this.logPendingTransaction(tx, `${tokenName}: transfer ${to} ${amount}`);
       } else {
         console.log(e);
       }
