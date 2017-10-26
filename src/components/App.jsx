@@ -1538,11 +1538,12 @@ class App extends Component {
       case 'proxy':
         this.proxyFactoryObj.build((e, tx) => {
           if (!e) {
-            this.logPendingTransaction(tx, 'proxy: create new profile', {});
+            this.logPendingTransaction(tx, 'PROXY: create new profile', {});
             this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: 'latest' }, (e, r) => {
               if (!e) {
                 const profile = { ...this.state.profile }
                 profile.proxy = r.args.proxy;
+                console.log('aaa');
                 this.setState({ profile }, () => {
                   this.changeMode();
                 });
@@ -1718,7 +1719,7 @@ class App extends Component {
 
   changeMode = () => {
     const profile = { ...this.state.profile };
-    profile.mode = profile.mode === 'account' ? 'proxy' : 'account';
+    profile.mode = profile.mode !== 'proxy' ? 'proxy' : 'account';
     profile.activeProfile = profile.mode === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
     profile.accountBalance = web3.toBigNumber(-1);
     if (profile.mode === 'proxy' && !web3.isAddress(profile.proxy)) {
@@ -1818,7 +1819,7 @@ class App extends Component {
                         <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } sai={ this.state.sai } />
                       </div>
                       <div className="col-md-6">
-                        <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                        <Transfer transferToken={ this.transferToken } sai={ this.state.sai } profile={ this.state.profile } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
                       </div>
                     </div>
                   :

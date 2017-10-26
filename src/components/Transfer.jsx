@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
 import web3 from '../web3';
 
+const settings = require('../settings');
+
 class Transfer extends Component {
   state = {
+    to: '',
     error: ''
   };
+
+  fillTo = (e) => {
+    e.preventDefault();
+    this.setState({ to: e.target.getAttribute('data-address')});
+  }
+
+  onChangeTo = () => {
+    this.setState({ to: this.to.value});
+  }
 
   transfer = (e) => {
     e.preventDefault();
@@ -52,11 +64,26 @@ class Transfer extends Component {
                     <option value="sai">SAI</option>
                     <option value="skr">SKR</option>
                   </select>
-                  <label>To</label>
-                  <input ref={(input) => this.to = input} type="text" placeholder="0x" />
+                  {
+                    settings.chain[this.props.network].proxyFactory
+                    ? <label>&nbsp;</label>
+                    : ''
+                  }
+                  {
+                    settings.chain[this.props.network].proxyFactory
+                    ?
+                      this.props.profile.mode === 'proxy'
+                      ? <a href="#acction" data-address={ this.props.account } onClick={ this.fillTo }>Send to your main account</a>
+                      : <a href="#acction" data-address={ this.props.profile.proxy } onClick={ this.fillTo }>Send to your proxy profile</a>
+                    :
+                      ''
+                  }
+                  <label>
+                    To
+                  </label>
+                  <input ref={(input) => this.to = input} value={ this.state.to } onChange={ this.onChangeTo } type="text" placeholder="0x" />
                   <label>Amount</label>
                   <input ref={(input) => this.amount = input} type="number" placeholder="0.00" step="0.000000000000000001" />
-                  <label></label>
                   <input type="submit" />
                   { this.state.error ? this.renderError() : '' }
                 </form>
