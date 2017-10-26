@@ -1341,12 +1341,18 @@ class App extends Component {
     });
   }
 
-  logPendingTransaction = (tx, title, callback = []) => {
+  logRequestTransaction = (id, title) => {
+    const msgTemp = 'Waiting for transaction signature...';
+    this.refs.notificator.info(id, title, msgTemp, false);
+  }
+
+  logPendingTransaction = (id, tx, title, callback = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = { ...this.state.transactions };
     transactions[tx] = { pending: true, title, callback }
     this.setState({ transactions });
-    console.log(msgTemp.replace('TX', tx))
+    console.log(msgTemp.replace('TX', tx));
+    this.refs.notificator.hideNotification(id);
     this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
   }
 
@@ -1356,9 +1362,10 @@ class App extends Component {
     if (transactions[tx] && transactions[tx].pending) {
       transactions[tx].pending = false;
       this.setState({ transactions }, () => {
+        console.log(msgTemp.replace('TX', tx));
+        this.refs.notificator.hideNotification(tx);
         this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
         if (transactions[tx].callback.length > 0) {
-          console.log('log tx confirmed');
           this.executeCallback(transactions[tx].callback);
         }
       });
@@ -1374,15 +1381,24 @@ class App extends Component {
       this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
     }
   }
+
+  logTransactionRejected = (tx, title) => {
+    const msgTemp = 'User denied transaction signature.';
+    this.refs.notificator.error(tx, title, msgTemp, 4000);
+  }
   //
 
   // Actions
   executeMethod = (object, method) => {
+    const id = Math.random();
+    const title = `${object.toUpperCase()}: ${method}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object.toUpperCase()}: ${method}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1395,11 +1411,15 @@ class App extends Component {
   }
 
   executeMethodCup = (method, cup) => {
+    const id = Math.random();
+    const title = `TUB: ${method} ${cup}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `TUB: ${method} ${cup}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1412,11 +1432,15 @@ class App extends Component {
   }
 
   executeMethodValue = (object, method, value) => {
+    const id = Math.random();
+    const title = `${object.toUpperCase()}: ${method} ${value}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object.toUpperCase()}: ${method} ${value}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1429,11 +1453,15 @@ class App extends Component {
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
+    const id = Math.random();
+    const title = `TUB: ${method} ${cup} ${value}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `TUB: ${method} ${cup} ${value}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1488,29 +1516,33 @@ class App extends Component {
       if ((token === 'gem' && r.gte(valueObj)) || (token !== 'gem' && r)) {
         this.executeCallback(callback);
       } else {
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+        const action = {
+          gem: {
+            tub: 'Join'
+          },
+          skr: {
+            tub: 'Exit/Lock',
+            tap: 'Boom'
+          },
+          sai: {
+            tub: 'Wipe/Shut',
+            tap: 'Bust/Cash'
+          },
+          gov: {
+            tub: 'Wipe/Shut'
+          }
+        }
         const operation = token === 'gem' ? 'approve' : 'trust';
+        const id = Math.random();
+        const title = `${tokenName}: ${operation} ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`;
+        this.logRequestTransaction(id, title);
         const log = (e, tx) => {
           if (!e) {
-            const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
-            const action = {
-              gem: {
-                tub: 'Join'
-              },
-              skr: {
-                tub: 'Exit/Lock',
-                tap: 'Boom'
-              },
-              sai: {
-                tub: 'Wipe/Shut',
-                tap: 'Bust/Cash'
-              },
-              gov: {
-                tub: 'Wipe/Shut'
-              }
-            }
-            this.logPendingTransaction(tx, `${tokenName}: ${operation} ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`, callback);
+            this.logPendingTransaction(id, tx, title, callback);
           } else {
             console.log(e);
+            this.logTransactionRejected(id, title);
           }
         }
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1536,9 +1568,12 @@ class App extends Component {
     let error = false;
     switch(method) {
       case 'proxy':
+        const id = Math.random();
+        const title = 'PROXY: create new profile';
+        this.logRequestTransaction(id, title);
         this.proxyFactoryObj.build((e, tx) => {
           if (!e) {
-            this.logPendingTransaction(tx, 'PROXY: create new profile', {});
+            this.logPendingTransaction(id, tx, title);
             this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: 'latest' }, (e, r) => {
               if (!e) {
                 const profile = { ...this.state.profile }
@@ -1553,6 +1588,7 @@ class App extends Component {
             });
           } else {
             console.log(e);
+            this.logTransactionRejected(id, title);
           }
         });
       break;
@@ -1627,12 +1663,16 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const id = Math.random();
+    const title = `${tokenName}: transfer ${to} ${amount}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
-        this.logPendingTransaction(tx, `${tokenName}: transfer ${to} ${amount}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1645,11 +1685,15 @@ class App extends Component {
   }
 
   wrapUnwrap = (operation, amount) => {
+    const id = Math.random();
+    const title = `WETH: ${operation} ${amount}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (operation === 'wrap') {
@@ -1672,25 +1716,29 @@ class App extends Component {
   }
 
   trust = (token, dst, val) => {
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const action = {
+      skr: {
+        tub: 'Exit/Lock',
+        tap: 'Boom'
+      },
+      sai: {
+        tub: 'Wipe/Shut',
+        tap: 'Bust/Cash'
+      },
+      gov: {
+        tub: 'Wipe/Shut'
+      }
+    }
+    const id = Math.random();
+    const title = `${tokenName}: ${val ? 'trust': 'deny'} ${action[token][dst]}`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
-        const action = {
-          skr: {
-            tub: 'Exit/Lock',
-            tap: 'Boom'
-          },
-          sai: {
-            tub: 'Wipe/Shut',
-            tap: 'Bust/Cash'
-          },
-          gov: {
-            tub: 'Wipe/Shut'
-          }
-        }
-        this.logPendingTransaction(tx, `${tokenName}: ${val ? 'trust': 'deny'} ${action[token][dst]}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1703,11 +1751,15 @@ class App extends Component {
   }
 
   trustAll = (val) => {
+    const id = Math.random();
+    const title = `SKR/SAI: ${val ? 'trust': 'deny'} all`;
+    this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `SKR/SAI: ${val ? 'trust': 'deny'} all`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
