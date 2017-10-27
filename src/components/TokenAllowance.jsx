@@ -51,7 +51,7 @@ class TokenAllowance extends Component {
                       <span>&nbsp;</span>
                       <span>
                         {
-                          this.props.sai.skr.tubTrusted === -1 || this.props.sai.skr.tapTrusted === -1 || this.props.sai.sai.tubTrusted === -1 || this.props.sai.sai.tapTrusted === -1
+                          this.props.sai.skr.tubTrusted === -1 || this.props.sai.skr.tapTrusted === -1 || this.props.sai.gov.tubTrusted === -1 || this.props.sai.sai.tubTrusted === -1 || this.props.sai.sai.tapTrusted === -1
                           ? 'Loading...'
                           : this.onOff('all')
                         }
