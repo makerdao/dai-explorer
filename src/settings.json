@@ -40,27 +40,9 @@
       "chart": false,
       "proxyFactory": "0x69f6b4a4bB058DE233F2C1c6eF3D79830a7Ba9e6",
       "proxyContracts": {
-        "open": "0xccdbf3978700b2b7ddd10b64a90a671d3bd29e2e",
-        "join": "0x9d325b63169f438ff5dbb80f377c0e81e8c0218a",
-        "exit": "0x042e05cfd3904cad094078f2219ce42abf8657d3",
-        "lock": "0xf53d7d7b87f5c09428fac14181e5e37b48ff336f",
-        "free": "0xe10abab944f45b258a483c035c2c1589fc1aabdc",
-        "draw": "0x7b7955de6fb5f3d2076b41d4f6da88e5d0d055c8",
-        "wipe": "0x4d8fe4038fda7e750f5d0d99cd99b31dea855d8a",
-        "give": "0x5e23853de9f583f6701cbc80435aca5f7c80386d",
-        "shut": "0xf1dbcdac736bae1bf468f6a4a2c8d8a9c7f9114f",
-        "bite": "0x2cd54d752593bb3a781517e19ef45f7b395f9de8",
-        "bust": "0xe91e884d504989e5819940fc38d64dbe6cf1beed",
-        "boom": "0x344b7f405d0b558469b677a89818dfd60451e968",
-        "cash": "0xc0da8df57abfefc6174101d5187bc780cbdfa93f",
-        "drip": "0x48c368a72e39baaf1f9a89a9bd632fd37ceafbfc",
-        "heal": "0x1d554b68dec053751dd284172e04a8bd7ee51032",
-        "trust": "0x47e68032e44f3d946ed1212235a1954ad890847b",
-        "approve": "0x40180830828d4373beba0e923d1e7abefc8c2021",
-        "transfer": "0x0ceda7e60136123914ef4bde57470344090e50c8",
-        "deposit": "0x92892d544406b047b99db91ed33ffc3e757d4617",
-        "withdraw": "0xd86fe03f0383ae51c81f8bce74cf2237fbcea4c2",
-        "trustAll": "0x02c792f169bb4adfefb901c72a677216cfd5c6f6"
+        "basicActions": "0x288759492e8ac2d5d90df664e8f7eb53ff33b22c",
+        "customActions": "0xe877bb0e1ee6573dba3a104be47ec33c4e28b8f8",
+        "tokenActions": "0x8c97e79894a26212ea06f6428205e98b0d825ba6"
       }
     },
     "main": {

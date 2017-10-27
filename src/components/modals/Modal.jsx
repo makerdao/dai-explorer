@@ -127,8 +127,10 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'shut':
-        text = `Are you sure you want to close CDP ${modal.cup}?.<br />` +
-               'You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
+        text = `Are you sure you want to close CDP ${modal.cup}?.`;
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';;
+        }
         type = 'yesno';
         this.submitEnabled = true;
         break;
@@ -138,8 +140,10 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'join':
-        text = 'Please set amount of SKR you want to get in exchange of your WETH.<br />' +
-               'You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
+        text = 'Please set amount of SKR you want to get in exchange of your WETH.';
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
+        }
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -154,13 +158,17 @@ class Modal extends Component {
         break;
       case 'exit':
         if (this.props.off === true) {
-          text = 'Are you sure you want to exit all your SKR?<br />' +
-                 'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          text = 'Are you sure you want to exit all your SKR?';
+          if (!this.props.proxyEnabled) {
+            text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          }
           type = 'yesno';
           this.submitEnabled = true;
         } else {
-          text = 'Please set amount of collateral (SKR) you want to convert to WETH.<br />' +
-                 'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          text = 'Please set amount of collateral (SKR) you want to convert to WETH.';
+          if (!this.props.proxyEnabled) {
+            text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          }
           type = 'number';
 
           this.cond = (value) => {
@@ -176,8 +184,10 @@ class Modal extends Component {
         }
         break;
       case 'boom':
-        text = 'Please set amount of SKR you want to transfer to get SAI.<br />' +
-               'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        text = 'Please set amount of SKR you want to transfer to get SAI.';
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        }
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -194,8 +204,10 @@ class Modal extends Component {
         }
         break;
       case 'bust':
-        text = 'Please set amount of SKR you want to get in exchange of SAI.<br />' +
-               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+        text = 'Please set amount of SKR you want to get in exchange of SAI.';
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+        }
         type = 'number';
         this.cond = (value) => {
           const valueSAI = wmul(web3.toBigNumber(value), this.props.sai.tub.avail_bust_ratio);
@@ -213,8 +225,10 @@ class Modal extends Component {
         }
         break;
       case 'lock':
-        text = `Please set amount of collateral (SKR) you want to lock in CDP ${modal.cup}.<br />` +
-               'You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        text = `Please set amount of collateral (SKR) you want to lock in CDP ${modal.cup}.`;
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+        }
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -265,8 +279,10 @@ class Modal extends Component {
         }
         break;
       case 'wipe':
-        text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CDP ${modal.cup}.<br />` +
-               'You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
+        text = `Please set amount of SAI you want to burn to recover your collateral (SKR) from CDP ${modal.cup}.`;
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
+        }
         type = 'number';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -308,8 +324,10 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'cash':
-        text = 'Are you sure you want to cash?<br />'+
-               'You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+        text = 'Are you sure you want to cash?';
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
+        }
         type = 'yesno';
         this.submitEnabled = true;
         break;

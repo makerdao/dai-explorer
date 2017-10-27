@@ -1402,7 +1402,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
                             `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.sai[object].address, false)}`,
                             log);
     } else {
@@ -1423,7 +1423,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
                             `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
                             log);
     } else {
@@ -1444,7 +1444,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
                             `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.sai[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
                             log);
     } else {
@@ -1465,7 +1465,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts[method],
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
                             `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
                             log);
     } else {
@@ -1547,11 +1547,11 @@ class App extends Component {
         }
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           if (operation === 'approve') {
-            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.approve,
+            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
               `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
               log);
           } else {
-            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trust,
+            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
               `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.sai[dst].address, false)}${toBytes32(true, false)}`,
               log);
           }
@@ -1607,7 +1607,11 @@ class App extends Component {
           if (govDebt.gt(this.state.sai.gov.myBalance)) {
             error = `Not enough balance of MKR to shut CDP ${cup}.`;
           } else {
-            this.checkAllowance('sai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCup', method, cup]]);
+            if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+              this.executeMethodCup(method, cup);
+            } else {
+              this.checkAllowance('sai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCup', method, cup]]);
+            }
           }
         }
         break;
@@ -1615,35 +1619,63 @@ class App extends Component {
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.sai.tub.per).round().add(1).valueOf());
-        this.checkAllowance('gem', 'tub', valAllowanceJoin, ['executeMethodValue', 'tub', method, value]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tub', method, value);
+        } else {
+          const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.sai.tub.per).round().add(1).valueOf());
+          this.checkAllowance('gem', 'tub', valAllowanceJoin, ['executeMethodValue', 'tub', method, value]);
+        }
         break;
       case 'exit':
         value = this.state.sai.tub.off === true ? web3.fromWei(this.state.sai.skr.myBalance) : value;
-        this.checkAllowance('skr', 'tub', null, ['executeMethodValue', 'tub', method, value]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tub', method, value);
+        } else {
+          this.checkAllowance('skr', 'tub', null, ['executeMethodValue', 'tub', method, value]);
+        }
         break;
       case 'boom':
-        this.checkAllowance('skr', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          this.checkAllowance('skr', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+        }
         break;
       case 'bust':
-        // const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.tub.avail_bust_ratio).ceil();
-        this.checkAllowance('sai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          // const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.tub.avail_bust_ratio).ceil();
+          this.checkAllowance('sai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+        }
         break;
       case 'lock':
-        this.checkAllowance('skr', 'tub', null, ['executeMethodCupValue', method, cup, value]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodCupValue(method, cup, value);
+        } else {
+          this.checkAllowance('skr', 'tub', null, ['executeMethodCupValue', method, cup, value]);
+        }
         break;
       case 'free':
       case 'draw':
         this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        this.checkAllowance('sai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCupValue', method, cup, value]]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodCupValue(method, cup, value);
+        } else {
+          this.checkAllowance('sai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCupValue', method, cup, value]]);
+        }
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.checkAllowance('sai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.sai.sai.myBalance)]);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, web3.fromWei(this.state.sai.sai.myBalance));
+        } else {
+          this.checkAllowance('sai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.sai.sai.myBalance)]);
+        }
         break;
       case 'vent':
       case 'heal':
@@ -1676,7 +1708,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.transfer,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
                             `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
                             log);
     } else {
@@ -1698,7 +1730,7 @@ class App extends Component {
     }
     if (operation === 'wrap') {
       if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.deposit,
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
           `${this.methodSig(`deposit(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
@@ -1706,7 +1738,7 @@ class App extends Component {
       }
     } else if (operation === 'unwrap') {
       if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.withdraw,
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
           `${this.methodSig(`withdraw(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
@@ -1742,7 +1774,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trust,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
                             `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
                             log);
     } else {
@@ -1763,7 +1795,7 @@ class App extends Component {
       }
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.trustAll,
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.customActions,
                             `${this.methodSig('trustAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
                             log);
     }
@@ -1916,7 +1948,7 @@ class App extends Component {
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
-          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.sai.tub.off } tab={ this.tab } rap={ this.rap } />
+          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.sai.tub.off } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>
