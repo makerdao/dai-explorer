@@ -1,5 +1,5 @@
 {
-  "nodeURL" : "https://sai-service.makerdao.com/parity",
+  "nodeURL" : "https://rpcs.makerdao.com/",
   "chain": {
     "private": {
       "top": "",
@@ -25,7 +25,7 @@
       "faucet": "",
       "whitelisted": false,
       "fromBlock": 4030971,
-      "service": "https://sai-service.makerdao.com",
+      "service": "",
       "chart": false
     }
   }
