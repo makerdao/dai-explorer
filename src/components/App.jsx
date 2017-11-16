@@ -1867,6 +1867,9 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
+                <a className="resource buy-sai" href="https://oasisdex.com" target="_blank" rel="noopener noreferrer" >
+                  <span>Buy SAI</span>
+                </a>
                 {
                   this.state.sai.lpc.address &&
                   <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
