@@ -1,5 +1,5 @@
 {
-  "nodeURL" : "https://rpcs.makerdao.com/",
+  "nodeURL" : "https://sai-service.makerdao.com/",
   "chain": {
     "private": {
       "top": "",
