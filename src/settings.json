@@ -1,5 +1,5 @@
 {
-  "nodeURL" : "https://sai-service.makerdao.com/",
+  "nodeURL" : "https://sai-service.makerdao.com/node",
   "chain": {
     "private": {
       "top": "",
@@ -25,7 +25,7 @@
       "faucet": "",
       "whitelisted": false,
       "fromBlock": 4030971,
-      "service": "",
+      "service": "https://sai-service.makerdao.com/",
       "chart": false
     }
   }
