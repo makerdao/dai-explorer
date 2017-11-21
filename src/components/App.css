@@ -344,7 +344,7 @@ a.resource {
      padding: 8px 20px;
  }
 
-a.resource.buy-sai {
+a.resource.buy-dai {
     background-color: #fff;
     border-color: #CCCCCC;
     text-align: center;
@@ -352,7 +352,7 @@ a.resource.buy-sai {
     box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
-a.resource.buy-sai span {
+a.resource.buy-dai span {
     margin-left: 0;
     float: none;
     color: #333;

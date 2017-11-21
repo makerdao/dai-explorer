@@ -17,7 +17,7 @@ class Wrap extends Component {
       this.setState({ error: 'Invalid Amount' });
     } else if (operation === 'wrap' && this.props.accountBalance.lt(web3.toWei(amount))) {
       this.setState({ error: `Not enough balance to wrap ${amount} ETH` });
-    } else if (operation === 'unwrap' && this.props.sai.gem.myBalance.lt(web3.toWei(amount))) {
+    } else if (operation === 'unwrap' && this.props.dai.gem.myBalance.lt(web3.toWei(amount))) {
       this.setState({ error: `Not enough balance to unwrap ${amount} WETH` });
     } else {
       this.props.wrapUnwrap(operation, amount);
@@ -48,7 +48,7 @@ class Wrap extends Component {
                     <strong>ETH Balance</strong> <span>{ this.props.accountBalance.gte(0) ? printNumber(this.props.accountBalance) : 'Loading...' }</span>
                   </p>
                   <p>
-                    <strong>WETH Balance</strong> <span>{ this.props.sai.gem.myBalance.gte(0) ? printNumber(this.props.sai.gem.myBalance) : 'Loading...' }</span>
+                    <strong>WETH Balance</strong> <span>{ this.props.dai.gem.myBalance.gte(0) ? printNumber(this.props.dai.gem.myBalance) : 'Loading...' }</span>
                   </p>
                   <label>Operation</label>
                   <select ref={(input) => this.operation = input} >

@@ -29,7 +29,7 @@ class Transfer extends Component {
       this.setState({ error: 'Invalid Address' });
     } else if (!amount) {
       this.setState({ error: 'Invalid Amount' });
-    } else if (this.props.sai[token].myBalance.lt(web3.toWei(amount))) {
+    } else if (this.props.dai[token].myBalance.lt(web3.toWei(amount))) {
       this.setState({ error: `Not enough balance to transfer ${amount} ${token}` });
     } else if (token) {
       this.props.transferToken(token, to, amount);
@@ -61,7 +61,7 @@ class Transfer extends Component {
                   <select ref={(input) => this.token = input} >
                     <option value="gem">WETH</option>
                     <option value="gov">MKR</option>
-                    <option value="sai">SAI</option>
+                    <option value="dai">DAI</option>
                     <option value="skr">SKR</option>
                   </select>
                   {

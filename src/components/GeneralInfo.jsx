@@ -51,7 +51,7 @@ class GeneralInfo extends Component {
                 <span>Show</span><span>Hide</span> contracts addresses
               </a>
               <div id="collapseAddresses" className="panel-collapse collapse" aria-expanded="false" style={{ height: "0px" }}>
-                <div><strong>Sai:</strong> { etherscanAddress(this.props.network, this.props.sai, this.props.sai) }</div>
+                <div><strong>Dai:</strong> { etherscanAddress(this.props.network, this.props.dai, this.props.dai) }</div>
                 <div><strong>Top:</strong> { etherscanAddress(this.props.network, this.props.top, this.props.top) }</div>
                 <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
                 <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>

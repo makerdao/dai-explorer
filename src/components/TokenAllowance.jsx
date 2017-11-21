@@ -19,8 +19,8 @@ class TokenAllowance extends Component {
 
   onOff = (token, dstAux = null) => {
     const check = token === 'all'
-                  ? this.props.sai.skr.tubTrusted && this.props.sai.skr.tapTrusted && this.props.sai.sai.tubTrusted && this.props.sai.sai.tapTrusted
-                  : this.props.sai[token][`${dstAux}Trusted`]
+                  ? this.props.dai.skr.tubTrusted && this.props.dai.skr.tapTrusted && this.props.dai.dai.tubTrusted && this.props.dai.dai.tapTrusted
+                  : this.props.dai[token][`${dstAux}Trusted`]
     const dst = token === 'all' ? 'all' : dstAux;
     return (
       <div className="onoffswitch">
@@ -51,7 +51,7 @@ class TokenAllowance extends Component {
                       <span>&nbsp;</span>
                       <span>
                         {
-                          this.props.sai.skr.tubTrusted === -1 || this.props.sai.skr.tapTrusted === -1 || this.props.sai.gov.tubTrusted === -1 || this.props.sai.sai.tubTrusted === -1 || this.props.sai.sai.tapTrusted === -1
+                          this.props.dai.skr.tubTrusted === -1 || this.props.dai.skr.tapTrusted === -1 || this.props.dai.gov.tubTrusted === -1 || this.props.dai.dai.tubTrusted === -1 || this.props.dai.dai.tapTrusted === -1
                           ? 'Loading...'
                           : this.onOff('all')
                         }
@@ -64,7 +64,7 @@ class TokenAllowance extends Component {
                   <span>Exit/Lock</span>
                   <span>
                     {
-                      this.props.sai.skr.tubTrusted === -1
+                      this.props.dai.skr.tubTrusted === -1
                       ? 'Loading...'
                       : this.onOff('skr', 'tub')
                     }
@@ -75,7 +75,7 @@ class TokenAllowance extends Component {
                   <span>Boom</span>
                   <span>
                     {
-                      this.props.sai.skr.tapTrusted === -1
+                      this.props.dai.skr.tapTrusted === -1
                       ? 'Loading...'
                       : this.onOff('skr', 'tap')
                     }
@@ -86,31 +86,31 @@ class TokenAllowance extends Component {
                   <span>Wipe/Shut</span>
                   <span>
                     {
-                      this.props.sai.gov.tubTrusted === -1
+                      this.props.dai.gov.tubTrusted === -1
                       ? 'Loading...'
                       : this.onOff('gov', 'tub')
                     }
                   </span>
                 </div>
                 <div>
-                  <span>SAI</span>
+                  <span>DAI</span>
                   <span>Wipe/Shut</span>
                   <span>
                     {
-                      this.props.sai.sai.tubTrusted === -1
+                      this.props.dai.dai.tubTrusted === -1
                       ? 'Loading...'
-                      : this.onOff('sai', 'tub')
+                      : this.onOff('dai', 'tub')
                     }
                   </span>
                 </div>
                 <div>
-                  <span>SAI</span>
+                  <span>DAI</span>
                   <span>Bust/Cash</span>
                   <span>
                     {
-                      this.props.sai.sai.tapTrusted === -1
+                      this.props.dai.dai.tapTrusted === -1
                       ? 'Loading...'
-                      : this.onOff('sai', 'tap')
+                      : this.onOff('dai', 'tap')
                     }
                   </span>
                 </div>
