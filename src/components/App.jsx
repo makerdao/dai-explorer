@@ -71,7 +71,7 @@ class App extends Component {
 
   getInitialState = () => {
     return {
-      dai: {
+      system: {
         tub: {
           address: null,
           authority: null,
@@ -255,7 +255,7 @@ class App extends Component {
         web3.eth.defaultAccount = networkState.defaultAccount;
         this.setState({ network: networkState }, () => {
           if (checkAccountChange && oldDefaultAccount !== networkState.defaultAccount) {
-            this.initContracts(this.state.dai.top.address);
+            this.initContracts(this.state.system.top.address);
           }
         });
       }
@@ -275,7 +275,7 @@ class App extends Component {
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.dai.top.address);
+      this.initContracts(this.state.system.top.address);
     }
 
     if (localStorage.getItem('termsModal')) {
@@ -323,12 +323,12 @@ class App extends Component {
         if (r[0] && r[1] && web3.isAddress(r[0]) && web3.isAddress(r[1])) {
           window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
-          const dai = { ...this.state.dai };
+          const system = { ...this.state.system };
           const profile = { ...this.state.profile };
 
-          dai.top.address = topAddress;
-          dai.tub.address = r[0];
-          dai.tap.address = r[1];
+          system.top.address = topAddress;
+          system.tub.address = r[0];
+          system.tap.address = r[1];
 
           if (addrs.proxyFactory && r[2].length > 0) {
             profile.proxy = r[2][r[2].length - 1].args.proxy;
@@ -340,7 +340,7 @@ class App extends Component {
             localStorage.setItem('mode', 'account');
           }
 
-          this.setState({ dai, profile }, () => {
+          this.setState({ system, profile }, () => {
             const promises = [this.setUpVox(), this.setUpPit()];
             Promise.all(promises).then((r) => {
               this.initializeSystemStatus();
@@ -375,13 +375,13 @@ class App extends Component {
                       this.getParameterFromVox('era')
                       ];
     Promise.all(promises).then((r) => {
-      if (r[0] === true && r[1] === true && this.state.dai.tub.tax.gte(0) && this.state.dai.sin.tubBalance.gte(0)) {
+      if (r[0] === true && r[1] === true && this.state.system.tub.tax.gte(0) && this.state.system.sin.tubBalance.gte(0)) {
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const sin = {...dai.sin};
-          sin.issuerFee = dai.sin.tubBalance.times(web3.fromWei(dai.tub.tax).pow(dai.vox.era.minus(dai.tub.rho))).minus(dai.sin.tubBalance).round(0);
-          dai.sin = sin;
-          return { dai };
+          const system = {...prevState.system};
+          const sin = {...system.sin};
+          sin.issuerFee = system.sin.tubBalance.times(web3.fromWei(system.tub.tax).pow(system.vox.era.minus(system.tub.rho))).minus(system.sin.tubBalance).round(0);
+          system.sin = sin;
+          return { system };
         });
       }
     });
@@ -458,11 +458,11 @@ class App extends Component {
       this.tubObj.vox.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const vox = {...dai.vox};
+            const system = {...prevState.system};
+            const vox = {...system.vox};
             vox.address = r;
-            dai.vox = vox;
-            return { dai };
+            system.vox = vox;
+            return { system };
           }, () => {
             window.voxObj = this.voxObj = this.loadObject(vox.abi, r);
             resolve(true);
@@ -480,11 +480,11 @@ class App extends Component {
       this.tubObj.pit.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const pit = {...dai.pit};
+            const system = {...prevState.system};
+            const pit = {...system.pit};
             pit.address = r;
-            dai.pit = pit;
-            return { dai };
+            system.pit = pit;
+            return { system };
           }, () => {
             resolve(true);
           });
@@ -500,11 +500,11 @@ class App extends Component {
     this.tubObj[token.replace('dai', 'sai')].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const tok = {...dai[token]};
+          const system = {...prevState.system};
+          const tok = {...system[token]};
           tok.address = r;
-          dai[token] = tok;
-          return { dai };
+          system[token] = tok;
+          return { system };
         }, () => {
           window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'gem' ? dsethtoken.abi : dstoken.abi, r);
           this.getDataFromToken(token);
@@ -674,11 +674,11 @@ class App extends Component {
     this.tubObj[obj].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const feed = {...dai[obj]};
+          const system = {...prevState.system};
+          const feed = {...system[obj]};
           feed.address = r;
-          dai[obj] = feed;
-          return { dai };
+          system[obj] = feed;
+          return { system };
         }, () => {
           window[`${obj}Obj`] = this[`${obj}Obj`] = this.loadObject(dsvalue.abi, r);
           this.getValFromFeed(obj);
@@ -708,10 +708,10 @@ class App extends Component {
       this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
     }
     if (token === 'gem' || token === 'skr' || token === 'sin') {
-      this.getBalanceOf(token, this.state.dai.tub.address, 'tubBalance');
+      this.getBalanceOf(token, this.state.system.tub.address, 'tubBalance');
     }
     if (token === 'gem' || token === 'skr' || token === 'dai' || token === 'sin') {
-      this.getBalanceOf(token, this.state.dai.tap.address, 'tapBalance');
+      this.getBalanceOf(token, this.state.system.tap.address, 'tapBalance');
       this.getBoomBustValues();
     }
     if (token === 'gem' || token === 'skr') {
@@ -724,18 +724,18 @@ class App extends Component {
       }
     }
     if (token === 'gov') {
-      this.getBalanceOf(token, this.state.dai.pit.address, 'pitBalance');
+      this.getBalanceOf(token, this.state.system.pit.address, 'pitBalance');
     }
   }
 
   getTrust = (token, dst) => {
     Promise.resolve(this.trusted(token, dst)).then(r => {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        const tok = {...dai[token]};
+        const system = {...prevState.system};
+        const tok = {...system[token]};
         tok[`${dst}Trusted`] = r;
-        dai[token] = tok;
-        return { dai };
+        system[token] = tok;
+        return { system };
       });
     });
   }
@@ -744,11 +744,11 @@ class App extends Component {
     this[`${name}Obj`].totalSupply.call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const tok = {...dai[name]};
+          const system = {...prevState.system};
+          const tok = {...system[name]};
           tok.totalSupply = r;
-          dai[name] = tok;
-          return { dai };
+          system[name] = tok;
+          return { system };
         }, () => {
           if (name === 'sin') {
             this.calculateSafetyAndDeficit();
@@ -762,11 +762,11 @@ class App extends Component {
     this[`${name}Obj`].balanceOf.call(address, (e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const tok = {...dai[name]};
+          const system = {...prevState.system};
+          const tok = {...system[name]};
           tok[field] = r;
-          dai[name] = tok;
-          return { dai };
+          system[name] = tok;
+          return { system };
         }, () => {
           if ((name === 'skr' || name === 'dai') && field === 'tubBalance') {
             this.calculateSafetyAndDeficit();
@@ -805,20 +805,20 @@ class App extends Component {
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.dai.tub.mat.gte(0) && this.state.dai.skr.tubBalance.gte(0) && this.state.dai.tub.tag.gte(0) && this.state.dai.sin.totalSupply.gte(0)) {
+    if (this.state.system.tub.mat.gte(0) && this.state.system.skr.tubBalance.gte(0) && this.state.system.tub.tag.gte(0) && this.state.system.sin.totalSupply.gte(0)) {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        const tub = {...dai.tub};
+        const system = {...prevState.system};
+        const tub = {...system.tub};
 
-        const pro = wmul(dai.skr.tubBalance, dai.tub.tag);
-        const con = dai.sin.totalSupply;
+        const pro = wmul(system.skr.tubBalance, system.tub.tag);
+        const con = system.sin.totalSupply;
         tub.eek = pro.lt(con);
 
         const min = wmul(con, tub.mat);
         tub.safe = pro.gte(min);
 
-        dai.tub = tub;
-        return { dai };
+        system.tub = tub;
+        return { system };
       });
     }
   }
@@ -828,14 +828,14 @@ class App extends Component {
       this.tubObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const tub = {...dai.tub};
+            const system = {...prevState.system};
+            const tub = {...system.tub};
             tub[field] = ray ? fromRaytoWad(value) : value;
-            dai.tub = tub;
-            return { dai };
+            system.tub = tub;
+            return { system };
           }, () => {
             this.getBoomBustValues();
-            Object.keys(this.state.dai.tub.cups).map(key =>
+            Object.keys(this.state.system.tub.cups).map(key =>
               this.updateCup(key)
             );
             if (callback) {
@@ -856,11 +856,11 @@ class App extends Component {
       this.tapObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const tap = {...dai.tap};
+            const system = {...prevState.system};
+            const tap = {...system.tap};
             tap[field] = ray ? fromRaytoWad(value) : value;
-            dai.tap = tap;
-            return { dai };
+            system.tap = tap;
+            return { system };
           }, () => {
             resolve(true);
           });
@@ -877,11 +877,11 @@ class App extends Component {
       this.voxObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const vox = {...dai.vox};
+            const system = {...prevState.system};
+            const vox = {...system.vox};
             vox[field] = ray ? fromRaytoWad(value) : value;
-            dai.vox = vox;
-            return { dai };
+            system.vox = vox;
+            return { system };
           }, () => {
             resolve(true);
           });
@@ -898,11 +898,11 @@ class App extends Component {
       this[`${obj}Obj`].peek.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const feed = {...dai[obj]};
+            const system = {...prevState.system};
+            const feed = {...system[obj]};
             feed.val = web3.toBigNumber(r[1] ? parseInt(r[0], 16) : -2);
-            dai[obj] = feed;
-            return { dai };
+            system[obj] = feed;
+            return { system };
           }, () => {
             if (obj === 'pip') {
               this.getBoomBustValues();
@@ -918,60 +918,60 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.dai.dai.tapBalance.gte(0)
-        //&& this.state.dai.sin.issuerFee.gte(0)
-        && this.state.dai.sin.tapBalance.gte(0)
-        && this.state.dai.vox.par.gte(0)
-        && this.state.dai.tub.tag.gte(0)
-        && this.state.dai.tap.gap.gte(0)
-        && this.state.dai.pip.val.gte(0)
-        && this.state.dai.skr.tapBalance.gte(0)
-        && this.state.dai.sin.tubBalance.gte(0)
-        && this.state.dai.tub.tax.gte(0)
-        && this.state.dai.skr.tapBalance.gte(0)
-        && this.state.dai.skr.totalSupply.gte(0)
-        && this.state.dai.gem.tubBalance.gte(0)) {
+    if (this.state.system.dai.tapBalance.gte(0)
+        //&& this.state.system.sin.issuerFee.gte(0)
+        && this.state.system.sin.tapBalance.gte(0)
+        && this.state.system.vox.par.gte(0)
+        && this.state.system.tub.tag.gte(0)
+        && this.state.system.tap.gap.gte(0)
+        && this.state.system.pip.val.gte(0)
+        && this.state.system.skr.tapBalance.gte(0)
+        && this.state.system.sin.tubBalance.gte(0)
+        && this.state.system.tub.tax.gte(0)
+        && this.state.system.skr.tapBalance.gte(0)
+        && this.state.system.skr.totalSupply.gte(0)
+        && this.state.system.gem.tubBalance.gte(0)) {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        const tub = {...dai.tub};
+        const system = {...prevState.system};
+        const tub = {...system.tub};
 
-        // const dif = dai.dai.tapBalance.add(dai.sin.issuerFee).minus(dai.sin.tapBalance); bust & boom don't execute drip anymore so we do not need to do the estimation
-        const dif = dai.dai.tapBalance.minus(dai.sin.tapBalance);
+        // const dif = system.dai.tapBalance.add(system.sin.issuerFee).minus(system.sin.tapBalance); bust & boom don't execute drip anymore so we do not need to do the estimation
+        const dif = system.dai.tapBalance.minus(system.sin.tapBalance);
         tub.avail_boom_dai = tub.avail_boom_skr = web3.toBigNumber(0);
         tub.avail_bust_dai = tub.avail_bust_skr = web3.toBigNumber(0);
 
         // if higher or equal, it means vox.par is static or increases over the time
         // if lower, it means it decreases over the time, so we calculate a future par (in 10 minutes) to reduce risk of tx failures
-        const futurePar = dai.vox.way.gte(WAD) ? dai.vox.par : dai.vox.par.times(web3.fromWei(dai.vox.way).pow(10*60));
+        const futurePar = system.vox.way.gte(WAD) ? system.vox.par : system.vox.par.times(web3.fromWei(system.vox.way).pow(10*60));
 
         if (dif.gt(0)) {
           // We can boom
           tub.avail_boom_dai = dif;
-          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_dai, futurePar), dai.tub.tag), WAD.times(2).minus(dai.tap.gap));
+          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_dai, futurePar), system.tub.tag), WAD.times(2).minus(system.tap.gap));
         }
 
-        if (dai.skr.tapBalance.gt(0) || dif.lt(0)) {
+        if (system.skr.tapBalance.gt(0) || dif.lt(0)) {
           // We can bust
 
           // This is a margin we need to take into account as bust quantity goes down per second
-          // const futureFee = dai.sin.tubBalance.times(web3.fromWei(tub.tax).pow(120)).minus(dai.sin.tubBalance).round(0); No Drip anymore!!!
+          // const futureFee = system.sin.tubBalance.times(web3.fromWei(tub.tax).pow(120)).minus(system.sin.tubBalance).round(0); No Drip anymore!!!
           // const daiNeeded = dif.abs().minus(futureFee);
           const daiNeeded = dif.gte(0) ? web3.toBigNumber(0) : dif.abs();
-          const equivalentSKR = wdiv(wdiv(wmul(daiNeeded, futurePar), dai.tub.tag), dai.tap.gap);
+          const equivalentSKR = wdiv(wdiv(wmul(daiNeeded, futurePar), system.tub.tag), system.tap.gap);
 
-          if (dai.skr.tapBalance.gte(equivalentSKR)) {
-            tub.avail_bust_skr = dai.skr.tapBalance;
-            tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, dai.vox.par), dai.tub.tag), dai.tap.gap);
+          if (system.skr.tapBalance.gte(equivalentSKR)) {
+            tub.avail_bust_skr = system.skr.tapBalance;
+            tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, system.vox.par), system.tub.tag), system.tap.gap);
             tub.avail_bust_dai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
           } else {
             tub.avail_bust_dai = daiNeeded;
-            // We need to consider the case where SKR needs to be minted generating a change in 'dai.tub.tag'
-            tub.avail_bust_skr = wdiv(dai.skr.totalSupply.minus(dai.skr.tapBalance), wdiv(wmul(wmul(dai.pip.val, dai.tap.gap), dai.gem.tubBalance), wmul(tub.avail_bust_dai, dai.vox.par)).minus(WAD));
+            // We need to consider the case where SKR needs to be minted generating a change in 'system.tub.tag'
+            tub.avail_bust_skr = wdiv(system.skr.totalSupply.minus(system.skr.tapBalance), wdiv(wmul(wmul(system.pip.val, system.tap.gap), system.gem.tubBalance), wmul(tub.avail_bust_dai, system.vox.par)).minus(WAD));
             tub.avail_bust_ratio = wdiv(tub.avail_bust_dai, tub.avail_bust_skr);
           }
         }
-        dai.tub = tub;
-        return { dai };
+        system.tub = tub;
+        return { system };
       });
     }
   }
@@ -979,12 +979,12 @@ class App extends Component {
   getCup = (idHex, address) => {
     this.tubObj.cups.call(idHex, (e, cupData) => {
       const id = parseInt(idHex, 16);
-      const firstLoad = typeof this.state.dai.tub.cups[id] === 'undefined';
+      const firstLoad = typeof this.state.system.tub.cups[id] === 'undefined';
       if (!address || address === cupData[0]) {
         // This verification needs to be done as the cup could have been given or closed by the user
         this.setState((prevState, props) => {
-          const dai = {...prevState.dai};
-          const tub = {...dai.tub};
+          const system = {...prevState.system};
+          const tub = {...system.tub};
           const cups = {...tub.cups};
           const cup = {
             lad: cupData[0],
@@ -995,14 +995,14 @@ class App extends Component {
           };
           cups[id] = cup;
           tub.cups = cups;
-          dai.tub = tub;
-          return { dai };
+          system.tub = tub;
+          return { system };
         }, () => {
           this.updateCup(id);
         });
       } else if(!firstLoad) {
         // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
-        delete this.state.dai.tub.cups[id];
+        delete this.state.system.tub.cups[id];
       }
     });
   }
@@ -1034,11 +1034,11 @@ class App extends Component {
   setChartState = (key, value) => {
     return new Promise((resolve, reject) => {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        const chartData = {...dai.chartData};
+        const system = {...prevState.system};
+        const chartData = {...system.chartData};
         chartData[key] = value;
-        dai.chartData = chartData;
-        return { dai };
+        system.chartData = chartData;
+        return { system };
       }, () => {
         resolve(value);
       });
@@ -1190,56 +1190,56 @@ class App extends Component {
   getStats = () => {
     Promise.resolve(this.getFromService('cupStats')).then((response) => {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        dai.stats = { error: false, results: response.results };
-        return { dai };
+        const system = {...prevState.system};
+        system.stats = { error: false, results: response.results };
+        return { system };
       });
     }).catch((error) => {
       this.setState((prevState, props) => {
-        const dai = {...prevState.dai};
-        dai.stats = { error: true };
-        return { dai };
+        const system = {...prevState.system};
+        system.stats = { error: true };
+        return { system };
       });
     });
   }
 
   tab = (cup) => {
-    return wmul(cup.art, this.state.dai.tub.chi).round(0);
+    return wmul(cup.art, this.state.system.tub.chi).round(0);
   }
 
   rap = (cup) => {
-    return wmul(cup.irk, this.state.dai.tub.rhi).minus(this.tab(cup)).round(0);
+    return wmul(cup.irk, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
   }
 
   updateCup = (id) => {
     this.setState((prevState, props) => {
-      const dai = {...prevState.dai};
-      const tub = {...dai.tub};
+      const system = {...prevState.system};
+      const tub = {...system.tub};
       const cups = {...tub.cups};
       const cup = {...cups[id]};
 
-      cup.pro = wmul(cup.ink, dai.tub.tag).round(0);
-      cup.ratio = cup.pro.div(wmul(this.tab(cup), dai.vox.par));
+      cup.pro = wmul(cup.ink, system.tub.tag).round(0);
+      cup.ratio = cup.pro.div(wmul(this.tab(cup), system.vox.par));
       // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
       const marginTax = web3.fromWei(tub.tax).pow(120);
-      cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, dai.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
-      cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, dai.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
+      cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
+      cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
       cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
-      cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), dai.vox.par), dai.tub.tag)).round(0);
-      cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), dai.vox.par), dai.tub.tag)).round(0);
+      cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), system.vox.par), system.tub.tag)).round(0);
+      cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), system.vox.par), system.tub.tag)).round(0);
       cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
-      cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), dai.tub.per), cup.ink) : web3.toBigNumber(0);
+      cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), system.tub.per), cup.ink) : web3.toBigNumber(0);
 
       cups[id] = cup;
       tub.cups = cups;
-      dai.tub = tub;
-      return { dai }
+      system.tub = tub;
+      return { system }
     }, () => {
       this.tubObj.safe['bytes32'].call(toBytes32(id), (e, safe) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const dai = {...prevState.dai};
-            const tub = {...dai.tub};
+            const system = {...prevState.system};
+            const tub = {...system.tub};
             const cups = {...tub.cups};
             const cup = {...cups[id]};
 
@@ -1247,8 +1247,8 @@ class App extends Component {
 
             cups[id] = cup;
             tub.cups = cups;
-            dai.tub = tub;
-            return { dai }
+            system.tub = tub;
+            return { system }
           });
         }
       });
@@ -1403,7 +1403,7 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.dai[object].address, false)}`,
+                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.system[object].address, false)}`,
                             log);
     } else {
       this[`${object}Obj`][method]({}, log);
@@ -1445,7 +1445,7 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.dai[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
+                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.system[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
                             log);
     } else {
       this[`${object}Obj`][method](web3.toWei(value), {}, log);
@@ -1548,15 +1548,15 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           if (operation === 'approve') {
             this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-              `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.dai[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
+              `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.system[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
               log);
           } else {
             this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-              `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.dai[dst].address, false)}${toBytes32(true, false)}`,
+              `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.system[dst].address, false)}${toBytes32(true, false)}`,
               log);
           }
         } else {
-          this[`${token}Obj`][operation](this.state.dai[dst].address, token === 'gem' ? valueObj : true, {}, log);
+          this[`${token}Obj`][operation](this.state.system[dst].address, token === 'gem' ? valueObj : true, {}, log);
         }
       }
     });
@@ -1597,13 +1597,13 @@ class App extends Component {
         break;
       case 'shut':
         // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.dai.tub.cups[cup]).times(web3.fromWei(this.state.dai.tub.tax).pow(120));
-        if (this.state.dai.dai.myBalance.lt(debt)) {
+        const debt = this.tab(this.state.system.tub.cups[cup]).times(web3.fromWei(this.state.system.tub.tax).pow(120));
+        if (this.state.system.dai.myBalance.lt(debt)) {
           error = `Not enough balance of DAI to shut CDP ${cup}.`;
         } else {
-          const futureGovFee = web3.fromWei(wdiv(this.state.dai.tub.fee, this.state.dai.tub.tax)).pow(180).round(0); // 3 minutes of future fee
-          const govDebt = wmul(wdiv(this.rap(this.state.dai.tub.cups[cup]), this.state.dai.pep.val), futureGovFee);
-          if (govDebt.gt(this.state.dai.gov.myBalance)) {
+          const futureGovFee = web3.fromWei(wdiv(this.state.system.tub.fee, this.state.system.tub.tax)).pow(180).round(0); // 3 minutes of future fee
+          const govDebt = wmul(wdiv(this.rap(this.state.system.tub.cups[cup]), this.state.system.pep.val), futureGovFee);
+          if (govDebt.gt(this.state.system.gov.myBalance)) {
             error = `Not enough balance of MKR to shut CDP ${cup}.`;
           } else {
             if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -1621,12 +1621,12 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value);
         } else {
-          const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.dai.tub.per).round().add(1).valueOf());
+          const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
           this.checkAllowance('gem', 'tub', valAllowanceJoin, ['executeMethodValue', 'tub', method, value]);
         }
         break;
       case 'exit':
-        value = this.state.dai.tub.off === true ? web3.fromWei(this.state.dai.skr.myBalance) : value;
+        value = this.state.system.tub.off === true ? web3.fromWei(this.state.system.skr.myBalance) : value;
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value);
         } else {
@@ -1644,7 +1644,7 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          // const valueDAI = wmul(web3.toBigNumber(value), this.state.dai.tub.avail_bust_ratio).ceil();
+          // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
           this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
         }
         break;
@@ -1671,9 +1671,9 @@ class App extends Component {
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, web3.fromWei(this.state.dai.dai.myBalance));
+          this.executeMethodValue('tap', method, web3.fromWei(this.state.system.dai.myBalance));
         } else {
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.dai.dai.myBalance)]);
+          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.system.dai.myBalance)]);
         }
         break;
       case 'vent':
@@ -1810,7 +1810,7 @@ class App extends Component {
     } else {
       this.setState({ profile }, () => {
         localStorage.setItem('mode', profile.mode);
-        this.initContracts(this.state.dai.top.address);
+        this.initContracts(this.state.system.top.address);
       });
     }
   }
@@ -1818,15 +1818,15 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      open: this.state.network.defaultAccount && this.state.dai.tub.off === false,
-      join: this.state.network.defaultAccount && this.state.dai.tub.off === false && this.state.dai.gem.myBalance.gt(0),
-      exit: this.state.network.defaultAccount && this.state.dai.skr.myBalance.gt(0)
-                          && (this.state.dai.tub.off === false ||
-                             (this.state.dai.tub.off === true && this.state.dai.tub.out === true && this.state.dai.sin.tubBalance.eq(0) && this.state.dai.skr.tapBalance.eq(0))),
-      bust: this.state.network.defaultAccount && this.state.dai.tub.off === false && this.state.dai.tub.avail_bust_dai && this.state.dai.tub.avail_bust_dai.gt(0),
-      boom: this.state.network.defaultAccount && this.state.dai.tub.off === false && this.state.dai.tub.avail_boom_dai && this.state.dai.tub.avail_boom_dai.gt(0),
-      heal: this.state.dai.dai.tapBalance.gt(0),
-      drip: this.state.dai.tub.off === false
+      open: this.state.network.defaultAccount && this.state.system.tub.off === false,
+      join: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
+      exit: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
+                          && (this.state.system.tub.off === false ||
+                             (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
+      bust: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
+      boom: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
+      heal: this.state.system.dai.tapBalance.gt(0),
+      drip: this.state.system.tub.off === false
     };
 
     const helpers = {
@@ -1839,9 +1839,9 @@ class App extends Component {
       drip: ''
     };
 
-    if (this.state.dai.tub.off === true) {
-      actions.cash = this.state.dai.dai.myBalance.gt(0);
-      actions.vent = this.state.dai.skr.tapBalance.gt(0);
+    if (this.state.system.tub.off === true) {
+      actions.cash = this.state.system.dai.myBalance.gt(0);
+      actions.vent = this.state.system.skr.tapBalance.gt(0);
       helpers.cash = 'Exchange your DAI for ETH at the cage price';
       helpers.vent = 'Clean up the CDP state after cage';
     }
@@ -1870,45 +1870,45 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo dai={ this.state.dai.dai.address } top={ this.state.dai.top.address } tub={ this.state.dai.tub.address } tap={ this.state.dai.tap.address } vox={ this.state.dai.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
+                <GeneralInfo dai={ this.state.system.dai.address } top={ this.state.system.top.address } tub={ this.state.system.tub.address } tap={ this.state.system.tap.address } vox={ this.state.system.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
-              <Token dai={ this.state.dai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.dai.tub.off } />
-              <Token dai={ this.state.dai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.dai.tub.off } />
-              <Token dai={ this.state.dai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
-              <Token dai={ this.state.dai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' />
-              {/* <Token dai={ this.state.dai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.system.tub.off } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.system.tub.off } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' />
+              {/* <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
               <div className="col-md-9 main">
                 {
                   settings.chain[this.state.network.network].service
-                  ? <Stats stats={ this.state.dai.stats } />
+                  ? <Stats stats={ this.state.system.stats } />
                   : ''
                 }
                 {
                   settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
-                  ? <PriceChart chartData={ this.state.dai.chartData } />
+                  ? <PriceChart chartData={ this.state.system.chartData } />
                   : ''
                 }
-                <SystemStatus dai={ this.state.dai } />
+                <SystemStatus system={ this.state.system } />
                 {
                   web3.isAddress(this.state.network.defaultAccount)
                   ?
                     <div className="row">
                       <div className="col-md-6">
-                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } dai={ this.state.dai } />
+                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } system={ this.state.system } />
                       </div>
                       <div className="col-md-6">
-                        <Transfer transferToken={ this.transferToken } dai={ this.state.dai } profile={ this.state.profile } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
+                        <Transfer transferToken={ this.transferToken } system={ this.state.system } profile={ this.state.profile } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
                       </div>
                     </div>
                   :
                     ''
                 }
-                <Cups dai={ this.state.dai } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
               </div>
               <div className="col-md-3 right-sidebar">
                 <div className="box">
@@ -1935,12 +1935,12 @@ class App extends Component {
                 </a>
                 {
                   this.state.network.defaultAccount
-                  ? <TokenAllowance dai={ this.state.dai } mode={ this.state.profile.mode } trust={ this.trust } trustAll={ this.trustAll } />
+                  ? <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } trust={ this.trust } trustAll={ this.trustAll } />
                   : ''
                 }
                 {
-                  this.state.dai.pip.address && this.state.network.network !== 'private' &&
-                  <FeedValue address={ this.state.dai.pip.address } pipVal={ this.state.dai.pip.val } />
+                  this.state.system.pip.address && this.state.network.network !== 'private' &&
+                  <FeedValue address={ this.state.system.pip.address } pipVal={ this.state.system.pip.val } />
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
               </div>
@@ -1950,7 +1950,7 @@ class App extends Component {
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
-          <Modal dai={ this.state.dai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } off={ this.state.dai.tub.off } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
+          <Modal system={ this.state.system } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

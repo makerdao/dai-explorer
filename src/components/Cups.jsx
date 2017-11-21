@@ -71,70 +71,70 @@ const Cups = (props) => {
               </thead>
               <tbody>
                 {
-                  Object.keys(props.dai.tub.cups).map(key =>
+                  Object.keys(props.system.tub.cups).map(key =>
                     <tr key={ key }>
                       <td>
                         { key }
                       </td>
                       <td>
-                        { printNumber(props.tab(props.dai.tub.cups[key])) }
+                        { printNumber(props.tab(props.system.tub.cups[key])) }
                       </td>
                       <td>
                         {
-                          props.dai.pep.val.gte(0)
-                          ? printNumber(wdiv(props.rap(props.dai.tub.cups[key]), props.dai.pep.val))
+                          props.system.pep.val.gte(0)
+                          ? printNumber(wdiv(props.rap(props.system.tub.cups[key]), props.system.pep.val))
                           : 'Loading...'
                         }
                       </td>
                       <td>
-                        { printNumber(props.dai.tub.cups[key].ink) }
+                        { printNumber(props.system.tub.cups[key].ink) }
                       </td>
                       <td>
                         {
-                          props.dai.skr.totalSupply.gte(0)
-                            ? props.dai.skr.totalSupply.gt(0)
-                              ? <span>{ printNumber(wdiv(props.dai.tub.cups[key].ink, props.dai.skr.totalSupply).times(100)) }%</span>
+                          props.system.skr.totalSupply.gte(0)
+                            ? props.system.skr.totalSupply.gt(0)
+                              ? <span>{ printNumber(wdiv(props.system.tub.cups[key].ink, props.system.skr.totalSupply).times(100)) }%</span>
                               : <span title="0">0.000%</span>
                             : 'Loading...'
                         }
                       </td>
-                      <td className={ props.dai.tub.off === false && props.dai.tub.cups[key].ratio && props.dai.tub.cups[key].art.gt(web3.toBigNumber(0))
-                                      ? (web3.toWei(props.dai.tub.cups[key].ratio).lte(props.dai.tub.mat.times(1.1))
+                      <td className={ props.system.tub.off === false && props.system.tub.cups[key].ratio && props.system.tub.cups[key].art.gt(web3.toBigNumber(0))
+                                      ? (web3.toWei(props.system.tub.cups[key].ratio).lte(props.system.tub.mat.times(1.1))
                                         ? 'error-color'
-                                        : (web3.toWei(props.dai.tub.cups[key].ratio).lte(props.dai.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
+                                        : (web3.toWei(props.system.tub.cups[key].ratio).lte(props.system.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
                                       : '' }>
                         {
-                          props.dai.tub.off === false
-                            ? props.dai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.dai.tub.cups[key].pro
+                          props.system.tub.off === false
+                            ? props.system.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.system.tub.cups[key].pro
                               ? <span>
-                                  { printNumber(web3.toWei(props.dai.tub.cups[key].ratio).times(100)) }%
+                                  { printNumber(web3.toWei(props.system.tub.cups[key].ratio).times(100)) }%
                                 </span>
                               : '-'
                             : '-'
                         }
                       </td>
                       <td>
-                        { props.dai.tub.off === false ? printNumber(props.dai.tub.cups[key].avail_dai) : '-' }
+                        { props.system.tub.off === false ? printNumber(props.system.tub.cups[key].avail_dai) : '-' }
                       </td>
                       <td>
-                        { props.dai.tub.off === false ? printNumber(props.dai.tub.cups[key].avail_skr) : '-' }
+                        { props.system.tub.off === false ? printNumber(props.system.tub.cups[key].avail_skr) : '-' }
                       </td>
                       <td>
-                        { props.dai.tub.off === false && props.dai.tub.cups[key].liq_price && props.dai.tub.cups[key].liq_price.gt(0) ? printNumber(props.dai.tub.cups[key].liq_price) : '-' }
+                        { props.system.tub.off === false && props.system.tub.cups[key].liq_price && props.system.tub.cups[key].liq_price.gt(0) ? printNumber(props.system.tub.cups[key].liq_price) : '-' }
                       </td>
-                      <td className={ `text-center ${ props.dai.tub.off === false ? (props.dai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.dai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
+                      <td className={ `text-center ${ props.system.tub.off === false ? (props.system.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.system.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                         {
-                          props.dai.tub.off === false
+                          props.system.tub.off === false
                           ?
-                            props.dai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
+                            props.system.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
                             ?
                               'Closed'
                             :
-                              props.dai.tub.cups[key].safe === 'N/A' || props.dai.pip.val.lt(0)
+                              props.system.tub.cups[key].safe === 'N/A' || props.system.pip.val.lt(0)
                               ?
                                 'N/A'
                               :
-                                props.dai.tub.cups[key].safe
+                                props.system.tub.cups[key].safe
                                 ?
                                   'Safe'
                                 :
@@ -149,7 +149,7 @@ const Cups = (props) => {
                         :<td></td>
                       }
                       <td className="text-left">
-                        { renderCupActions(props.dai.pip.val, props.profile, props.dai.tub.off, props.dai.skr.myBalance && props.dai.skr.myBalance.gt(0), key, props.dai.tub.cups[key], props.handleOpenModal) }
+                        { renderCupActions(props.system.pip.val, props.profile, props.system.tub.off, props.system.skr.myBalance && props.system.skr.myBalance.gt(0), key, props.system.tub.cups[key], props.handleOpenModal) }
                       </td>
                     </tr>
                   )

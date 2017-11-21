@@ -29,7 +29,7 @@ class Transfer extends Component {
       this.setState({ error: 'Invalid Address' });
     } else if (!amount) {
       this.setState({ error: 'Invalid Amount' });
-    } else if (this.props.dai[token].myBalance.lt(web3.toWei(amount))) {
+    } else if (this.props.system[token].myBalance.lt(web3.toWei(amount))) {
       this.setState({ error: `Not enough balance to transfer ${amount} ${token}` });
     } else if (token) {
       this.props.transferToken(token, to, amount);

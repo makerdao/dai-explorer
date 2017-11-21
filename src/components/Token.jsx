@@ -3,10 +3,10 @@ import AnimatedNumber from '../AnimatedNumber';
 import { formatNumber, copyToClipboard, etherscanToken } from '../helpers';
 
 const Token = (props) => {
-  const token = props.dai[props.token];
-  // const totalSupply = props.token === 'dai' || props.token === 'sin' ? token.totalSupply.add(props.dai.sin.issuerFee) : token.totalSupply;
-  // const tapBalance = props.token === 'dai' ? token.tapBalance.add(props.dai.sin.issuerFee) : token.tapBalance;
-  // const tubBalance = props.token === 'sin' ? token.tubBalance.add(props.dai.sin.issuerFee) : token.tubBalance;
+  const token = props.system[props.token];
+  // const totalSupply = props.token === 'dai' || props.token === 'sin' ? token.totalSupply.add(props.system.sin.issuerFee) : token.totalSupply;
+  // const tapBalance = props.token === 'dai' ? token.tapBalance.add(props.system.sin.issuerFee) : token.tapBalance;
+  // const tubBalance = props.token === 'sin' ? token.tubBalance.add(props.system.sin.issuerFee) : token.tubBalance;
   const name = props.token === 'gem' ? 'WETH' : (props.token === 'gov' ? 'MKR' : props.token);
   const totalSupply = token.totalSupply;
   const tapBalance = token.tapBalance;
@@ -56,7 +56,7 @@ const Token = (props) => {
             token.tubBalance
             ?
               <span className="info-box-number">
-                <span title={ tubBalanceDesc }>{ etherscanToken(props.network, tubBalanceLabel, token.address, props.dai.tub.address) }</span>
+                <span title={ tubBalanceDesc }>{ etherscanToken(props.network, tubBalanceLabel, token.address, props.system.tub.address) }</span>
                 <AnimatedNumber
                   value={ tubBalance }
                   title={ formatNumber(tubBalance, 18) }
@@ -71,7 +71,7 @@ const Token = (props) => {
             token.tapBalance && (props.token !== 'gem' || props.off === true)
             ?
               <span className="info-box-number">
-                <span title={ tapBalanceDesc }>{ etherscanToken(props.network, tapBalanceLabel, token.address, props.dai.tap.address) }</span>
+                <span title={ tapBalanceDesc }>{ etherscanToken(props.network, tapBalanceLabel, token.address, props.system.tap.address) }</span>
                 <AnimatedNumber
                   value={ tapBalance }
                   title={ formatNumber(tapBalance, 18) }
@@ -86,7 +86,7 @@ const Token = (props) => {
             token.pitBalance
             ?
               <span className="info-box-number">
-                <span title="Burner">{ etherscanToken(props.network, "Burner", token.address, props.dai.pit.address) }</span>
+                <span title="Burner">{ etherscanToken(props.network, "Burner", token.address, props.system.pit.address) }</span>
                 <AnimatedNumber
                   value={ token.pitBalance }
                   title={ formatNumber(token.pitBalance, 18) }

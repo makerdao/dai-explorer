@@ -26,26 +26,26 @@ class Modal extends Component {
     let value = web3.toBigNumber(0);
     switch(this.props.modal.method) {
       case 'join':
-        value = wdiv(this.props.dai.gem.myBalance, this.props.dai.tub.per);
+        value = wdiv(this.props.system.gem.myBalance, this.props.system.tub.per);
         break;
       case 'exit':
       case 'lock':
-        value = this.props.dai.skr.myBalance;
+        value = this.props.system.skr.myBalance;
         break;
       case 'free':
-        value = this.props.dai.tub.cups[this.props.modal.cup].avail_skr_with_margin;
+        value = this.props.system.tub.cups[this.props.modal.cup].avail_skr_with_margin;
         break;
       case 'draw':
-        value = this.props.dai.tub.cups[this.props.modal.cup].avail_dai_with_margin;
+        value = this.props.system.tub.cups[this.props.modal.cup].avail_dai_with_margin;
         break;
       case 'wipe':
-        value = web3.BigNumber.min(this.props.dai.dai.myBalance, this.props.tab(this.props.dai.tub.cups[this.props.modal.cup]));
+        value = web3.BigNumber.min(this.props.system.dai.myBalance, this.props.tab(this.props.system.tub.cups[this.props.modal.cup]));
         break;
       case 'boom':
-        value = this.props.dai.tub.avail_boom_skr.floor();
+        value = this.props.system.tub.avail_boom_skr.floor();
         break;
       case 'bust':
-        value = this.props.dai.tub.avail_bust_skr.floor();
+        value = this.props.system.tub.avail_bust_skr.floor();
         break;
       default:
         break;
@@ -157,7 +157,7 @@ class Modal extends Component {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.gem.myBalance.lt(valueWei)) {
+          if (this.props.system.gem.myBalance.lt(valueWei)) {
             error = 'Not enough balance to join this amount of WETH.';
             this.submitEnabled = false;
           }
@@ -165,7 +165,7 @@ class Modal extends Component {
         }
         break;
       case 'exit':
-        if (this.props.off === true) {
+        if (this.props.system.tub.off === true) {
           text = 'Are you sure you want to exit all your SKR?';
           if (!this.props.proxyEnabled) {
             text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
@@ -183,7 +183,7 @@ class Modal extends Component {
             const valueWei = web3.toBigNumber(web3.toWei(value));
             let error = '';
             this.submitEnabled = true;
-            if (this.props.dai.skr.myBalance.lt(valueWei)) {
+            if (this.props.system.skr.myBalance.lt(valueWei)) {
               error = 'Not enough balance to exit this amount of SKR.';
               this.submitEnabled = false;
             }
@@ -201,10 +201,10 @@ class Modal extends Component {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.tub.avail_boom_skr.lt(valueWei)) {
+          if (this.props.system.tub.avail_boom_skr.lt(valueWei)) {
             error = 'Not enough SKR in the system to boom this amount of SKR.';
             this.submitEnabled = false;
-          } else if (this.props.dai.skr.myBalance.lt(valueWei)) {
+          } else if (this.props.system.skr.myBalance.lt(valueWei)) {
             error = 'Not enough balance of SKR to boom this amount of SKR.';
             this.submitEnabled = false;
           }
@@ -218,14 +218,14 @@ class Modal extends Component {
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
-          const valueDAI = wmul(web3.toBigNumber(value), this.props.dai.tub.avail_bust_ratio);
+          const valueDAI = wmul(web3.toBigNumber(value), this.props.system.tub.avail_bust_ratio);
           const valueDAIWei = web3.toBigNumber(web3.toWei(valueDAI)).floor();
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.tub.avail_bust_dai.lt(valueDAIWei)) {
+          if (this.props.system.tub.avail_bust_dai.lt(valueDAIWei)) {
             error = 'Not enough DAI in the system to bust this amount of SKR.';
             this.submitEnabled = false;
-          } else if (this.props.dai.dai.myBalance.lt(valueDAIWei)) {
+          } else if (this.props.system.dai.myBalance.lt(valueDAIWei)) {
             error = 'Not enough balance of DAI to bust this amount of SKR.';
             this.submitEnabled = false;
           }
@@ -242,7 +242,7 @@ class Modal extends Component {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.skr.myBalance.lt(valueWei)) {
+          if (this.props.system.skr.myBalance.lt(valueWei)) {
             error = 'Not enough balance to lock this amount of SKR.';
             this.submitEnabled = false;
           }
@@ -257,10 +257,10 @@ class Modal extends Component {
           const cup = this.props.modal.cup;
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.tub.cups[cup].avail_skr.lt(valueWei)) {
+          if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
             error = 'This amount of SKR exceeds the maximum available to free.';
             this.submitEnabled = false;
-          } else if (this.props.dai.tub.off === false && this.props.dai.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.dai.tub.cups[cup].avail_skr.times(0.9))) {
+          } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
             error = 'This amount puts your CDP in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -274,13 +274,13 @@ class Modal extends Component {
           const cup = this.props.modal.cup;
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.sin.totalSupply.add(valueWei).gt(this.props.dai.tub.hat)) {
+          if (this.props.system.sin.totalSupply.add(valueWei).gt(this.props.system.tub.hat)) {
             error = 'This amount of DAI exceeds the system debt ceiling.';
             this.submitEnabled = false;
-          } else if (this.props.dai.tub.cups[cup].avail_dai.lt(valueWei)) {
+          } else if (this.props.system.tub.cups[cup].avail_dai.lt(valueWei)) {
             error = 'This amount of DAI exceeds the maximum available to draw.';
             this.submitEnabled = false;
-          } else if (valueWei.gt(this.props.dai.tub.cups[cup].avail_dai.times(0.9))) {
+          } else if (valueWei.gt(this.props.system.tub.cups[cup].avail_dai.times(0.9))) {
             error = 'This amount puts your CDP in risk to be liquidated';
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -297,28 +297,28 @@ class Modal extends Component {
           const cup = this.props.modal.cup;
           let error = '';
           this.submitEnabled = true;
-          if (this.props.dai.dai.myBalance.lt(valueWei)) {
+          if (this.props.system.dai.myBalance.lt(valueWei)) {
             error = 'Not enough balance of DAI to wipe this amount.';
             this.submitEnabled = false;
-          } else if (this.props.tab(this.props.dai.tub.cups[cup]).lt(valueWei)) {
+          } else if (this.props.tab(this.props.system.tub.cups[cup]).lt(valueWei)) {
             error = `Debt in CDP ${cup} is lower than this amount of DAI.`;
             this.submitEnabled = false;
           } else {
-            const futureGovFee = web3.fromWei(wdiv(this.props.dai.tub.fee, this.props.dai.tub.tax)).pow(180).round(0); // 3 minutes of future fee
+            const futureGovFee = web3.fromWei(wdiv(this.props.system.tub.fee, this.props.system.tub.tax)).pow(180).round(0); // 3 minutes of future fee
             const govDebt = wmul(
                               wmul(
                                 wmul(
                                   valueWei,
                                   wdiv(
-                                    this.props.rap(this.props.dai.tub.cups[cup]),
-                                    this.props.tab(this.props.dai.tub.cups[cup])
+                                    this.props.rap(this.props.system.tub.cups[cup]),
+                                    this.props.tab(this.props.system.tub.cups[cup])
                                   )
                                 ),
-                                this.props.dai.pep.val
+                                this.props.system.pep.val
                               ),
                               futureGovFee
                             );
-            if (govDebt.gt(this.props.dai.gov.myBalance)) {
+            if (govDebt.gt(this.props.system.gov.myBalance)) {
               error = `Not enough balance of MKR to wipe this amount.`;
               this.submitEnabled = false;
             }
