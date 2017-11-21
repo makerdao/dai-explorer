@@ -147,6 +147,18 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
+              <strong>Total Bad Debt</strong>
+              <span>
+                {
+                  props.system.sin.tapBalance.gte(0)
+                  ?
+                    printNumber(props.system.sin.tapBalance)
+                  :
+                    'Loading...'
+                }
+              </span>
+            </div>
+            <div>
               <strong title="Whether the system is at less than 100% overall collateralisation">Deficit</strong>
               <span>{ props.system.tub.off === false ? (props.system.tub.eek !== 'undefined' ? (props.system.tub.eek ? 'YES' : 'NO') : 'Loading...') : '-' }</span>
             </div>
