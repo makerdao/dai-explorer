@@ -1930,6 +1930,9 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
+                <a className="resource buy-sai" href="https://oasisdex.com" target="_blank" rel="noopener noreferrer" >
+                  <span>Buy SAI</span>
+                </a>
                 {
                   this.state.network.defaultAccount
                   ? <TokenAllowance sai={ this.state.sai } mode={ this.state.profile.mode } trust={ this.trust } trustAll={ this.trustAll } />
