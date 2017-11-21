@@ -68,7 +68,15 @@ class Modal extends Component {
     )
   }
 
-  renderInputForm = (type, cond) => {
+  renderInputTextForm = () => {
+    return this.renderInputForm('text', );
+  }
+
+  renderInputNumberForm = () => {
+    return this.renderInputForm('number', );
+  }
+
+  renderInputForm = (type) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
@@ -111,19 +119,19 @@ class Modal extends Component {
     };
 
     let text = '';
-    let type = '';
+    let renderForm = '';
     this.cond = () => { return false };
     switch(modal.method) {
       case 'proxy':
         text = '';
         text = '[ADD EXPLANATION WHAT IS A PROFILE].<br />' +
         'Are you sure you want to create a Profile?';
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'open':
         text = 'Are you sure you want to open a new CDP?';
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'shut':
@@ -131,12 +139,12 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';;
         }
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'bite':
         text = `Are you sure you want to bite CDP ${modal.cup}?`;
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'join':
@@ -144,7 +152,7 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         }
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
@@ -162,14 +170,14 @@ class Modal extends Component {
           if (!this.props.proxyEnabled) {
             text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           }
-          type = 'yesno';
+          renderForm = 'renderYesNoForm';
           this.submitEnabled = true;
         } else {
           text = 'Please set amount of collateral (SKR) you want to convert to WETH.';
           if (!this.props.proxyEnabled) {
             text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
           }
-          type = 'number';
+          renderForm = 'renderInputNumberForm';
 
           this.cond = (value) => {
             const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -188,7 +196,7 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
         }
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
@@ -208,7 +216,7 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         }
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueSAI = wmul(web3.toBigNumber(value), this.props.sai.tub.avail_bust_ratio);
           const valueSAIWei = web3.toBigNumber(web3.toWei(valueSAI)).floor();
@@ -229,7 +237,7 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
         }
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
@@ -243,7 +251,7 @@ class Modal extends Component {
         break;
       case 'free':
         text = `Please set amount of collateral (SKR) you want to withdraw from CDP ${modal.cup}`;
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           const cup = this.props.modal.cup;
@@ -260,7 +268,7 @@ class Modal extends Component {
         break;
       case 'draw':
         text = `Please set amount of SAI you want to mint from your locked collateral (SKR) in CDP ${modal.cup}`;
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           const cup = this.props.modal.cup;
@@ -283,7 +291,7 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
         }
-        type = 'number';
+        renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           const cup = this.props.modal.cup;
@@ -320,7 +328,7 @@ class Modal extends Component {
         break;
       case 'give':
         text = `Please set the new address to be owner of CDP ${modal.cup}`;
-        type = 'text';
+        renderForm = 'renderInputTextForm';
         this.submitEnabled = true;
         break;
       case 'cash':
@@ -328,22 +336,22 @@ class Modal extends Component {
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         }
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'vent':
         text = 'Are you sure you want to vent the system?';
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'drip':
         text = 'Are you sure you want to drip the system?';
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'heal':
         text = 'Are you sure you want to heal the system?';
-        type = 'yesno';
+        renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       default:
@@ -358,7 +366,7 @@ class Modal extends Component {
         <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
-          { type === 'yesno' ? this.renderYesNoForm() : this.renderInputForm(type) }
+          { renderForm ? this[renderForm]() : '' }
         </div>
       </ReactModal>
     )

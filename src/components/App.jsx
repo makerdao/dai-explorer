@@ -1578,7 +1578,6 @@ class App extends Component {
               if (!e) {
                 const profile = { ...this.state.profile }
                 profile.proxy = r.args.proxy;
-                console.log('aaa');
                 this.setState({ profile }, () => {
                   this.changeMode();
                 });
