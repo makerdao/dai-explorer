@@ -32,12 +32,12 @@ class Modal extends Component {
       case 'lock':
         value = this.props.system.skr.myBalance;
         break;
-      case 'free':
-        value = this.props.system.tub.cups[this.props.modal.cup].avail_skr_with_margin;
-        break;
-      case 'draw':
-        value = this.props.system.tub.cups[this.props.modal.cup].avail_dai_with_margin;
-        break;
+      // case 'free':
+      //   value = this.props.system.tub.cups[this.props.modal.cup].avail_skr_with_margin;
+      //   break;
+      // case 'draw':
+      //   value = this.props.system.tub.cups[this.props.modal.cup].avail_dai_with_margin;
+      //   break;
       case 'wipe':
         value = web3.BigNumber.min(this.props.system.dai.myBalance, this.props.tab(this.props.system.tub.cups[this.props.modal.cup]));
         break;
@@ -68,20 +68,20 @@ class Modal extends Component {
     )
   }
 
-  renderInputTextForm = () => {
-    return this.renderInputForm('text', );
+  renderInputTextForm = (method) => {
+    return this.renderInputForm('text', method);
   }
 
-  renderInputNumberForm = () => {
-    return this.renderInputForm('number', );
+  renderInputNumberForm = (method) => {
+    return this.renderInputForm('number', method);
   }
 
-  renderInputForm = (type) => {
+  renderInputForm = (type, method) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
         {
-          type === 'number'
+          type === 'number' && method !== 'draw' && method !== 'free'
           ? <span>&nbsp;<a href="#action" onClick={ this.setMax }>Set max</a></span>
           : ''
         }
@@ -366,7 +366,7 @@ class Modal extends Component {
         <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
         <div>
           <p dangerouslySetInnerHTML={{__html: text}} />
-          { renderForm ? this[renderForm]() : '' }
+          { renderForm ? this[renderForm](modal.method) : '' }
         </div>
       </ReactModal>
     )
