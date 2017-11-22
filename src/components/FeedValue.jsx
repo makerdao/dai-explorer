@@ -92,12 +92,12 @@ class FeedValue extends React.Component {
                   this.state.last
                   ?
                     <p>
-                      Minimum Valid Sources: <strong>{ this.state.min }</strong> - Total: <strong>{ this.state.last }</strong>
+                      Minimum Valid Sources: <strong>{ this.state.min }</strong> - Total: <strong>{ this.state.values.filter(x => x !== "0x0000000000000000000000000000000000000000").length }</strong>
                     </p>
                   :
                     ''
                 }
-                { this.state.values.map(x => <DSValue key={ x } address={ x } />) }
+                { this.state.values.filter(x => x !== "0x0000000000000000000000000000000000000000").map(x => <DSValue key={ x } address={ x } />) }
                 <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/feeds/#${this.props.address}` }>Details</a>
               </div>
             </div>
