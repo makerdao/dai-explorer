@@ -15,9 +15,9 @@
       }
     },
     "kovan": {
-      "top": "0xa1e472b98dc3fb2c04cdbe7362c479bd6d4b1d7e",
+      "top": "",
       "faucet": "",
-      "fromBlock": 4821152,
+      "fromBlock": 0,
       "service": "",
       "chart": false,
       "proxyFactory": "0x69f6b4a4bB058DE233F2C1c6eF3D79830a7Ba9e6",
