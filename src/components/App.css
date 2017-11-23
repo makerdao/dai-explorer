@@ -454,17 +454,17 @@ a.resource span {
   margin: 10px 0 0 10px;
 }
 
-.trust span {
+.allowance span {
   display: block;
   float: left;
 }
 
-.trust > div > span:first-child {
+.allowance > div > span:first-child {
   clear: left;
   width: 40px;
 }
 
-.trust > div > span:nth-child(2) {
+.allowance > div > span:nth-child(2) {
   width: 80px;
 }
 
@@ -490,12 +490,12 @@ a.resource span {
   box-sizing: border-box;
 }
 .onoffswitch-inner:before {
-  content: "Trusted";
+  content: "Approved";
   padding-left: 10px;
   background-color: #34A7C1; color: #FFFFFF;
 }
 .onoffswitch-inner:after {
-  content: "Untrusted";
+  content: "Denied";
   padding-right: 10px;
   background-color: #EEEEEE; color: #999999;
   text-align: right;

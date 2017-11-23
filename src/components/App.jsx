@@ -126,7 +126,7 @@ class App extends Component {
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
-          tubTrusted: -1,
+          tubApproved: -1,
         },
         skr: {
           address: null,
@@ -134,16 +134,16 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
           tubBalance: web3.toBigNumber(-1),
           tapBalance: web3.toBigNumber(-1),
-          tubTrusted: -1,
-          tapTrusted: -1,
+          tubApproved: -1,
+          tapApproved: -1,
         },
         dai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
           tapBalance: web3.toBigNumber(-1),
-          tubTrusted: -1,
-          tapTrusted: -1,
+          tubApproved: -1,
+          tapApproved: -1,
         },
         sin: {
           address: null,
@@ -523,7 +523,7 @@ class App extends Component {
     } else {
       filters.push('Mint');
       filters.push('Burn');
-      filters.push('Trust');
+      filters.push('Approval');
     }
 
     for (let i = 0; i < filters.length; i++) {
@@ -718,9 +718,9 @@ class App extends Component {
       this.getParameterFromTub('per', true);
     }
     if (token === 'skr' || token === 'dai' || token === 'gov') {
-      this.getTrust(token, 'tub');
+      this.getApproval(token, 'tub');
       if (token !== 'gov') {
-        this.getTrust(token, 'tap');
+        this.getApproval(token, 'tap');
       }
     }
     if (token === 'gov') {
@@ -728,12 +728,12 @@ class App extends Component {
     }
   }
 
-  getTrust = (token, dst) => {
-    Promise.resolve(this.trusted(token, dst)).then(r => {
+  getApproval = (token, dst) => {
+    Promise.resolve(this.allowance(token, dst)).then(r => {
       this.setState((prevState, props) => {
         const system = {...prevState.system};
         const tok = {...system[token]};
-        tok[`${dst}Trusted`] = r;
+        tok[`${dst}Approved`] = r.eq(web3.toBigNumber(2).pow(256).minus(1));
         system[token] = tok;
         return { system };
       });
@@ -1473,18 +1473,6 @@ class App extends Component {
     }
   }
 
-  trusted = (token, dst) => {
-    return new Promise((resolve, reject) => {
-      this[`${token}Obj`].trusted.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
-    });
-  }
-
   allowance = (token, dst) => {
     return new Promise((resolve, reject) => {
       this[`${token}Obj`].allowance.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
@@ -1505,15 +1493,11 @@ class App extends Component {
   checkAllowance = (token, dst, value, callback) => {
     let promise;
     let valueObj;
-    if (token === 'gem') {
-      valueObj = web3.toBigNumber(web3.toWei(value));
-      promise = this.allowance(token, dst);
-    } else {
-      promise = this.trusted(token, dst);
-    }
+    valueObj = web3.toBigNumber(web3.toWei(value));
+    promise = this.allowance(token, dst);
 
     Promise.resolve(promise).then((r) => {
-      if ((token === 'gem' && r.gte(valueObj)) || (token !== 'gem' && r)) {
+      if (r.gte(valueObj)) {
         this.executeCallback(callback);
       } else {
         const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
@@ -1533,9 +1517,8 @@ class App extends Component {
             tub: 'Wipe/Shut'
           }
         }
-        const operation = token === 'gem' ? 'approve' : 'trust';
         const id = Math.random();
-        const title = `${tokenName}: ${operation} ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`;
+        const title = `${tokenName}: approve ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`;
         this.logRequestTransaction(id, title);
         const log = (e, tx) => {
           if (!e) {
@@ -1545,19 +1528,7 @@ class App extends Component {
             this.logTransactionRejected(id, title);
           }
         }
-        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          if (operation === 'approve') {
-            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-              `${this.methodSig('approve(address,address,uint256)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.system[dst].address, false)}${toBytes32(valueObj.valueOf(), false)}`,
-              log);
-          } else {
-            this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-              `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this.state.system[dst].address, false)}${toBytes32(true, false)}`,
-              log);
-          }
-        } else {
-          this[`${token}Obj`][operation](this.state.system[dst].address, token === 'gem' ? valueObj : true, {}, log);
-        }
+        this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
       }
     });
   }
@@ -1671,9 +1642,9 @@ class App extends Component {
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, web3.fromWei(this.state.system.dai.myBalance));
+          this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.system.dai.myBalance)]);
+          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'vent':
@@ -1746,7 +1717,7 @@ class App extends Component {
     }
   }
 
-  trust = (token, dst, val) => {
+  approve = (token, dst, val) => {
     const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
     const action = {
       skr: {
@@ -1762,7 +1733,7 @@ class App extends Component {
       }
     }
     const id = Math.random();
-    const title = `${tokenName}: ${val ? 'trust': 'deny'} ${action[token][dst]}`;
+    const title = `${tokenName}: ${val ? 'approve': 'deny'} ${action[token][dst]}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -1774,16 +1745,16 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-                            `${this.methodSig('trust(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
-                            log);
+        `${this.methodSig('approve(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
+        log);
     } else {
-      this[`${token}Obj`].trust(this[`${dst}Obj`].address, val, (e, tx) => log(e, tx));
+      this[`${token}Obj`].approve(this[`${dst}Obj`].address, val ? -1 : 0, (e, tx) => log(e, tx));
     }
   }
 
-  trustAll = (val) => {
+  approveAll = (val) => {
     const id = Math.random();
-    const title = `SKR/DAI: ${val ? 'trust': 'deny'} all`;
+    const title = `SKR/DAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -1795,7 +1766,7 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.customActions,
-                            `${this.methodSig('trustAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
+                            `${this.methodSig('approveAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
                             log);
     }
   }
@@ -1935,7 +1906,7 @@ class App extends Component {
                 </a>
                 {
                   this.state.network.defaultAccount
-                  ? <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } trust={ this.trust } trustAll={ this.trustAll } />
+                  ? <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } approve={ this.approve } approveAll={ this.approveAll } />
                   : ''
                 }
                 {

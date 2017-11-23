@@ -9,40 +9,22 @@
       "chart": false,
       "proxyFactory": "",
       "proxyContracts": {
-        "open": "",
-        "join": "",
-        "exit": "",
-        "lock": "",
-        "free": "",
-        "draw": "",
-        "wipe": "",
-        "give": "",
-        "shut": "",
-        "bite": "",
-        "bust": "",
-        "boom": "",
-        "cash": "",
-        "drip": "",
-        "heal": "",
-        "trust": "",
-        "approve": "",
-        "transfer": "",
-        "deposit": "",
-        "withdraw": "",
-        "trustAll": ""
+        "basicActions": "",
+        "customActions": "",
+        "tokenActions": ""
       }
     },
     "kovan": {
-      "top": "0x7b204f5532db0932dc1b2d133eedeaea846b06f8",
+      "top": "0x8403b31cc9d9a76adeaf0b1bd7f66444c88bb876",
       "faucet": "",
-      "fromBlock": 3922760,
+      "fromBlock": 4801537,
       "service": "",
       "chart": false,
       "proxyFactory": "0x69f6b4a4bB058DE233F2C1c6eF3D79830a7Ba9e6",
       "proxyContracts": {
-        "basicActions": "0x288759492e8ac2d5d90df664e8f7eb53ff33b22c",
-        "customActions": "0xe877bb0e1ee6573dba3a104be47ec33c4e28b8f8",
-        "tokenActions": "0x8c97e79894a26212ea06f6428205e98b0d825ba6"
+        "basicActions": "0xce12c0e8ae212fa4967a6c922321d2527f97adcf",
+        "customActions": "0x96d65bc43c36a5040f53390ff84321b0bb93c76a",
+        "tokenActions": "0xae973cc5f8549d8115f444bc45b795940c8626e3"
       }
     },
     "main": {
@@ -53,27 +35,9 @@
       "chart": false,
       "proxyFactory": "",
       "proxyContracts": {
-        "open": "",
-        "join": "",
-        "exit": "",
-        "lock": "",
-        "free": "",
-        "draw": "",
-        "wipe": "",
-        "give": "",
-        "shut": "",
-        "bite": "",
-        "bust": "",
-        "boom": "",
-        "cash": "",
-        "drip": "",
-        "heal": "",
-        "trust": "",
-        "approve": "",
-        "transfer": "",
-        "deposit": "",
-        "withdraw": "",
-        "trustAll": ""
+        "basicActions": "",
+        "customActions": "",
+        "tokenActions": ""
       }
     }
   }

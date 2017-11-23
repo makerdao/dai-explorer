@@ -11,16 +11,16 @@ class TokenAllowance extends Component {
     const val = e.target.getAttribute('data-val') === 'true';
 
     if (token === 'all') {
-      this.props.trustAll(val);
+      this.props.approveAll(val);
     } else {
-      this.props.trust(token, dst, val);
+      this.props.approve(token, dst, val);
     }
   }
 
   onOff = (token, dstAux = null) => {
     const check = token === 'all'
-                  ? this.props.system.skr.tubTrusted && this.props.system.skr.tapTrusted && this.props.system.dai.tubTrusted && this.props.system.dai.tapTrusted
-                  : this.props.system[token][`${dstAux}Trusted`]
+                  ? this.props.system.skr.tubApproved && this.props.system.skr.tapApproved && this.props.system.dai.tubApproved && this.props.system.dai.tapApproved
+                  : this.props.system[token][`${dstAux}Approved`]
     const dst = token === 'all' ? 'all' : dstAux;
     return (
       <div className="onoffswitch">
@@ -42,7 +42,7 @@ class TokenAllowance extends Component {
         <div className="box-body">
           <div className="row">
             <div className="col-md-12">
-              <div className="trust">
+              <div className="allowance">
                 {
                   this.props.mode === 'proxy'
                   ?
@@ -51,7 +51,7 @@ class TokenAllowance extends Component {
                       <span>&nbsp;</span>
                       <span>
                         {
-                          this.props.system.skr.tubTrusted === -1 || this.props.system.skr.tapTrusted === -1 || this.props.system.gov.tubTrusted === -1 || this.props.system.dai.tubTrusted === -1 || this.props.system.dai.tapTrusted === -1
+                          this.props.system.skr.tubApproved === -1 || this.props.system.skr.tapApproved === -1 || this.props.system.gov.tubApproved === -1 || this.props.system.dai.tubApproved === -1 || this.props.system.dai.tapApproved === -1
                           ? 'Loading...'
                           : this.onOff('all')
                         }
@@ -64,7 +64,7 @@ class TokenAllowance extends Component {
                   <span>Exit/Lock</span>
                   <span>
                     {
-                      this.props.system.skr.tubTrusted === -1
+                      this.props.system.skr.tubApproved === -1
                       ? 'Loading...'
                       : this.onOff('skr', 'tub')
                     }
@@ -75,7 +75,7 @@ class TokenAllowance extends Component {
                   <span>Boom</span>
                   <span>
                     {
-                      this.props.system.skr.tapTrusted === -1
+                      this.props.system.skr.tapApproved === -1
                       ? 'Loading...'
                       : this.onOff('skr', 'tap')
                     }
@@ -86,7 +86,7 @@ class TokenAllowance extends Component {
                   <span>Wipe/Shut</span>
                   <span>
                     {
-                      this.props.system.gov.tubTrusted === -1
+                      this.props.system.gov.tubApproved === -1
                       ? 'Loading...'
                       : this.onOff('gov', 'tub')
                     }
@@ -97,7 +97,7 @@ class TokenAllowance extends Component {
                   <span>Wipe/Shut</span>
                   <span>
                     {
-                      this.props.system.dai.tubTrusted === -1
+                      this.props.system.dai.tubApproved === -1
                       ? 'Loading...'
                       : this.onOff('dai', 'tub')
                     }
@@ -108,7 +108,7 @@ class TokenAllowance extends Component {
                   <span>Bust/Cash</span>
                   <span>
                     {
-                      this.props.system.dai.tapTrusted === -1
+                      this.props.system.dai.tapApproved === -1
                       ? 'Loading...'
                       : this.onOff('dai', 'tap')
                     }

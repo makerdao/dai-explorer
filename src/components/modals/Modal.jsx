@@ -32,9 +32,9 @@ class Modal extends Component {
       case 'lock':
         value = this.props.system.skr.myBalance;
         break;
-      // case 'free':
-      //   value = this.props.system.tub.cups[this.props.modal.cup].avail_skr_with_margin;
-      //   break;
+      case 'free':
+        value = this.props.system.tub.cups[this.props.modal.cup].avail_skr_with_margin;
+        break;
       // case 'draw':
       //   value = this.props.system.tub.cups[this.props.modal.cup].avail_dai_with_margin;
       //   break;
@@ -46,6 +46,9 @@ class Modal extends Component {
         break;
       case 'bust':
         value = this.props.system.tub.avail_bust_skr.floor();
+        break;
+      case 'cash':
+        value = this.props.system.dai.myBalance;
         break;
       default:
         break;
@@ -81,7 +84,7 @@ class Modal extends Component {
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
         {
-          type === 'number' && method !== 'draw' && method !== 'free'
+          type === 'number' && method !== 'draw' && (method !== 'free' || this.props.system.tub.off)
           ? <span>&nbsp;<a href="#action" onClick={ this.setMax }>Set max</a></span>
           : ''
         }
@@ -124,7 +127,7 @@ class Modal extends Component {
     switch(modal.method) {
       case 'proxy':
         text = '';
-        text = '[ADD EXPLANATION WHAT IS A PROFILE].<br />' +
+        text = '[ADD EXPLANATION WHAT A PROFILE IS].<br />' +
         'Are you sure you want to create a Profile?';
         renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
@@ -332,12 +335,21 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'cash':
-        text = 'Are you sure you want to cash?';
+        text = `Please set amount of DAI you want to cash in exchange of WETH`;
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
         }
-        renderForm = 'renderYesNoForm';
-        this.submitEnabled = true;
+        renderForm = 'renderInputNumberForm';
+        this.cond = (value) => {
+          const valueWei = web3.toBigNumber(web3.toWei(value));
+          let error = '';
+          this.submitEnabled = true;
+          if (valueWei.gt(this.props.system.dai.myBalance)) {
+            error = 'This amount of DAI exceeds your balance.';
+            this.submitEnabled = false;
+          }
+          document.getElementById('warningMessage').innerHTML = error;
+        }
         break;
       case 'vent':
         text = 'Are you sure you want to vent the system?';
