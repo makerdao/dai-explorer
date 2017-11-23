@@ -60,14 +60,14 @@ gulp.task('generate', (cb) => {
 
 // gh-pages
 gulp.task('deploy-gh-pages', function () {
-  require('fs').writeFileSync('./build/CNAME', 'sai.makerdao.com');
+  require('fs').writeFileSync('./build/CNAME', 'dai.makerdao.com');
   return gulp.src('./build/**/*')
     .pipe(ghPages())
 })
 
 gulp.task('deploy-surge', [], function () {
   return surge({
-    project: './build',         // Path to your static build directory
-    domain: 'https://sai-dev.surge.sh'  // Your domain or Surge subdomain
+    project: './build',             // Path to your static build directory
+    domain: 'https://dai.surge.sh'  // Your domain or Surge subdomain
   })
 })
