@@ -253,20 +253,26 @@ class Modal extends Component {
         }
         break;
       case 'free':
-        text = `Please set amount of collateral (SKR) you want to withdraw from CDP ${modal.cup}`;
-        renderForm = 'renderInputNumberForm';
-        this.cond = (value) => {
-          const valueWei = web3.toBigNumber(web3.toWei(value));
-          const cup = this.props.modal.cup;
-          let error = '';
+        if (this.props.system.tub.off) {
+          text = `Are you sure you want to free your available SKR from CUP ${modal.cup}?`;
+          renderForm = 'renderYesNoForm';
           this.submitEnabled = true;
-          if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
-            error = 'This amount of SKR exceeds the maximum available to free.';
-            this.submitEnabled = false;
-          } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
-            error = 'This amount puts your CDP in risk to be liquidated';
+        } else {
+          text = `Please set amount of collateral (SKR) you want to withdraw from CDP ${modal.cup}`;
+          renderForm = 'renderInputNumberForm';
+          this.cond = (value) => {
+            const valueWei = web3.toBigNumber(web3.toWei(value));
+            const cup = this.props.modal.cup;
+            let error = '';
+            this.submitEnabled = true;
+            if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
+              error = 'This amount of SKR exceeds the maximum available to free.';
+              this.submitEnabled = false;
+            } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
+              error = 'This amount puts your CDP in risk to be liquidated';
+            }
+            document.getElementById('warningMessage').innerHTML = error;
           }
-          document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'draw':
@@ -335,21 +341,12 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'cash':
-        text = `Please set amount of DAI you want to cash in exchange of WETH`;
+        text = `Are you sure you want to cash your remaining DAI?`;
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
         }
-        renderForm = 'renderInputNumberForm';
-        this.cond = (value) => {
-          const valueWei = web3.toBigNumber(web3.toWei(value));
-          let error = '';
-          this.submitEnabled = true;
-          if (valueWei.gt(this.props.system.dai.myBalance)) {
-            error = 'This amount of DAI exceeds your balance.';
-            this.submitEnabled = false;
-          }
-          document.getElementById('warningMessage').innerHTML = error;
-        }
+        renderForm = 'renderYesNoForm';
+        this.submitEnabled = true;
         break;
       case 'vent':
         text = 'Are you sure you want to vent the system?';

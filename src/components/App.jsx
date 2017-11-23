@@ -1493,7 +1493,12 @@ class App extends Component {
   checkAllowance = (token, dst, value, callback) => {
     let promise;
     let valueObj;
-    valueObj = web3.toBigNumber(web3.toWei(value));
+    if (token === 'gem') {
+      valueObj = web3.toBigNumber(web3.toWei(value));
+    } else {
+      valueObj = web3.toBigNumber(2).pow(256).minus(1); // uint(-1)
+    }
+
     promise = this.allowance(token, dst);
 
     Promise.resolve(promise).then((r) => {
@@ -1627,6 +1632,12 @@ class App extends Component {
         }
         break;
       case 'free':
+        if (this.state.system.tub.off) {
+          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr));
+        } else {
+          this.executeMethodCupValue(method, cup, value);
+        }
+        break;
       case 'draw':
         this.executeMethodCupValue(method, cup, value);
         break;
@@ -1642,9 +1653,9 @@ class App extends Component {
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value);
+          this.executeMethodValue('tap', method, web3.fromWei(this.state.system.dai.myBalance));
         } else {
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.system.dai.myBalance)]);
         }
         break;
       case 'vent':

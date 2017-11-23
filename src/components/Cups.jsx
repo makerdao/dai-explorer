@@ -7,7 +7,7 @@ const settings = require('../settings');
 const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
     lock: feedValue.gt(0) && account && off === false && cup.lad === account && lock,
-    free: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe,
+    free: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe && (off === false || cup.art.eq(0)),
     draw: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
     wipe: feedValue.gt(0) && account && off === false && cup.lad === account && cup.art.gt(0),
     shut: feedValue.gt(0) && account && off === false && cup.lad === account,
