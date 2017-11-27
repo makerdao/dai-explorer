@@ -6,23 +6,34 @@ const settings = require('../settings');
 
 const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
-    lock: feedValue.gt(0) && account && off === false && cup.lad === account && lock,
-    free: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe && (off === false || cup.art.eq(0)),
-    draw: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
-    wipe: feedValue.gt(0) && account && off === false && cup.lad === account && cup.art.gt(0),
-    shut: feedValue.gt(0) && account && off === false && cup.lad === account,
-    give: feedValue.gt(0) && account && off === false && cup.lad === account,
-    bite: feedValue.gt(0) && account && ((off === true && cup.art.gt(0)) || cup.safe === false),
-  };
-
-  const helpers = {
-    lock: 'Add collateral to a CDP',
-    free: 'Remove collateral from a CDP',
-    draw: 'Create Dai against a CDP',
-    wipe: 'Use Dai to cancel CDP debt',
-    shut: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP',
-    give: 'Transfer CDP ownership',
-    bite: 'Initiate liquidation of an undercollateralized CDP',
+    lock: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account && lock,
+            helper: 'Add collateral to a CDP'
+          },
+    free: {
+            active: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe && (off === false || cup.art.eq(0)),
+            helper: 'Remove collateral from a CDP'
+          },
+    draw: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
+            helper: 'Create Dai against a CDP'
+          },
+    wipe: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account && cup.art.gt(0),
+            helper: 'Use Dai to cancel CDP debt'
+          },
+    shut: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account,
+            helper: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP'
+          },
+    give: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account,
+            helper: 'Transfer CDP ownership'
+          },
+    bite: {
+            active: feedValue.gt(0) && account && ((off === true && cup.art.gt(0)) || cup.safe === false),
+            helper: 'Initiate liquidation of an undercollateralized CDP'
+          },
   };
 
   return (
@@ -30,7 +41,9 @@ const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenM
       {
         Object.keys(actions).map(key =>
           <span key={ key } style={ {textTransform: 'capitalize'} }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+            { actions[key].active
+                ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ actions[key].helper }>{ key }</a>
+                : <span title={ actions[key].helper }>{ key }</span> }
             { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
           </span>
         )

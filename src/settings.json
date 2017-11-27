@@ -15,7 +15,7 @@
       }
     },
     "kovan": {
-      "top": "",
+      "top": "0xa1e472b98dc3fb2c04cdbe7362c479bd6d4b1d7e",
       "faucet": "",
       "fromBlock": 0,
       "service": "",

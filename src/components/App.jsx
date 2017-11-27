@@ -1800,32 +1800,47 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      open: this.state.network.defaultAccount && this.state.system.tub.off === false,
-      join: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
-      exit: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
+      open: {
+              active: this.state.network.defaultAccount && this.state.system.tub.off === false,
+              helper: 'Open a new CDP'
+            },
+      join: {
+              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
+              helper: 'Exchange ETH for SKR'
+            },
+      exit: {
+              active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
                           && (this.state.system.tub.off === false ||
                              (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
-      bust: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
-      boom: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
-      heal: this.state.system.dai.tapBalance.gt(0),
-      drip: this.state.system.tub.off === false
-    };
-
-    const helpers = {
-      open: 'Open a new CDP',
-      join: 'Exchange ETH for SKR',
-      exit: 'Exchange SKR for ETH',
-      boom: 'Buy DAI with SKR',
-      bust: 'Buy SKR with DAI',
-      heal: '',
-      drip: ''
+              helper: 'Exchange SKR for ETH'
+            },
+      bust: {
+              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
+              helper: 'Buy SKR with DAI'
+            },
+      boom: {
+              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
+              helper: 'Buy DAI with SKR'
+            },
+      heal: {
+              active: this.state.system.dai.tapBalance.gt(0),
+              helper: ''
+            },
+      drip: {
+              active: this.state.system.tub.off === false,
+              helper: ''
+            }
     };
 
     if (this.state.system.tub.off === true) {
-      actions.cash = this.state.system.dai.myBalance.gt(0);
-      actions.vent = this.state.system.skr.tapBalance.gt(0);
-      helpers.cash = 'Exchange your DAI for ETH at the cage price';
-      helpers.vent = 'Clean up the CDP state after cage';
+      actions.cash = {
+                        active: this.state.system.dai.myBalance.gt(0),
+                        helper: 'Exchange your DAI for ETH at the cage price'
+                     }
+      actions.vent = {
+                        active: this.state.system.skr.tapBalance.gt(0),
+                        helper: 'Clean up the CDP state after cage'
+                     }
     }
 
     return (
@@ -1903,7 +1918,9 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key } style={ {textTransform: 'capitalize'} }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</span> }
+                              { actions[key].active
+                                  ? <a href="#action" data-method={ key.substr(0,1).toUpperCase() + key.substr(1) } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ key }</a>
+                                  : <span title={ actions[key].helper }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
