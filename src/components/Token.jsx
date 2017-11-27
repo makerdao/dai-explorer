@@ -7,17 +7,17 @@ const Token = (props) => {
   // const totalSupply = props.token === 'dai' || props.token === 'sin' ? token.totalSupply.add(props.system.sin.issuerFee) : token.totalSupply;
   // const tapBalance = props.token === 'dai' ? token.tapBalance.add(props.system.sin.issuerFee) : token.tapBalance;
   // const tubBalance = props.token === 'sin' ? token.tubBalance.add(props.system.sin.issuerFee) : token.tubBalance;
-  const name = props.token === 'gem' ? 'WETH' : (props.token === 'gov' ? 'MKR' : props.token);
+  const name = props.token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth');
   const totalSupply = token.totalSupply;
   const tapBalance = token.tapBalance;
   const tubBalance = token.tubBalance;
   const tubBalanceLabel = props.token === 'gem' ? 'Total Pooled' : 'Total Locked';
-  const tubBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the SKR collateral pool' : 'Amount of SKR locked as collateral in CDPs';
+  const tubBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the PETH collateral pool' : 'Amount of PETH locked as collateral in CDPs';
   const tapBalanceLabel = props.token === 'gem' ? 'Redeemable' : (props.token === 'skr' ? 'Pending Sale' : (props.token === 'dai' ? 'Pending Sale' : 'Tap Balance'));
   const tapBalanceDesc = props.token === 'gem'
                           ? 'Amount of ETH available to cash for DAI'
                           : (props.token === 'skr'
-                            ? 'Amount of SKR collateral pending liquidation via bust'
+                            ? 'Amount of PETH collateral pending liquidation via bust'
                             : (props.token === 'dai'
                               ? 'Amount of surplus DAI pending sale via boom'
                               : ''));

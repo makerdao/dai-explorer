@@ -965,7 +965,7 @@ class App extends Component {
             tub.avail_bust_dai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
           } else {
             tub.avail_bust_dai = daiNeeded;
-            // We need to consider the case where SKR needs to be minted generating a change in 'system.tub.tag'
+            // We need to consider the case where PETH needs to be minted generating a change in 'system.tub.tag'
             tub.avail_bust_skr = wdiv(system.skr.totalSupply.minus(system.skr.tapBalance), wdiv(wmul(wmul(system.pip.val, system.tap.gap), system.gem.tubBalance), wmul(tub.avail_bust_dai, system.vox.par)).minus(WAD));
             tub.avail_bust_ratio = wdiv(tub.avail_bust_dai, tub.avail_bust_skr);
           }
@@ -1065,7 +1065,7 @@ class App extends Component {
       Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then((response) => {
         const finalResponse = { last_block: response.last_block, results: [] };
 
-        // If there is not result before 30 days ago, we assume that the value of SKR/ETH was 1 at that moment
+        // If there is not result before 30 days ago, we assume that the value of PETH/ETH was 1 at that moment
         finalResponse.results.push({ value: 10 ** 18, timestamp: timestamps[30] });
 
         let lastIndex = 30;
@@ -1166,7 +1166,7 @@ class App extends Component {
     promises.push(this.getETHUSDPrice(timestamps));
     // DAI/USD
     promises.push(this.getDAIUSDPrice(timestamps));
-    // SKR/ETH
+    // PETH/ETH
     this.getSKRETHPrice(timestamps);
 
     Promise.all(promises).then((r) => {
@@ -1765,7 +1765,7 @@ class App extends Component {
 
   approveAll = (val) => {
     const id = Math.random();
-    const title = `SKR/DAI: ${val ? 'approve': 'deny'} all`;
+    const title = `PETH/DAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -1806,21 +1806,21 @@ class App extends Component {
             },
       join: {
               active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
-              helper: 'Exchange ETH for SKR'
+              helper: 'Exchange ETH for PETH'
             },
       exit: {
               active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
                           && (this.state.system.tub.off === false ||
                              (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
-              helper: 'Exchange SKR for ETH'
+              helper: 'Exchange PETH for ETH'
             },
       bust: {
               active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
-              helper: 'Buy SKR with DAI'
+              helper: 'Buy PETH with DAI'
             },
       boom: {
               active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
-              helper: 'Buy DAI with SKR'
+              helper: 'Buy DAI with PETH'
             },
       heal: {
               active: this.state.system.dai.tapBalance.gt(0),

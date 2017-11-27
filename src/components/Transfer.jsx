@@ -62,7 +62,7 @@ class Transfer extends Component {
                     <option value="gem">WETH</option>
                     <option value="gov">MKR</option>
                     <option value="dai">DAI</option>
-                    <option value="skr">SKR</option>
+                    <option value="skr">PETH</option>
                   </select>
                   {
                     settings.chain[this.props.network].proxyFactory

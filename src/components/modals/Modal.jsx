@@ -151,7 +151,7 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'join':
-        text = 'Please set amount of SKR you want to get in exchange of your WETH.';
+        text = 'Please set amount of PETH you want to get in exchange of your WETH.';
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         }
@@ -169,16 +169,16 @@ class Modal extends Component {
         break;
       case 'exit':
         if (this.props.system.tub.off === true) {
-          text = 'Are you sure you want to exit all your SKR?';
+          text = 'Are you sure you want to exit all your PETH?';
           if (!this.props.proxyEnabled) {
-            text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+            text += '<br />You might be requested for signing two transactions if there is not enough allowance in PETH to complete this transaction.';
           }
           renderForm = 'renderYesNoForm';
           this.submitEnabled = true;
         } else {
-          text = 'Please set amount of collateral (SKR) you want to convert to WETH.';
+          text = 'Please set amount of collateral (PETH) you want to convert to WETH.';
           if (!this.props.proxyEnabled) {
-            text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+            text += '<br />You might be requested for signing two transactions if there is not enough allowance in PETH to complete this transaction.';
           }
           renderForm = 'renderInputNumberForm';
 
@@ -187,7 +187,7 @@ class Modal extends Component {
             let error = '';
             this.submitEnabled = true;
             if (this.props.system.skr.myBalance.lt(valueWei)) {
-              error = 'Not enough balance to exit this amount of SKR.';
+              error = 'Not enough balance to exit this amount of PETH.';
               this.submitEnabled = false;
             }
             document.getElementById('warningMessage').innerHTML = error;
@@ -195,9 +195,9 @@ class Modal extends Component {
         }
         break;
       case 'boom':
-        text = 'Please set amount of SKR you want to transfer to get DAI.';
+        text = 'Please set amount of PETH you want to transfer to get DAI.';
         if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in PETH to complete this transaction.';
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
@@ -205,17 +205,17 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.tub.avail_boom_skr.lt(valueWei)) {
-            error = 'Not enough SKR in the system to boom this amount of SKR.';
+            error = 'Not enough PETH in the system to boom this amount of PETH.';
             this.submitEnabled = false;
           } else if (this.props.system.skr.myBalance.lt(valueWei)) {
-            error = 'Not enough balance of SKR to boom this amount of SKR.';
+            error = 'Not enough balance of PETH to boom this amount of PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'bust':
-        text = 'Please set amount of SKR you want to get in exchange of DAI.';
+        text = 'Please set amount of PETH you want to get in exchange of DAI.';
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
         }
@@ -226,19 +226,19 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.tub.avail_bust_dai.lt(valueDAIWei)) {
-            error = 'Not enough DAI in the system to bust this amount of SKR.';
+            error = 'Not enough DAI in the system to bust this amount of PETH.';
             this.submitEnabled = false;
           } else if (this.props.system.dai.myBalance.lt(valueDAIWei)) {
-            error = 'Not enough balance of DAI to bust this amount of SKR.';
+            error = 'Not enough balance of DAI to bust this amount of PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'lock':
-        text = `Please set amount of collateral (SKR) you want to lock in CDP ${modal.cup}.`;
+        text = `Please set amount of collateral (PETH) you want to lock in CDP ${modal.cup}.`;
         if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SKR to complete this transaction.';
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in PETH to complete this transaction.';
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
@@ -246,7 +246,7 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.skr.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to lock this amount of SKR.';
+            error = 'Not enough balance to lock this amount of PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -254,11 +254,11 @@ class Modal extends Component {
         break;
       case 'free':
         if (this.props.system.tub.off) {
-          text = `Are you sure you want to free your available SKR from CUP ${modal.cup}?`;
+          text = `Are you sure you want to free your available PETH from CUP ${modal.cup}?`;
           renderForm = 'renderYesNoForm';
           this.submitEnabled = true;
         } else {
-          text = `Please set amount of collateral (SKR) you want to withdraw from CDP ${modal.cup}`;
+          text = `Please set amount of collateral (PETH) you want to withdraw from CDP ${modal.cup}`;
           renderForm = 'renderInputNumberForm';
           this.cond = (value) => {
             const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -266,7 +266,7 @@ class Modal extends Component {
             let error = '';
             this.submitEnabled = true;
             if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
-              error = 'This amount of SKR exceeds the maximum available to free.';
+              error = 'This amount of PETH exceeds the maximum available to free.';
               this.submitEnabled = false;
             } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
               error = 'This amount puts your CDP in risk to be liquidated';
@@ -276,7 +276,7 @@ class Modal extends Component {
         }
         break;
       case 'draw':
-        text = `Please set amount of DAI you want to mint from your locked collateral (SKR) in CDP ${modal.cup}`;
+        text = `Please set amount of DAI you want to mint from your locked collateral (PETH) in CDP ${modal.cup}`;
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -296,7 +296,7 @@ class Modal extends Component {
         }
         break;
       case 'wipe':
-        text = `Please set amount of DAI you want to burn to recover your collateral (SKR) from CDP ${modal.cup}.`;
+        text = `Please set amount of DAI you want to burn to recover your collateral (PETH) from CDP ${modal.cup}.`;
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in DAI and/or MKR to complete this transaction.';
         }

@@ -17,7 +17,7 @@ class AnnouncementText extends Component {
           Mecon is also providing a distributed set of price feed oracles that Dai requires to function.
         </p>
         <p>
-          Additionally Mecon retains the ability to perform a global settlement of Dai. A global settlement essentially “unwinds” the system and shuts it down permanently. Every user that holds Dai at the time of the global settlement will receive a claim to exactly 1 USD worth of ETH at the time the global settlement is enacted. CDP users will have their active positions closed automatically and receive their excess collateral as ETH. The global settlement is the primary mechanism enforcing the 1 USD soft-peg of Dai. (Please note that the actual mechanics are slightly more complicated than described here, since users need to convert SKR and W-ETH to regular ETH).
+          Additionally Mecon retains the ability to perform a global settlement of Dai. A global settlement essentially “unwinds” the system and shuts it down permanently. Every user that holds Dai at the time of the global settlement will receive a claim to exactly 1 USD worth of ETH at the time the global settlement is enacted. CDP users will have their active positions closed automatically and receive their excess collateral as ETH. The global settlement is the primary mechanism enforcing the 1 USD soft-peg of Dai. (Please note that the actual mechanics are slightly more complicated than described here, since users need to convert PETH and W-ETH to regular ETH).
         </p>
         <p>
           Mecon has scheduled this Dai instance to become globally settled at some point in the future to allow for additional upgrades to Dai with a fresh Dai deployment.
@@ -71,7 +71,7 @@ class AnnouncementText extends Component {
             Stability fee with MKR buy and burn
           </li>
           <li>
-            Stability fee with SKR buy and burn
+            Stability fee with PETH buy and burn
           </li>
           <li>
             MKR control of Dai risk parameters through prism voting (A mechanism similar to Delegated Proof of Stake used by BitShares, Steemit and EOS)

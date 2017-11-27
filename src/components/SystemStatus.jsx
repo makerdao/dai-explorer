@@ -28,7 +28,7 @@ const SystemStatus = (props) => {
               </span>
             </div>
             <div>
-              <strong title="Amount of collateral pool ETH claimed by 1 SKR">SKR/ETH</strong>
+              <strong title="Amount of collateral pool ETH claimed by 1 PETH">PETH/ETH</strong>
               {
                 props.system.tub.per.gte(0)
                 ?
@@ -106,7 +106,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Discount/premium for converting between ETH and SKR via join and exit; the profits are accrued to the SKR collateral pool">Spread (Join/Exit)</strong>
+              <strong title="Discount/premium for converting between ETH and PETH via join and exit; the profits are accrued to the PETH collateral pool">Spread (Join/Exit)</strong>
               {
                 props.system.tub.gap.gte(0)
                 ?
@@ -116,7 +116,7 @@ const SystemStatus = (props) => {
               }
             </div>
             <div>
-              <strong title="Discount/premium relative to Dai target price at which the system buys/sells collateral SKR for DAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)">Spread (Bust/Boom)</strong>
+              <strong title="Discount/premium relative to Dai target price at which the system buys/sells collateral PETH for DAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)">Spread (Bust/Boom)</strong>
               {
                 props.system.tap.gap.gte(0)
                 ?
@@ -216,7 +216,7 @@ const SystemStatus = (props) => {
                       ?
                         <span>
                           Sell { printNumber(props.system.tub.avail_bust_dai) } DAI<br />
-                          Buy { printNumber(props.system.tub.avail_bust_skr) } SKR
+                          Buy { printNumber(props.system.tub.avail_bust_skr) } PETH
                         </span>
                       :
                         'Loading...'
@@ -235,7 +235,7 @@ const SystemStatus = (props) => {
                       props.system.tub.avail_boom_skr.gte(0) && props.system.tub.avail_boom_dai.gte(0)
                       ?
                         <span>
-                          Sell { printNumber(props.system.tub.avail_boom_skr) } SKR<br />
+                          Sell { printNumber(props.system.tub.avail_boom_skr) } PETH<br />
                           Buy { printNumber(props.system.tub.avail_boom_dai) } DAI
                         </span>
                       :

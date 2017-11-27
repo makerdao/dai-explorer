@@ -60,7 +60,7 @@ class TokenAllowance extends Component {
                   : ''
                 }
                 <div>
-                  <span>SKR</span>
+                  <span>PETH</span>
                   <span>Exit/Lock</span>
                   <span>
                     {
@@ -71,7 +71,7 @@ class TokenAllowance extends Component {
                   </span>
                 </div>
                 <div>
-                  <span>SKR</span>
+                  <span>PETH</span>
                   <span>Boom</span>
                   <span>
                     {

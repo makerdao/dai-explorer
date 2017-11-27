@@ -64,7 +64,7 @@ class PriceChart extends React.Component {
                 <option value="ethusd">ETH/USD</option>
                 <option value="ethdai">ETH/DAI</option>
                 <option value="daiusd">DAI/USD</option>
-                <option value="skreth">SKR/ETH</option>
+                <option value="skreth">PETH/ETH</option>
               </select>
               {
                 data
