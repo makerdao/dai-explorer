@@ -1933,13 +1933,16 @@ class App extends Component {
                   <span>Buy DAI</span>
                 </a>
                 {
-                  this.state.network.defaultAccount
-                  ? <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } approve={ this.approve } approveAll={ this.approveAll } />
-                  : ''
+                  this.state.network.defaultAccount &&
+                  <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } approve={ this.approve } approveAll={ this.approveAll } />
                 }
                 {
                   this.state.system.pip.address && this.state.network.network !== 'private' &&
-                  <FeedValue address={ this.state.system.pip.address } pipVal={ this.state.system.pip.val } />
+                  <FeedValue address={ this.state.system.pip.address } val={ this.state.system.pip.val } currency="ETH" />
+                }
+                {
+                  this.state.system.pep.address && this.state.network.network !== 'private' &&
+                  <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
               </div>

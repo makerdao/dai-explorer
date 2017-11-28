@@ -71,7 +71,7 @@ class FeedValue extends React.Component {
     return(
       <div className="box">
         <div className="box-header with-border">
-          <h3 className="box-title">Price Feed</h3>
+          <h3 className="box-title">{ this.props.currency } Price Feed</h3>
         </div>
         <div className="box-body">
           <div className="row">
@@ -81,12 +81,12 @@ class FeedValue extends React.Component {
                   Current Value:&nbsp;
                   <strong>
                     <AnimatedNumber
-                    value={ this.props.pipVal }
-                    title={ formatNumber(this.props.pipVal) }
+                    value={ this.props.val }
+                    title={ formatNumber(this.props.val) }
                     formatValue={ n => formatNumber(n, 3) }
                     className="printedNumber"
                     onClick = { copyToClipboard } />
-                  </strong> USD/ETH
+                  </strong> USD/{ this.props.currency }
                 </p>
                 {
                   this.state.last
