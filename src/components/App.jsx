@@ -1919,7 +1919,7 @@ class App extends Component {
                           Object.keys(actions).map(key =>
                             <span key={ key } style={ {textTransform: 'capitalize'} }>
                               { actions[key].active
-                                  ? <a href="#action" data-method={ key.substr(0,1).toUpperCase() + key.substr(1) } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ key }</a>
+                                  ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</a>
                                   : <span title={ actions[key].helper }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
