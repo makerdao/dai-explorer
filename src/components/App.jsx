@@ -330,8 +330,8 @@ class App extends Component {
           system.tub.address = r[0];
           system.tap.address = r[1];
 
-          if (addrs.proxyFactory && r[2].length > 0) {
-            profile.proxy = r[2][r[2].length - 1].args.proxy;
+          if (addrs.proxyFactory && r[2]) {
+            profile.proxy = r[2];
             profile.activeProfile = localStorage.getItem('mode') === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
             window.proxyObj = this.proxyObj = this.loadObject(dsproxy.abi, profile.proxy);
           } else {
@@ -439,10 +439,9 @@ class App extends Component {
     return p;
   }
 
-  getProxyAddress = () => {
-    const p = new Promise((resolve, reject) => {
-      const addrs = settings.chain[this.state.network.network];
-      this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: addrs.fromBlock }).get((e, r) => {
+  getProxyOwner = (proxy) => {
+    return new Promise((resolve, reject) => {
+      this.loadObject(dsproxy.abi, proxy).owner((e, r) => {
         if (!e) {
           resolve(r);
         } else {
@@ -450,7 +449,30 @@ class App extends Component {
         }
       });
     });
-    return p;
+  }
+
+  getProxyAddress = () => {
+    const network = this.state.network;
+    return new Promise((resolve, reject) => {
+      const addrs = settings.chain[network.network];
+      this.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: addrs.fromBlock }).get(async (e, r) => {
+        if (!e) {
+          if (r.length > 0) {
+            for (let i = r.length - 1; i >= 0; i--) {
+              if (await this.getProxyOwner(r[i].args.proxy) === network.defaultAccount) {
+                resolve(r[i].args.proxy);
+                break;
+              }
+            }
+            resolve(null);
+          } else {
+            resolve(null);
+          }
+        } else {
+          reject(e);
+        }
+      });
+    });
   }
 
   setUpVox = () => {

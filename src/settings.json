@@ -15,12 +15,12 @@
       }
     },
     "kovan": {
-      "top": "",
+      "top": "0x54ec8814e2232e7af03111911819f0ed4708ad58",
       "faucet": "",
-      "fromBlock": 0,
+      "fromBlock": 4896323,
       "service": "",
       "chart": false,
-      "proxyFactory": "0x69f6b4a4bB058DE233F2C1c6eF3D79830a7Ba9e6",
+      "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
       "proxyContracts": {
         "basicActions": "0xce12c0e8ae212fa4967a6c922321d2527f97adcf",
         "customActions": "0x96d65bc43c36a5040f53390ff84321b0bb93c76a",
