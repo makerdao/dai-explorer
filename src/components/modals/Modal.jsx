@@ -26,7 +26,7 @@ class Modal extends Component {
     let value = web3.toBigNumber(0);
     switch(this.props.modal.method) {
       case 'join':
-        value = wdiv(this.props.system.gem.myBalance, this.props.system.tub.per);
+        value = wdiv(this.props.system.gem.myBalance, wmul(this.props.system.tub.per, this.props.system.tub.gap));
         break;
       case 'exit':
       case 'lock':
@@ -160,8 +160,8 @@ class Modal extends Component {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
-          if (this.props.system.gem.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to join this amount of WETH.';
+          if (this.props.system.gem.myBalance.lt(wmul(valueWei, wmul(this.props.system.tub.per, this.props.system.tub.gap)))) {
+            error = 'Not enough balance of WETH to join this amount of PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
