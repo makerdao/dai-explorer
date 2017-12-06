@@ -50,6 +50,9 @@ class Modal extends Component {
       case 'cash':
         value = this.props.system.dai.myBalance;
         break;
+      case 'mock':
+        value = wdiv(this.props.system.gem.myBalance, this.props.system.tap.fix);
+        break;
       default:
         break;
     }
@@ -341,12 +344,38 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'cash':
-        text = `Are you sure you want to cash your remaining DAI?`;
+        text = `Please set amount of DAI you want to cash`;
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
         }
-        renderForm = 'renderYesNoForm';
-        this.submitEnabled = true;
+        renderForm = 'renderInputNumberForm';
+        this.cond = (value) => {
+          const valueWei = web3.toBigNumber(web3.toWei(value));
+          let error = '';
+          this.submitEnabled = true;
+          if (this.props.system.dai.myBalance.lt(valueWei)) {
+            error = 'Not enough balance to cash this amount of DAI.';
+            this.submitEnabled = false;
+          }
+          document.getElementById('warningMessage').innerHTML = error;
+        }
+        break;
+      case 'mock':
+        text = `Please set amount of DAI you mock to cash`;
+        if (!this.props.proxyEnabled) {
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
+        }
+        renderForm = 'renderInputNumberForm';
+        this.cond = (value) => {
+          const valueWei = web3.toBigNumber(web3.toWei(value));
+          let error = '';
+          this.submitEnabled = true;
+          if (wdiv(this.props.system.gem.myBalance, this.props.system.tap.fix).lt(valueWei)) {
+            error = 'Not enough balance of WETH to mock this amount of DAI.';
+            this.submitEnabled = false;
+          }
+          document.getElementById('warningMessage').innerHTML = error;
+        }
         break;
       case 'vent':
         text = 'Are you sure you want to vent the system?';

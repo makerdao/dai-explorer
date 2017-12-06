@@ -102,6 +102,7 @@ class App extends Component {
         },
         tap: {
           address: null,
+          fix: web3.toBigNumber(-1),
           gap: web3.toBigNumber(-1),
         },
         vox: {
@@ -652,6 +653,7 @@ class App extends Component {
         } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
           this.getParameterFromTub('off');
           this.getParameterFromTub('fit');
+          this.getParameterFromTap('fix', true);
         } else if (r.args.sig === this.methodSig('flow()')) {
           this.getParameterFromTub('out');
         }
@@ -813,6 +815,7 @@ class App extends Component {
     this.getParameterFromTub('per', true);
     this.getParameterFromTub('gap');
     this.getParameterFromTub('tag', true, this.calculateSafetyAndDeficit);
+    this.getParameterFromTap('fix', true);
     this.getParameterFromTap('gap', false, this.getBoomBustValues);
     this.getParameterFromVox('way', true);
     this.getParameterFromVox('par', true);
@@ -1530,7 +1533,8 @@ class App extends Component {
         const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
         const action = {
           gem: {
-            tub: 'Join'
+            tub: 'Join',
+            tap: 'Mock'
           },
           skr: {
             tub: 'Exit/Lock',
@@ -1545,7 +1549,7 @@ class App extends Component {
           }
         }
         const id = Math.random();
-        const title = `${tokenName}: approve ${action[token][dst]}${token === 'gem' ? ` ${value}` : ''}`;
+        const title = `${tokenName}: approve ${action[token][dst]}`;
         this.logRequestTransaction(id, title);
         const log = (e, tx) => {
           if (!e) {
@@ -1675,9 +1679,16 @@ class App extends Component {
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, web3.fromWei(this.state.system.dai.myBalance));
+          this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, web3.fromWei(this.state.system.dai.myBalance)]);
+          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+        }
+        break;
+      case 'mock':
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          this.checkAllowance('gem', 'tap', null, ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'vent':
@@ -1859,6 +1870,10 @@ class App extends Component {
                         active: this.state.system.dai.myBalance.gt(0),
                         helper: 'Exchange your DAI for ETH at the cage price'
                      }
+      actions.mock = {
+                      active: this.state.system.gem.myBalance.gt(0),
+                      helper: 'Exchange your ETH for DAI at the cage price'
+                   }
       actions.vent = {
                         active: this.state.system.skr.tapBalance.gt(0),
                         helper: 'Clean up the CDP state after cage'

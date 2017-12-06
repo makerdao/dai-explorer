@@ -7,7 +7,7 @@ const settings = require('../settings');
 const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
     lock: {
-            active: feedValue.gt(0) && account && off === false && cup.lad === account && lock,
+            active: account && off === false && lock,
             helper: 'Add collateral to a CDP'
           },
     free: {
@@ -19,7 +19,7 @@ const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenM
             helper: 'Create Dai against a CDP'
           },
     wipe: {
-            active: feedValue.gt(0) && account && off === false && cup.lad === account && cup.art.gt(0),
+            active: account && off === false && cup.art.gt(0),
             helper: 'Use Dai to cancel CDP debt'
           },
     shut: {
