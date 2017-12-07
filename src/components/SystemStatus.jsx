@@ -98,9 +98,9 @@ const SystemStatus = (props) => {
             <div>
               <strong title="Maximum number of DAI that can be issued">Debt Ceiling</strong>
               {
-                props.system.tub.hat.gte(0)
+                props.system.tub.cap.gte(0)
                 ?
-                  printNumber(props.system.tub.hat)
+                  printNumber(props.system.tub.cap)
                 :
                   <span>Loading...</span>
               }

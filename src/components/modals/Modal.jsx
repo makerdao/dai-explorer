@@ -286,7 +286,7 @@ class Modal extends Component {
           const cup = this.props.modal.cup;
           let error = '';
           this.submitEnabled = true;
-          if (this.props.system.sin.totalSupply.add(valueWei).gt(this.props.system.tub.hat)) {
+          if (this.props.system.sin.totalSupply.add(valueWei).gt(this.props.system.tub.cap)) {
             error = 'This amount of DAI exceeds the system debt ceiling.';
             this.submitEnabled = false;
           } else if (this.props.system.tub.cups[cup].avail_dai.lt(valueWei)) {

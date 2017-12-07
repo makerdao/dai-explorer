@@ -81,7 +81,7 @@ class App extends Component {
           out: -1,
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
-          hat: web3.toBigNumber(-1),
+          cap: web3.toBigNumber(-1),
           fit: web3.toBigNumber(-1),
           tax: web3.toBigNumber(-1),
           fee: web3.toBigNumber(-1),
@@ -806,7 +806,7 @@ class App extends Component {
     this.getParameterFromTub('out');
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
-    this.getParameterFromTub('hat');
+    this.getParameterFromTub('cap');
     this.getParameterFromTub('fit');
     this.getParameterFromTub('tax', true);
     this.getParameterFromTub('fee', true);
@@ -1015,7 +1015,7 @@ class App extends Component {
             lad: cupData[0],
             ink: cupData[1],
             art: cupData[2],
-            irk: cupData[3],
+            ire: cupData[3],
             safe: firstLoad ? 'N/A' : cups[id]['safe']
           };
           cups[id] = cup;
@@ -1233,7 +1233,7 @@ class App extends Component {
   }
 
   rap = (cup) => {
-    return wmul(cup.irk, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
+    return wmul(cup.ire, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
   }
 
   updateCup = (id) => {
