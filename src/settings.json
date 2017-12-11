@@ -22,9 +22,9 @@
       "chart": false,
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
       "proxyContracts": {
-        "basicActions": "0xce12c0e8ae212fa4967a6c922321d2527f97adcf",
-        "customActions": "0x96d65bc43c36a5040f53390ff84321b0bb93c76a",
-        "tokenActions": "0xae973cc5f8549d8115f444bc45b795940c8626e3"
+        "basicActions": "0x4e81891f77064f98dc45a2d9028f7624e2ddceeb",
+        "customActions": "0x1fdf5b2336629875b4bf6b82bfca6a83428d510c",
+        "tokenActions": "0x6033bed276430424852f510277e8ab177eac76b0"
       }
     },
     "main": {

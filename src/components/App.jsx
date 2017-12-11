@@ -121,6 +121,8 @@ class App extends Component {
           myBalance: web3.toBigNumber(-1),
           tubBalance: web3.toBigNumber(-1),
           tapBalance: web3.toBigNumber(-1),
+          tubApproved: -1,
+          tapApproved: -1,
         },
         gov: {
           address: null,
@@ -538,7 +540,7 @@ class App extends Component {
   }
 
   setFilterToken = (token) => {
-    const filters = ['Transfer'];
+    const filters = ['Transfer', 'Approval'];
 
     if (token === 'gem') {
       filters.push('Deposit');
@@ -546,7 +548,6 @@ class App extends Component {
     } else {
       filters.push('Mint');
       filters.push('Burn');
-      filters.push('Approval');
     }
 
     for (let i = 0; i < filters.length; i++) {
@@ -741,7 +742,7 @@ class App extends Component {
     if (token === 'gem' || token === 'skr') {
       this.getParameterFromTub('per', true);
     }
-    if (token === 'skr' || token === 'dai' || token === 'gov') {
+    if (token === 'gem' || token === 'skr' || token === 'dai' || token === 'gov') {
       this.getApproval(token, 'tub');
       if (token !== 'gov') {
         this.getApproval(token, 'tap');
@@ -1515,14 +1516,10 @@ class App extends Component {
     this[method](...args);
   }
 
-  checkAllowance = (token, dst, value, callback) => {
+  checkAllowance = (token, dst, callback) => {
     let promise;
     let valueObj;
-    if (token === 'gem') {
-      valueObj = web3.toBigNumber(web3.toWei(value));
-    } else {
-      valueObj = web3.toBigNumber(2).pow(256).minus(1); // uint(-1)
-    }
+    valueObj = web3.toBigNumber(2).pow(256).minus(1); // uint(-1)
 
     promise = this.allowance(token, dst);
 
@@ -1611,7 +1608,7 @@ class App extends Component {
             if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
               this.executeMethodCup(method, cup);
             } else {
-              this.checkAllowance('dai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCup', method, cup]]);
+              this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCup', method, cup]]);
             }
           }
         }
@@ -1623,8 +1620,8 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value);
         } else {
-          const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
-          this.checkAllowance('gem', 'tub', valAllowanceJoin, ['executeMethodValue', 'tub', method, value]);
+          // const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
+          this.checkAllowance('gem', 'tub', ['executeMethodValue', 'tub', method, value]);
         }
         break;
       case 'exit':
@@ -1632,14 +1629,14 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value);
         } else {
-          this.checkAllowance('skr', 'tub', null, ['executeMethodValue', 'tub', method, value]);
+          this.checkAllowance('skr', 'tub', ['executeMethodValue', 'tub', method, value]);
         }
         break;
       case 'boom':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('skr', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('skr', 'tap', ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'bust':
@@ -1647,14 +1644,14 @@ class App extends Component {
           this.executeMethodValue('tap', method, value);
         } else {
           // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'lock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodCupValue(method, cup, value);
         } else {
-          this.checkAllowance('skr', 'tub', null, ['executeMethodCupValue', method, cup, value]);
+          this.checkAllowance('skr', 'tub', ['executeMethodCupValue', method, cup, value]);
         }
         break;
       case 'free':
@@ -1671,7 +1668,7 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodCupValue(method, cup, value);
         } else {
-          this.checkAllowance('dai', 'tub', null, ['checkAllowance', 'gov', 'tub', null, ['executeMethodCupValue', method, cup, value]]);
+          this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCupValue', method, cup, value]]);
         }
         break;
       case 'give':
@@ -1681,14 +1678,14 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('dai', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'mock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('gem', 'tap', null, ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('gem', 'tap', ['executeMethodValue', 'tap', method, value]);
         }
         break;
       case 'vent':
@@ -1764,6 +1761,10 @@ class App extends Component {
   approve = (token, dst, val) => {
     const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
     const action = {
+      gem: {
+        tub: 'Join',
+        tap: 'Mock'
+      },
       skr: {
         tub: 'Exit/Lock',
         tap: 'Boom'
@@ -1789,7 +1790,7 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-        `${this.methodSig('approve(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val, false)}`,
+        `${this.methodSig('approve(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val ? web3.toBigNumber(2).pow(256).minus(1).valueOf() : 0, false)}`,
         log);
     } else {
       this[`${token}Obj`].approve(this[`${dst}Obj`].address, val ? -1 : 0, (e, tx) => log(e, tx));
@@ -1798,7 +1799,7 @@ class App extends Component {
 
   approveAll = (val) => {
     const id = Math.random();
-    const title = `PETH/DAI: ${val ? 'approve': 'deny'} all`;
+    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {

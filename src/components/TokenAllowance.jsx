@@ -19,7 +19,7 @@ class TokenAllowance extends Component {
 
   onOff = (token, dstAux = null) => {
     const check = token === 'all'
-                  ? this.props.system.skr.tubApproved && this.props.system.skr.tapApproved && this.props.system.dai.tubApproved && this.props.system.dai.tapApproved
+                  ? this.props.system.gem.tubApproved && this.props.system.gem.tapApproved && this.props.system.skr.tubApproved && this.props.system.skr.tapApproved && this.props.system.dai.tubApproved && this.props.system.dai.tapApproved
                   : this.props.system[token][`${dstAux}Approved`]
     const dst = token === 'all' ? 'all' : dstAux;
     return (
@@ -59,6 +59,28 @@ class TokenAllowance extends Component {
                     </div>
                   : ''
                 }
+                <div>
+                  <span>WETH</span>
+                  <span>Join</span>
+                  <span>
+                    {
+                      this.props.system.gem.tubApproved === -1
+                      ? 'Loading...'
+                      : this.onOff('gem', 'tub')
+                    }
+                  </span>
+                </div>
+                <div>
+                  <span>WETH</span>
+                  <span>Mock</span>
+                  <span>
+                    {
+                      this.props.system.gem.tapApproved === -1
+                      ? 'Loading...'
+                      : this.onOff('gem', 'tap')
+                    }
+                  </span>
+                </div>
                 <div>
                   <span>PETH</span>
                   <span>Exit/Lock</span>
