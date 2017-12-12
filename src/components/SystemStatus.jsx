@@ -30,109 +30,111 @@ class SystemStatus extends Component {
         <div id="collapseStatus" className={ `box-body panel-collapse collapse${localStorage.getItem('statusCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('statusCollapsed') !== 'true' } style={{ height: localStorage.getItem('statusCollapsed') !== 'true' ? "auto" : "0px" }}>
           <div className="row">
             <div className="col-md-12 system-status">
-              <div>
-                <strong>Status</strong>
-                <span className={ this.props.system.tub.off === true ? 'error-color' : 'success-color' }>
-                  {
-                    this.props.system.tub.off !== -1
-                    ?
-                      this.props.system.tub.off === false ? 'Active' : 'Inactive'
-                    :
-                      'Loading...'
-                  }
-                </span>
-              </div>
-              <div>
-                <strong>System Collateralization</strong>
-                <span>
-                  {
-                    this.props.system.gem.tubBalance.gte(0) && this.props.system.pip.val.gte(0) && this.props.system.dai.totalSupply.gte(0) && this.props.system.vox.par.gte(0)
-                    ?
-                      <span>
-                        {
-                          printNumber(
-                            this.props.system.dai.totalSupply.eq(0)
-                            ? 0
-                            : wdiv(wmul(this.props.system.gem.tubBalance, this.props.system.pip.val), wmul(this.props.system.dai.totalSupply, this.props.system.vox.par)).times(100)
-                          )
-                        }
-                        %
-                      </span>
-                    :
-                      'Loading...'
-                  }
-                </span>
-              </div>
-              <div>
-                <strong title="Percentage number of maximum DAI already issued">Debt Ceiling Ratio</strong>
-                {
-                  this.props.system.dai.totalSupply.gte(0) && this.props.system.tub.cap.gte(0)
-                  ?
-                    <span>{ this.props.system.dai.totalSupply.eq(0) ? printNumber(0) : printNumber(wdiv(this.props.system.dai.totalSupply, this.props.system.tub.cap).times(100)) }%</span>
-                  :
-                    <span>Loading...</span>
-                }
-              </div>
-              <div>
-                <strong title="Amount of collateral pool ETH claimed by 1 PETH">PETH/ETH</strong>
-                {
-                  this.props.system.tub.per.gte(0)
-                  ?
-                    printNumber(this.props.system.tub.per)
-                  :
-                    <span>Loading...</span>
-                }
-              </div>
-              <div>
-                <strong>Total Liquidity Available via Bust and Boom</strong>
-                <span className="boom-bust">
-                  {
-                    this.props.system.tub.off === -1
-                    ?
-                      'Loading...'
-                    :
-                      this.props.system.tub.off === false
-                      ?
-                        this.props.system.tub.avail_bust_skr.gte(0) && this.props.system.tub.avail_bust_dai.gte(0)
-                        ?
-                          <span>
-                            Sell { printNumber(this.props.system.tub.avail_bust_dai) } DAI<br />
-                            Buy { printNumber(this.props.system.tub.avail_bust_skr) } PETH
-                          </span>
-                        :
-                          'Loading...'
-                      :
-                        '-'
-                  }
-                </span>
-                <span className="boom-bust">
-                  {
-                    this.props.system.tub.off === -1
-                    ?
-                      'Loading...'
-                    :
-                      this.props.system.tub.off === false
-                      ?
-                        this.props.system.tub.avail_boom_skr.gte(0) && this.props.system.tub.avail_boom_dai.gte(0)
-                        ?
-                          <span>
-                            Sell { printNumber(this.props.system.tub.avail_boom_skr) } PETH<br />
-                            Buy { printNumber(this.props.system.tub.avail_boom_dai) } DAI
-                          </span>
-                        :
-                          'Loading...'
-                      :
-                        '-'
-                  }
-                </span>
+              <div className="main">
                 <div>
+                  <strong>Status</strong>
+                  <span className={ this.props.system.tub.off === true ? 'error-color' : 'success-color' }>
+                    {
+                      this.props.system.tub.off !== -1
+                      ?
+                        this.props.system.tub.off === false ? 'Active' : 'Inactive'
+                      :
+                        'Loading...'
+                    }
+                  </span>
+                </div>
+                <div>
+                  <strong>System Collateralization</strong>
+                  <span>
+                    {
+                      this.props.system.gem.tubBalance.gte(0) && this.props.system.pip.val.gte(0) && this.props.system.dai.totalSupply.gte(0) && this.props.system.vox.par.gte(0)
+                      ?
+                        <span>
+                          {
+                            printNumber(
+                              this.props.system.dai.totalSupply.eq(0)
+                              ? 0
+                              : wdiv(wmul(this.props.system.gem.tubBalance, this.props.system.pip.val), wmul(this.props.system.dai.totalSupply, this.props.system.vox.par)).times(100)
+                            )
+                          }
+                          %
+                        </span>
+                      :
+                        'Loading...'
+                    }
+                  </span>
+                </div>
+                <div>
+                  <strong title="Percentage number of maximum DAI already issued">Debt Ceiling Ratio</strong>
                   {
-                    Object.keys(this.props.actions).map(key =>
-                      this.props.actions[key].active
-                      ? <a key={ key } className="tokenAction" href="#action" data-method={ key } onClick={ this.props.handleOpenModal } ><span data-method={ key }>{ this.props.actions[key].display }</span></a>
-                      : <span key={ key } className="tokenAction" ><span>{ this.props.actions[key].display }</span></span>
-                    )
+                    this.props.system.dai.totalSupply.gte(0) && this.props.system.tub.cap.gte(0)
+                    ?
+                      <span>{ this.props.system.dai.totalSupply.eq(0) ? printNumber(0) : printNumber(wdiv(this.props.system.dai.totalSupply, this.props.system.tub.cap).times(100)) }%</span>
+                    :
+                      <span>Loading...</span>
                   }
+                </div>
+                <div>
+                  <strong title="Amount of collateral pool ETH claimed by 1 PETH">PETH/ETH</strong>
+                  {
+                    this.props.system.tub.per.gte(0)
+                    ?
+                      printNumber(this.props.system.tub.per)
+                    :
+                      <span>Loading...</span>
+                  }
+                </div>
+                <div>
+                  <strong>Total Liquidity Available</strong>
+                  <span className="boom-bust">
+                    {
+                      this.props.system.tub.off === -1
+                      ?
+                        'Loading...'
+                      :
+                        this.props.system.tub.off === false
+                        ?
+                          this.props.system.tub.avail_bust_skr.gte(0) && this.props.system.tub.avail_bust_dai.gte(0)
+                          ?
+                            <span>
+                              Sell { printNumber(this.props.system.tub.avail_bust_dai) } DAI<br />
+                              Buy { printNumber(this.props.system.tub.avail_bust_skr) } PETH
+                            </span>
+                          :
+                            'Loading...'
+                        :
+                          '-'
+                    }
+                  </span>
+                  <span className="boom-bust">
+                    {
+                      this.props.system.tub.off === -1
+                      ?
+                        'Loading...'
+                      :
+                        this.props.system.tub.off === false
+                        ?
+                          this.props.system.tub.avail_boom_skr.gte(0) && this.props.system.tub.avail_boom_dai.gte(0)
+                          ?
+                            <span>
+                              Sell { printNumber(this.props.system.tub.avail_boom_skr) } PETH<br />
+                              Buy { printNumber(this.props.system.tub.avail_boom_dai) } DAI
+                            </span>
+                          :
+                            'Loading...'
+                        :
+                          '-'
+                    }
+                  </span>
+                  <div>
+                    {
+                      Object.keys(this.props.actions).map(key =>
+                        this.props.actions[key].active
+                        ? <a key={ key } className="tokenAction" href="#action" data-method={ key } onClick={ this.props.handleOpenModal } ><span data-method={ key }>{ this.props.actions[key].display }</span></a>
+                        : <span key={ key } className="tokenAction" ><span>{ this.props.actions[key].display }</span></span>
+                      )
+                    }
+                  </div>
                 </div>
               </div>
               <div className="more" style={ {display: this.state.viewMore ? 'block' : 'none'} }>

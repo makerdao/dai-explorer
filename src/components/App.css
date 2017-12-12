@@ -197,21 +197,30 @@ p.error {
   margin-right: 15px;
 }
 
-.system-status > div, .system-status .more > div {
+.system-status > div {
+  width: 100%;
+  overflow: hidden;
+}
+
+.system-status > div > div {
   float: left;
 }
 
-.system-status > div > strong, .system-status .more > div > strong, .system-status .more > div > span, .system-status > div > span {
+.system-status > div > div > strong, .system-status > div > div > span {
   display: block;
   margin: 10px;
 }
 
-.system-status > div > span.boom-bust {
+.system-status .main > div > strong, .system-status .main > div > span {
+  font-size: 16px;
+}
+
+.system-status span.boom-bust {
   float: left;
   margin-top: 0px;
 }
 
-.system-status > div > span.boom-bust:first-of-type {
+.system-status span.boom-bust:first-of-type {
   border-right: 1px solid;
   padding-right: 20px;
 }
@@ -547,7 +556,7 @@ a.resource span {
   content: "Main Account";
 }
 
-.tokenAction {
+.buttonAction {
   border: 1px solid;
   border-radius: 4px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
@@ -561,17 +570,17 @@ a.resource span {
   white-space: nowrap;
 }
 
-span.tokenAction {
+span.buttonAction {
   background-color: #EDEDED ;
   border-color: #DDD;
 }
 
-a.tokenAction {
+a.buttonAction {
   background-color: #1ABC9C;
   border-color: #17A387;
 }
 
-.tokenAction span {
+.buttonAction span {
   margin-left: 0;
   float: none;
   -webkit-touch-callout: none; /* iOS Safari */
@@ -583,10 +592,17 @@ a.tokenAction {
                       supported by Chrome and Opera */
 }
 
-span.tokenAction span {
+span.buttonAction span {
   color: #CCC;
 }
 
-a.tokenAction span {
+a.buttonAction span {
   color: #FFF;
+}
+
+.openAction {
+  font-size: 25px;
+  float: right;
+  margin-right: 0px;
+  padding: 5px 30px;
 }

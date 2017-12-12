@@ -86,13 +86,20 @@ const Token = (props) => {
             </span>
           }
           {
-            props.token === 'skr' &&
+            // Quick fix to align the action buttons:
+            props.token === 'dai' &&
+            <span className="info-box-number">
+              &nbsp;
+            </span>
+          }
+          {
+            props.actions &&
             <div>
               {
                 Object.keys(props.actions).map(key =>
                   props.actions[key].active
-                  ? <a key={ key } className="tokenAction" href="#action" data-method={ key } onClick={ props.handleOpenModal } ><span data-method={ key }>{ props.actions[key].display }</span></a>
-                  : <span key={ key } className="tokenAction" ><span>{ props.actions[key].display }</span></span>
+                  ? <a key={ key } className="buttonAction" title={ props.actions[key].helper } href="#action" data-method={ key } onClick={ props.handleOpenModal } ><span data-method={ key }>{ props.actions[key].display }</span></a>
+                  : <span key={ key } className="buttonAction" title={ props.actions[key].helper }><span>{ props.actions[key].display }</span></span>
                 )
               }
             </div>

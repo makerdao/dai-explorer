@@ -96,6 +96,7 @@ class App extends Component {
           avail_bust_skr: web3.toBigNumber(-1),
           avail_bust_dai: web3.toBigNumber(-1),
           cups: {},
+          ownCup: false,
         },
         top: {
           address: null,
@@ -620,7 +621,7 @@ class App extends Component {
 
     const me = this;
     if (settings.chain[this.state.network.network].service) {
-      Promise.resolve(this.getFromService('cups', conditions, { cupi:'desc' })).then((response) => {
+      Promise.resolve(this.getFromService('cups', conditions, { cupi: 'desc' })).then((response) => {
         response.results.forEach(function (v) {
           me.getCup(toBytes32(v.cupi), address);
         });
@@ -1019,6 +1020,7 @@ class App extends Component {
             ire: cupData[3],
             safe: firstLoad ? 'N/A' : cups[id]['safe']
           };
+          tub.ownCup = tub.ownCup || cup.lad === this.state.profile.activeProfile;
           cups[id] = cup;
           tub.cups = cups;
           system.tub = tub;
@@ -1834,11 +1836,6 @@ class App extends Component {
 
   renderMain() {
     const actions = {
-      open: {
-              display: 'Open',
-              active: this.state.network.defaultAccount && this.state.system.tub.off === false,
-              helper: 'Open a new CDP'
-            },
       heal: {
               display: 'Heal',
               active: this.state.system.dai.tapBalance.gt(0),
@@ -1850,6 +1847,12 @@ class App extends Component {
               helper: ''
             }
     };
+
+    const openAction = {
+      display: 'Open Your CDP',
+      active: this.state.network.defaultAccount && this.state.system.tub.off === false && !this.state.system.tub.ownCup,
+      helper: 'Open a new CDP'
+    }
 
     const bustBoomActions = {
       bust: {
@@ -1876,19 +1879,19 @@ class App extends Component {
     };
 
     const daiActions = {
+      cash: {
+        display: 'Convert DAI to WETH',
+        active: this.state.system.tub.off === true && this.state.system.dai.myBalance.gt(0),
+        helper: 'Exchange your DAI for ETH at the cage price (enabled upon cage)'
+      },
+      mock: {
+        display: 'Convert WETH to DAI',
+        active: this.state.system.tub.off === true && this.state.system.gem.myBalance.gt(0),
+        helper: 'Exchange your ETH for DAI at the cage price (enabled upon cage)'
+     }
     };
 
     if (this.state.system.tub.off === true) {
-      daiActions.cash = {
-                        display: 'Convert DAI to WETH at cage price',
-                        active: this.state.system.dai.myBalance.gt(0),
-                        helper: 'Exchange your DAI for ETH at the cage price'
-                     }
-      daiActions.mock = {
-                        display: 'Convert WETH to DAI at cage price',
-                        active: this.state.system.gem.myBalance.gt(0),
-                        helper: 'Exchange your ETH for DAI at the cage price'
-                     }
       actions.vent = {
                         display: 'Vent',
                         active: this.state.system.skr.tapBalance.gt(0),
@@ -1959,6 +1962,11 @@ class App extends Component {
                     ''
                 }
                 <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                {
+                  openAction.active
+                  ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
+                  : <span className="buttonAction openAction" title={ openAction.helper }><span>{ openAction.display }</span></span>
+                }
               </div>
               <div className="col-md-3 right-sidebar">
                 <div className="box">
