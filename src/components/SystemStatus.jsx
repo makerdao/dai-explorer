@@ -130,8 +130,8 @@ class SystemStatus extends Component {
                     {
                       Object.keys(this.props.actions).map(key =>
                         this.props.actions[key].active
-                        ? <a key={ key } className="tokenAction" href="#action" data-method={ key } onClick={ this.props.handleOpenModal } ><span data-method={ key }>{ this.props.actions[key].display }</span></a>
-                        : <span key={ key } className="tokenAction" ><span>{ this.props.actions[key].display }</span></span>
+                        ? <a key={ key } className="buttonAction" href="#action" data-method={ key } onClick={ this.props.handleOpenModal } ><span data-method={ key }>{ this.props.actions[key].display }</span></a>
+                        : <span key={ key } className="buttonAction" ><span>{ this.props.actions[key].display }</span></span>
                       )
                     }
                   </div>
