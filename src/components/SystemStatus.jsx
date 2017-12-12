@@ -126,7 +126,7 @@ class SystemStatus extends Component {
                           '-'
                     }
                   </span>
-                  <div>
+                  <div style={ {marginLeft: '8px'} }>
                     {
                       Object.keys(this.props.actions).map(key =>
                         this.props.actions[key].active
