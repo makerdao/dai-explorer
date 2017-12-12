@@ -36,22 +36,26 @@ div#cups .row {
 }
 
 .info-box {
-  height: 90px;
+  min-height: 90px;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 5px;
 }
 
 .info-box.big {
-  height: 110px;
+  min-height: 130px;
 }
 
 .info-box-icon {
   font-size: 32px;
   height: 100%;
   line-height: 90px;
+  position: absolute;
   text-transform: uppercase;
 }
 
 .info-box.big .info-box-icon {
-  line-height: 110px;
+  line-height: 130px;
 }
 
 .info-box-number {
@@ -193,11 +197,11 @@ p.error {
   margin-right: 15px;
 }
 
-.system-status > div {
+.system-status > div, .system-status .more > div {
   float: left;
 }
 
-.system-status > div > strong, .system-status > div > span {
+.system-status > div > strong, .system-status .more > div > strong, .system-status .more > div > span, .system-status > div > span {
   display: block;
   margin: 10px;
 }
@@ -210,6 +214,14 @@ p.error {
 .system-status > div > span.boom-bust:first-of-type {
   border-right: 1px solid;
   padding-right: 20px;
+}
+
+.system-status .more-link {
+  display: block;
+  float: right;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  margin-right: 20px;
 }
 
 .error-color {
@@ -335,27 +347,27 @@ p.error {
 }
 
 a.resource {
-     border: 1px solid;
-     border-radius: 4px;
-     clear: left;
-     display: block;
-     margin-bottom: 10px;
-     overflow: hidden;
-     padding: 8px 20px;
+  border: 1px solid;
+  border-radius: 4px;
+  clear: left;
+  display: block;
+  margin-bottom: 10px;
+  overflow: hidden;
+  padding: 8px 20px;
  }
 
 a.resource.buy-dai {
-    background-color: #fff;
-    border-color: #CCCCCC;
-    text-align: center;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  background-color: #1ABC9C;
+  border-color: #17A387;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
 a.resource.buy-dai span {
-    margin-left: 0;
-    float: none;
-    color: #333;
+  margin-left: 0;
+  float: none;
+  color: #FFF;
 }
 
 a.resource.video {
@@ -516,8 +528,9 @@ a.resource span {
 }
 
 .onoffswitch.mode-box {
-  display: block;
-  float: right;
+  position: absolute;
+  right: 15px;
+  top: 30px;
   width: 125px;
 }
 
@@ -532,4 +545,48 @@ a.resource span {
 }
 .onoffswitch.mode-box .onoffswitch-inner:after {
   content: "Main Account";
+}
+
+.tokenAction {
+  border: 1px solid;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  display: block;
+  float: left;
+  margin-right: 10px;
+  margin-top: 5px;
+  overflow: hidden;
+  padding: 2px 5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+span.tokenAction {
+  background-color: #EDEDED ;
+  border-color: #DDD;
+}
+
+a.tokenAction {
+  background-color: #1ABC9C;
+  border-color: #17A387;
+}
+
+.tokenAction span {
+  margin-left: 0;
+  float: none;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+   user-select: none; /* Non-prefixed version, currently
+                      supported by Chrome and Opera */
+}
+
+span.tokenAction span {
+  color: #CCC;
+}
+
+a.tokenAction span {
+  color: #FFF;
 }

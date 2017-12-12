@@ -23,25 +23,22 @@ const Token = (props) => {
                               : ''));
   return (
     <div className="col-md-6 col-sm-6 col-xs-12">
-      <div className="info-box">
+      <div className={ props.token === 'skr' || props.token === 'dai' ? 'info-box big' : 'info-box' }>
         <span className={`info-box-icon ${props.color}`}>
           { etherscanToken(props.network, name, token.address) }
         </span>
         <div className="info-box-content">
           {
-            token.myBalance
-            ?
-              <span className="info-box-number">
-                <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your Balance', token.address, props.account) }</span>
-                <AnimatedNumber
-                  value={ token.myBalance }
-                  title={ formatNumber(token.myBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
+            token.myBalance &&
+            <span className="info-box-number">
+              <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your Balance', token.address, props.account) }</span>
+              <AnimatedNumber
+                value={ token.myBalance }
+                title={ formatNumber(token.myBalance, 18) }
+                formatValue={ n => formatNumber(n, 3) }
+                className="printedNumber"
+                onClick = { copyToClipboard } />
+            </span>
           }
           <span className="info-box-number">
             <span>{ etherscanToken(props.network, 'Total Supply', token.address) }</span>
@@ -53,49 +50,52 @@ const Token = (props) => {
               onClick = { copyToClipboard } />
           </span>
           {
-            token.tubBalance
-            ?
-              <span className="info-box-number">
-                <span title={ tubBalanceDesc }>{ etherscanToken(props.network, tubBalanceLabel, token.address, props.system.tub.address) }</span>
-                <AnimatedNumber
-                  value={ tubBalance }
-                  title={ formatNumber(tubBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
+            token.tubBalance &&
+            <span className="info-box-number">
+              <span title={ tubBalanceDesc }>{ etherscanToken(props.network, tubBalanceLabel, token.address, props.system.tub.address) }</span>
+              <AnimatedNumber
+                value={ tubBalance }
+                title={ formatNumber(tubBalance, 18) }
+                formatValue={ n => formatNumber(n, 3) }
+                className="printedNumber"
+                onClick = { copyToClipboard } />
+            </span>
           }
           {
-            token.tapBalance && (props.token !== 'gem' || props.off === true)
-            ?
-              <span className="info-box-number">
-                <span title={ tapBalanceDesc }>{ etherscanToken(props.network, tapBalanceLabel, token.address, props.system.tap.address) }</span>
-                <AnimatedNumber
-                  value={ tapBalance }
-                  title={ formatNumber(tapBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
+            token.tapBalance && (props.token !== 'gem' || props.off === true) &&
+            <span className="info-box-number">
+              <span title={ tapBalanceDesc }>{ etherscanToken(props.network, tapBalanceLabel, token.address, props.system.tap.address) }</span>
+              <AnimatedNumber
+                value={ tapBalance }
+                title={ formatNumber(tapBalance, 18) }
+                formatValue={ n => formatNumber(n, 3) }
+                className="printedNumber"
+                onClick = { copyToClipboard } />
+            </span>
           }
           {
-            token.pitBalance
-            ?
-              <span className="info-box-number">
-                <span title="Burner">{ etherscanToken(props.network, "Burner", token.address, props.system.pit.address) }</span>
-                <AnimatedNumber
-                  value={ token.pitBalance }
-                  title={ formatNumber(token.pitBalance, 18) }
-                  formatValue={ n => formatNumber(n, 3) }
-                  className="printedNumber"
-                  onClick = { copyToClipboard } />
-              </span>
-            :
-              ''
+            token.pitBalance &&
+            <span className="info-box-number">
+              <span title="Burner">{ etherscanToken(props.network, "Burner", token.address, props.system.pit.address) }</span>
+              <AnimatedNumber
+                value={ token.pitBalance }
+                title={ formatNumber(token.pitBalance, 18) }
+                formatValue={ n => formatNumber(n, 3) }
+                className="printedNumber"
+                onClick = { copyToClipboard } />
+            </span>
+          }
+          {
+            props.token === 'skr' &&
+            <div>
+              {
+                Object.keys(props.actions).map(key =>
+                  props.actions[key].active
+                  ? <a key={ key } className="tokenAction" href="#action" data-method={ key } onClick={ props.handleOpenModal } ><span data-method={ key }>{ props.actions[key].display }</span></a>
+                  : <span key={ key } className="tokenAction" ><span>{ props.actions[key].display }</span></span>
+                )
+              }
+            </div>
           }
         </div>
       </div>

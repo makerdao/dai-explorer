@@ -1835,47 +1835,62 @@ class App extends Component {
   renderMain() {
     const actions = {
       open: {
+              display: 'Open',
               active: this.state.network.defaultAccount && this.state.system.tub.off === false,
               helper: 'Open a new CDP'
             },
-      join: {
-              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
-              helper: 'Exchange ETH for PETH'
-            },
-      exit: {
-              active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
-                          && (this.state.system.tub.off === false ||
-                             (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
-              helper: 'Exchange PETH for ETH'
-            },
-      bust: {
-              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
-              helper: 'Buy PETH with DAI'
-            },
-      boom: {
-              active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
-              helper: 'Buy DAI with PETH'
-            },
       heal: {
+              display: 'Heal',
               active: this.state.system.dai.tapBalance.gt(0),
               helper: ''
             },
       drip: {
+              display: 'Drip',
               active: this.state.system.tub.off === false,
               helper: ''
             }
     };
 
+    const bustBoomActions = {
+      bust: {
+        display: 'Buy PETH with DAI',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
+      },
+      boom: {
+        display: 'Buy Dai with PETH',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
+      },
+    }
+
+    const skrActions = {
+      join: {
+        display: 'Convert WETH to PETH',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
+      },
+      exit: {
+        display: 'Convert PETH to WETH',
+        active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
+                    && (this.state.system.tub.off === false ||
+                       (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
+      },
+    };
+
+    const daiActions = {
+    };
+
     if (this.state.system.tub.off === true) {
-      actions.cash = {
+      daiActions.cash = {
+                        display: 'Convert DAI to WETH at cage price',
                         active: this.state.system.dai.myBalance.gt(0),
                         helper: 'Exchange your DAI for ETH at the cage price'
                      }
-      actions.mock = {
-                      active: this.state.system.gem.myBalance.gt(0),
-                      helper: 'Exchange your ETH for DAI at the cage price'
-                   }
+      daiActions.mock = {
+                        display: 'Convert WETH to DAI at cage price',
+                        active: this.state.system.gem.myBalance.gt(0),
+                        helper: 'Exchange your ETH for DAI at the cage price'
+                     }
       actions.vent = {
+                        display: 'Vent',
                         active: this.state.system.skr.tapBalance.gt(0),
                         helper: 'Clean up the CDP state after cage'
                      }
@@ -1912,8 +1927,8 @@ class App extends Component {
             <div className="row">
               <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.system.tub.off } />
               <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.system.tub.off } />
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' actions={ skrActions } handleOpenModal={ this.handleOpenModal } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' actions={ daiActions } handleOpenModal={ this.handleOpenModal } />
               {/* <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
@@ -1928,7 +1943,7 @@ class App extends Component {
                   ? <PriceChart chartData={ this.state.system.chartData } />
                   : ''
                 }
-                <SystemStatus system={ this.state.system } />
+                <SystemStatus system={ this.state.system } actions={ bustBoomActions } handleOpenModal={ this.handleOpenModal } />
                 {
                   web3.isAddress(this.state.network.defaultAccount)
                   ?
@@ -1957,8 +1972,8 @@ class App extends Component {
                           Object.keys(actions).map(key =>
                             <span key={ key } style={ {textTransform: 'capitalize'} }>
                               { actions[key].active
-                                  ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</a>
-                                  : <span title={ actions[key].helper }>{ key.substr(0,1).toUpperCase() + key.substr(1) }</span> }
+                                  ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ actions[key].display }</a>
+                                  : <span title={ actions[key].helper }>{ actions[key].display }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
