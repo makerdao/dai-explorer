@@ -58,7 +58,7 @@ class GeneralInfo extends Component {
                 <div><strong>Vox:</strong> { etherscanAddress(this.props.network, this.props.vox, this.props.vox) }</div>
               </div>
             </div>
-            <div className="col-md-6">
+            {/* <div className="col-md-6">
               <div className="box-group" id="accordion">
                 <div className="panel box box-primary collapsed">
                   <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false">
@@ -81,7 +81,7 @@ class GeneralInfo extends Component {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

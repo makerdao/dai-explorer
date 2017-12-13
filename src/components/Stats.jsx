@@ -2,26 +2,21 @@ import React from 'react';
 import web3 from  '../web3';
 import { printNumber } from '../helpers';
 
-const saveStorage = (e) => {
-  localStorage.setItem('statsCollapsed', localStorage.getItem('statsCollapsed') === "true" ? false : true)
-}
-
 const Stats = (props) => {
   return (
-    <div className="box collapsed">
-      <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseStats" onClick={ saveStorage } aria-expanded={ localStorage.getItem('statsCollapsed') !== 'true' }>
-        <h3 className="box-title">Stats</h3>
+    <div style={ {marginTop: '15px', clear: 'left'} }>
+      <div style={ {paddingLeft: '10px', fontSize: '16px'} }>
+        <strong>Stats</strong>
       </div>
-      <div id="collapseStats" className={ `box-body panel-collapse collapse${localStorage.getItem('statsCollapsed') !== 'true' ? ' in' : ''}` } aria-expanded={ localStorage.getItem('statsCollapsed') !== 'true' } style={{ height: localStorage.getItem('statsCollapsed') !== 'true' ? "auto" : "0px" }}>
-        <div className="row">
-          {
-          props.stats.error
-          ?
-            <div className="col-md-12 system-status">
-              <div>Stats are not available at this moment</div>
-            </div>
-          :
-            <div className="col-md-12 system-status">
+      {
+        props.stats.error
+        ?
+          <div className="system-status">
+            <div style={ {paddingLeft: '10px'} }>Stats are not available at this moment</div>
+          </div>
+        :
+          <div className="system-status">
+            <div>
               <div>
                 <strong>CDPs Opened</strong>
                 <span>
@@ -119,9 +114,8 @@ const Stats = (props) => {
                 </span>
               </div>
             </div>
-          }
-        </div>
-      </div>
+          </div>
+        }
     </div>
   )
 }

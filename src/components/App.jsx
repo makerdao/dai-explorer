@@ -9,7 +9,6 @@ import Token from './Token';
 import GeneralInfo from './GeneralInfo';
 import TokenAllowance from './TokenAllowance';
 import PriceChart from './PriceChart';
-import Stats from './Stats';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Wrap from './Wrap';
@@ -1835,18 +1834,25 @@ class App extends Component {
   //
 
   renderMain() {
-    const actions = {
-      heal: {
-              display: 'Heal',
-              active: this.state.system.dai.tapBalance.gt(0),
-              helper: ''
-            },
-      drip: {
-              display: 'Drip',
-              active: this.state.system.tub.off === false,
-              helper: ''
-            }
-    };
+    // const actions = {
+    //   heal: {
+    //           display: 'Heal',
+    //           active: this.state.system.dai.tapBalance.gt(0),
+    //           helper: ''
+    //         },
+    //   drip: {
+    //           display: 'Drip',
+    //           active: this.state.system.tub.off === false,
+    //           helper: ''
+    //         }
+    // };
+    // if (this.state.system.tub.off === true) {
+    //   actions.vent = {
+    //                     display: 'Vent',
+    //                     active: this.state.system.skr.tapBalance.gt(0),
+    //                     helper: 'Clean up the CDP state after cage'
+    //                  }
+    // }
 
     const openAction = {
       display: 'Open Your CDP',
@@ -1891,14 +1897,6 @@ class App extends Component {
      }
     };
 
-    if (this.state.system.tub.off === true) {
-      actions.vent = {
-                        display: 'Vent',
-                        active: this.state.system.skr.tapBalance.gt(0),
-                        helper: 'Clean up the CDP state after cage'
-                     }
-    }
-
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -1937,16 +1935,11 @@ class App extends Component {
             <div className="row">
               <div className="col-md-9 main">
                 {
-                  settings.chain[this.state.network.network].service
-                  ? <Stats stats={ this.state.system.stats } />
-                  : ''
-                }
-                {
                   settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
                   ? <PriceChart chartData={ this.state.system.chartData } />
                   : ''
                 }
-                <SystemStatus system={ this.state.system } actions={ bustBoomActions } handleOpenModal={ this.handleOpenModal } />
+                <SystemStatus system={ this.state.system } actions={ bustBoomActions } handleOpenModal={ this.handleOpenModal } service={ settings.chain[this.state.network.network].service } stats={ this.state.system.stats } />
                 {
                   web3.isAddress(this.state.network.defaultAccount)
                   ?
@@ -1969,7 +1962,7 @@ class App extends Component {
                 }
               </div>
               <div className="col-md-3 right-sidebar">
-                <div className="box">
+                {/* <div className="box">
                   <div className="box-header with-border">
                     <h3 className="box-title">General Actions</h3>
                   </div>
@@ -1989,8 +1982,8 @@ class App extends Component {
                       </div>
                     </div>
                   </div>
-                </div>
-                <a className="resource buy-dai" href="https://oasisdex.com" target="_blank" rel="noopener noreferrer" >
+                </div> */}
+                <a className="resource buy-dai" href="https://oasisdex.com/#trade/W-ETH/DAI" target="_blank" rel="noopener noreferrer" >
                   <span>Buy DAI</span>
                 </a>
                 {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import web3 from  '../web3';
 import { WAD, printNumber, wdiv, wmul } from '../helpers';
+import Stats from './Stats';
 
 class SystemStatus extends Component {
   state = {
@@ -282,6 +283,11 @@ class SystemStatus extends Component {
                     }
                   </span>
                 </div>
+                {
+                  this.props.service
+                  ? <Stats stats={ this.props.stats } />
+                  : ''
+                }
               </div>
               {
                 this.state.viewMore

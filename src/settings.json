@@ -18,7 +18,7 @@
       "top": "0x0d26c4942e34eb25cb23bdb12e654e8e20287122",
       "faucet": "",
       "fromBlock": 5005833,
-      "service": "",
+      "service": "https://devar.connaxis.com/dai-service",
       "chart": false,
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
       "proxyContracts": {
