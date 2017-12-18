@@ -49,11 +49,11 @@ class AnnouncementText extends Component {
         </p>
 
         <p>
-          Dai is based on the experimental blockchain and smart contract technology which carries significant and inherent operational, technological, financial and regulatory risks. It cannot be excluded that, as a result of defects, technical bugs, network forks, intentional attacks of third parties or other events, the Dai system experiences disruption, suspension or termination, and/or the value of Dai over time may experience extreme volatility or depreciate in full, as well as ETH may be lost lost. Attacks by hackers on the Dai system, smart contracts or other software used may have unforeseeable consequences, including loss of Dai and/or ETH. Also, market conditions may change and thus no market liquidity is guaranteed. All smart contracts are ultimately controlled by the network of miners. There are also other risks associated with use of the Dai system, including those that cannot be anticipated.
+          Dai is based on the experimental blockchain and smart contract technology which carries significant and inherent operational, technological, financial and regulatory risks. It cannot be excluded that, as a result of defects, technical bugs, network forks, intentional attacks of third parties or other events, the Dai system experiences disruption, suspension or termination, and/or the value of Dai over time may experience extreme volatility or depreciate in full, as well as ETH may be lost. Attacks by hackers on the Dai system, smart contracts or other software used may have unforeseeable consequences, including loss of Dai and/or ETH. Also, market conditions may change and thus no market liquidity is guaranteed. All smart contracts are ultimately controlled by the network of miners. There are also other risks associated with use of the Dai system, including those that cannot be anticipated.
         </p>
 
         <p>
-          Use of the Dai system requires deep knowledge of smart contract technology and related fields. Its use without proper skills and preparation may result in unintended consequences. Source code of the Dai system as well as information on security reviews conducted so far is available here.
+          Use of the Dai system requires deep knowledge of smart contract technology and related fields. Its use without proper skills and preparation may result in unintended consequences. Source code of the Dai system as well as information on security reviews conducted so far is available here: <a href="https://github.com/makerdao/sai" target="_blank" rel="noopener noreferrer">https://github.com/makerdao/sai</a>.
         </p>
 
         <p>
