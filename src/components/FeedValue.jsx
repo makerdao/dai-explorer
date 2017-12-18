@@ -1,5 +1,5 @@
 import React from 'react';
-import DSValue from './DSValue';
+// import DSValue from './DSValue';
 import web3 from '../web3';
 import AnimatedNumber from '../AnimatedNumber';
 import { toBytes12, formatNumber, copyToClipboard } from '../helpers';
@@ -15,7 +15,7 @@ class FeedValue extends React.Component {
       values: []
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     this.m = web3.eth.contract(medianizer.abi).at(this.props.address);
     window.m = this.m;
     this.get(this.m, 'next')
@@ -71,7 +71,7 @@ class FeedValue extends React.Component {
     return(
       <div className="box">
         <div className="box-header with-border">
-          <h3 className="box-title">Price Feed</h3>
+          <h3 className="box-title">{ this.props.currency } Price Feed</h3>
         </div>
         <div className="box-body">
           <div className="row">
@@ -81,14 +81,14 @@ class FeedValue extends React.Component {
                   Current Value:&nbsp;
                   <strong>
                     <AnimatedNumber
-                    value={ this.props.pipVal }
-                    title={ formatNumber(this.props.pipVal) }
+                    value={ this.props.val }
+                    title={ formatNumber(this.props.val) }
                     formatValue={ n => formatNumber(n, 3) }
                     className="printedNumber"
                     onClick = { copyToClipboard } />
-                  </strong> USD/ETH
+                  </strong> USD/{ this.props.currency }
                 </p>
-                {
+                {/* {
                   this.state.last
                   ?
                     <p>
@@ -97,8 +97,8 @@ class FeedValue extends React.Component {
                   :
                     ''
                 }
-                { this.state.values.filter(x => x !== "0x0000000000000000000000000000000000000000").map(x => <DSValue key={ x } address={ x } />) }
-                <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/feeds/#${this.props.address}` }>Details</a>
+                { this.state.values.filter(x => x !== "0x0000000000000000000000000000000000000000").map(x => <DSValue key={ x } address={ x } />) } */}
+                <a target="_blank" rel="noopener noreferrer" href={ `http://makerdao.com/feeds/#${this.props.address}` }>View More</a>
               </div>
             </div>
           </div>

@@ -3,30 +3,42 @@
   "chain": {
     "private": {
       "top": "",
-      "lpc": "",
       "faucet": "",
-      "whitelisted": false,
       "fromBlock": 0,
       "service": "",
-      "chart": false
+      "chart": false,
+      "proxyFactory": "",
+      "proxyContracts": {
+        "basicActions": "",
+        "customActions": "",
+        "tokenActions": ""
+      }
     },
     "kovan": {
-      "top": "0xc25789084005dc4ed6be033a943f2c2f3efafcc1",
-      "lpc": "",
+      "top": "0x0d26c4942e34eb25cb23bdb12e654e8e20287122",
       "faucet": "",
-      "whitelisted": false,
-      "fromBlock": 2670325,
-      "service": "https://devar.connaxis.com/sai-service",
-      "chart": false
+      "fromBlock": 5005833,
+      "service": "https://devar.connaxis.com/dai-service",
+      "chart": false,
+      "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
+      "proxyContracts": {
+        "basicActions": "0x4e81891f77064f98dc45a2d9028f7624e2ddceeb",
+        "customActions": "0x1fdf5b2336629875b4bf6b82bfca6a83428d510c",
+        "tokenActions": "0x6033bed276430424852f510277e8ab177eac76b0"
+      }
     },
     "main": {
-      "top": "0x92bfd0e786e284429c96cf6a6e4a3ecf46fb3e9a",
-      "lpc": "",
+      "top": "",
       "faucet": "",
-      "whitelisted": false,
-      "fromBlock": 4030971,
-      "service": "https://sai-service.makerdao.com/",
-      "chart": false
+      "fromBlock": 0,
+      "service": "",
+      "chart": false,
+      "proxyFactory": "",
+      "proxyContracts": {
+        "basicActions": "",
+        "customActions": "",
+        "tokenActions": ""
+      }
     }
   }
 }

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import web3 from  '../web3';
-
 import { etherscanAddress } from '../helpers';
+
+const settings = require('../settings');
 
 class GeneralInfo extends Component {
 
   changeTub = (e) => {
     e.preventDefault();
     const top = this.top ? this.top.value : null;
-    const lpc = this.lpc ? this.lpc.value : null;
     if (top) {
       //this.form.reset();
-      this.props.initContracts(top, lpc);
+      this.props.initContracts(top);
     }
   }
 
@@ -26,7 +26,6 @@ class GeneralInfo extends Component {
           <div className="row">
             <div className="col-md-6">
               <div style={ {textTransform: 'capitalize'} }><strong>Network:</strong> { this.props.network === 'main' ? 'mainnet' : this.props.network }</div>
-              { this.props.lpc ? <div><strong>LPC:</strong> { etherscanAddress(this.props.network, this.props.lpc, this.props.lpc) }</div> : '' }
               <div>
                 <strong>Account:</strong> { this.props.account
                                             ? etherscanAddress(this.props.network, this.props.account, this.props.account)
@@ -37,27 +36,34 @@ class GeneralInfo extends Component {
                                                 }
                                               </span> }
               </div>
-              <div style={ {textTransform: 'capitalize'} }>
-                <strong>Role:</strong> { this.props.role === 'undefined' ? 'Loading...' : this.props.role  }
-              </div>
+              {
+                settings.chain[this.props.network].proxyFactory
+                ?
+                  <div>
+                    <strong>Proxy Profile:</strong> { this.props.proxy
+                                                      ? etherscanAddress(this.props.network, this.props.proxy, this.props.proxy)
+                                                      : 'No Proxy Profile created for this Account'}
+                  </div>
+                :
+                  ''
+              }
               <a data-toggle="collapse" data-parent="#accordion" href="#collapseAddresses" aria-expanded="false" id="toggle-addresses" className="collapsed">
                 <span>Show</span><span>Hide</span> contracts addresses
               </a>
               <div id="collapseAddresses" className="panel-collapse collapse" aria-expanded="false" style={{ height: "0px" }}>
-                <div><strong>Sai:</strong> { etherscanAddress(this.props.network, this.props.sai, this.props.sai) }</div>
+                <div><strong>Dai:</strong> { etherscanAddress(this.props.network, this.props.dai, this.props.dai) }</div>
                 <div><strong>Top:</strong> { etherscanAddress(this.props.network, this.props.top, this.props.top) }</div>
                 <div><strong>Tub:</strong> { etherscanAddress(this.props.network, this.props.tub, this.props.tub) }</div>
                 <div><strong>Tap:</strong> { etherscanAddress(this.props.network, this.props.tap, this.props.tap) }</div>
-                <div><strong>Jar:</strong> { etherscanAddress(this.props.network, this.props.jar, this.props.jar) }</div>
-                <div><strong>Tip:</strong> { etherscanAddress(this.props.network, this.props.tip, this.props.tip) }</div>
+                <div><strong>Vox:</strong> { etherscanAddress(this.props.network, this.props.vox, this.props.vox) }</div>
               </div>
             </div>
-            <div className="col-md-6">
+            {/* <div className="col-md-6">
               <div className="box-group" id="accordion">
                 <div className="panel box box-primary collapsed">
                   <div className="box-header with-border" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false">
                     <h3 className="box-title">
-                      Change Top{ this.props.lpc ? ' and LPC' : '' }
+                      Change Top
                     </h3>
                   </div>
                   <div id="collapseOne" className="panel-collapse collapse" aria-expanded="false" style={{ height: "0px" }}>
@@ -69,22 +75,13 @@ class GeneralInfo extends Component {
                             <input ref={(input) => this.top = input} id="topInput" type="text" className="form-control" placeholder="Enter a valid top address" />
                           </div>
                         </div>
-                        {
-                          this.props.lpc &&
-                          <div className="form-group">
-                            <label htmlFor="lpcInput" className="col-sm-3 control-label">LPC Address</label>
-                            <div className="col-sm-9">
-                              <input ref={(input) => this.lpc = input} id="lpcInput" type="text" className="form-control" placeholder="Enter a valid lpc address" />
-                            </div>
-                          </div>
-                        }
                         <button type="submit" className="btn btn-info pull-right">Update</button>
                       </form>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

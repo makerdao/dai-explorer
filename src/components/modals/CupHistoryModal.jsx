@@ -91,11 +91,11 @@ class CupHistoryModal extends Component {
                               {
                                 ['lock', 'free'].indexOf(this.props.modal.actions[key].action) !== -1
                                 ?
-                                  ' SKR'
+                                  ' PETH'
                                 :
                                   ['draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1
                                   ?
-                                    ' SAI'
+                                    ' DAI'
                                   :
                                     ''
                               }

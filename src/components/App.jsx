@@ -7,34 +7,31 @@ import TerminologyModal from './modals/TerminologyModal';
 import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
 import GeneralInfo from './GeneralInfo';
-import Faucet from './Faucet';
+import TokenAllowance from './TokenAllowance';
 import PriceChart from './PriceChart';
-import Stats from './Stats';
 import SystemStatus from './SystemStatus';
 import Cups from './Cups';
 import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
 import ResourceButtons from './ResourceButtons';
-import Lpc from './Lpc';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
-import { WAD, toBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
+import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 import logo from '../makerdao.svg';
 import './App.css';
 
 const settings = require('../settings');
 
-const tub = require('../abi/tub');
-const jar = require('../abi/saijar');
-const top = require('../abi/top');
-const tap = require('../abi/tap');
-const tip = require('../abi/tip');
+const tub = require('../abi/saitub');
+const top = require('../abi/saitop');
+const tap = require('../abi/saitap');
+const vox = require('../abi/saivox');
+const dsproxyfactory = require('../abi/dsproxyfactory');
+const dsproxy = require('../abi/dsproxy');
 const dsethtoken = require('../abi/dsethtoken');
 const dstoken = require('../abi/dstoken');
 const dsvalue = require('../abi/dsvalue');
-const dsroles = require('../abi/dsroles');
-const lpc = require('../abi/sailpc');
 
 class App extends Component {
   constructor() {
@@ -42,7 +39,11 @@ class App extends Component {
     const initialState = this.getInitialState();
     this.state = {
       ...initialState,
-      network: {
+      network: {},
+      profile: {
+        mode: localStorage.getItem('mode') || 'account',
+        proxy: null,
+        activeProfile: null,
         accountBalance: web3.toBigNumber(-1),
       },
       transactions: {},
@@ -63,108 +64,114 @@ class App extends Component {
       modal: {
         show: false
       },
+      cupsList: localStorage.getItem('cupsList') !== '' ? localStorage.getItem('cupsList') : 'mine',
       params: ''
     }
   }
 
   getInitialState = () => {
     return {
-      sai: {
+      system: {
         tub: {
           address: null,
           authority: null,
-          role: 'undefined',
           eek: 'undefined',
           safe: 'undefined',
-          reg: web3.toBigNumber(-1),
+          off: -1,
+          out: -1,
           axe: web3.toBigNumber(-1),
           mat: web3.toBigNumber(-1),
-          hat: web3.toBigNumber(-1),
+          cap: web3.toBigNumber(-1),
           fit: web3.toBigNumber(-1),
           tax: web3.toBigNumber(-1),
+          fee: web3.toBigNumber(-1),
           chi: web3.toBigNumber(-1),
+          rhi: web3.toBigNumber(-1),
           rho: web3.toBigNumber(-1),
-          avail_boom_skr: web3.toBigNumber(-1),
-          avail_boom_sai: web3.toBigNumber(-1),
-          avail_bust_skr: web3.toBigNumber(-1),
-          avail_bust_sai: web3.toBigNumber(-1),
-          cups: {},
-        },
-        jar: {
-          address: null,
-          per: web3.toBigNumber(-1),
-          tag: web3.toBigNumber(-1),
           gap: web3.toBigNumber(-1),
+          tag: web3.toBigNumber(-1),
+          per: web3.toBigNumber(-1),
+          avail_boom_skr: web3.toBigNumber(-1),
+          avail_boom_dai: web3.toBigNumber(-1),
+          avail_bust_skr: web3.toBigNumber(-1),
+          avail_bust_dai: web3.toBigNumber(-1),
+          cups: {},
+          cupsLoading: true,
+          ownCup: false,
         },
         top: {
           address: null,
         },
         tap: {
           address: null,
+          fix: web3.toBigNumber(-1),
           gap: web3.toBigNumber(-1),
         },
-        tip: {
+        vox: {
           address: null,
           era: web3.toBigNumber(-1),
           tau: web3.toBigNumber(-1),
           par: web3.toBigNumber(-1),
           way: web3.toBigNumber(-1),
         },
+        pit: {
+          address: null,
+        },
         gem: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          jarBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
+          tubApproved: -1,
+          tapApproved: -1,
+        },
+        gov: {
+          address: null,
+          totalSupply: web3.toBigNumber(-1),
+          myBalance: web3.toBigNumber(-1),
           pitBalance: web3.toBigNumber(-1),
-          lpcBalance: web3.toBigNumber(-1),
+          tubApproved: -1,
         },
         skr: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          jarBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
+          tubApproved: -1,
+          tapApproved: -1,
         },
-        sai: {
+        dai: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
           myBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
-          lpcBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
+          tubApproved: -1,
+          tapApproved: -1,
         },
         sin: {
           address: null,
           totalSupply: web3.toBigNumber(-1),
-          potBalance: web3.toBigNumber(-1),
-          pitBalance: web3.toBigNumber(-1),
+          tubBalance: web3.toBigNumber(-1),
+          tapBalance: web3.toBigNumber(-1),
           // This field will keep an estimated value of new sin which is being generated due the 'stability/issuer fee'.
           // It will return to zero each time 'drip' is called
           issuerFee: web3.toBigNumber(0),
-        },
-        pot: {
-          address: null,
-        },
-        pit: {
-          address: null,
         },
         pip: {
           address: null,
           val: web3.toBigNumber(-1),
         },
-        lpc: {
+        pep: {
           address: null,
+          val: web3.toBigNumber(-1),
         },
-        lps: {
-          address: null,
-          totalSupply: web3.toBigNumber(-1),
-          myBalance: web3.toBigNumber(-1),
-        },
-        whitelisted: true,
         chartData: {
           ethusd: {},
           skreth: {},
-          saiusd: {},
-          ethsai: {},
+          daiusd: {},
+          ethdai: {},
         },
         stats: {
           error: false
@@ -174,7 +181,7 @@ class App extends Component {
   }
 
   checkNetwork = () => {
-    web3.version.getNode((error) => {
+    web3.version.getNode(error => {
       const isConnected = !error;
 
       // Check if we are synced
@@ -185,8 +192,8 @@ class App extends Component {
           }
           if (res.number >= this.state.network.latestBlock) {
             const networkState = { ...this.state.network };
-            networkState['latestBlock'] = res.number;
-            networkState['outOfSync'] = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
+            networkState.latestBlock = res.number;
+            networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
             this.setState({ network: networkState });
           } else {
             // XXX MetaMask frequently returns old blocks
@@ -222,48 +229,38 @@ class App extends Component {
           });
         } else {
           const networkState = { ...this.state.network };
-          networkState['isConnected'] = isConnected;
-          networkState['network'] = false;
-          networkState['latestBlock'] = 0;
+          networkState.isConnected = isConnected;
+          networkState.network = false;
+          networkState.latestBlock = 0;
           this.setState({ network: networkState });
         }
       }
     });
   }
 
-  initNetwork = (newNetwork) => {
+  initNetwork = newNetwork => {
     //checkAccounts();
     const networkState = { ...this.state.network };
-    networkState['network'] = newNetwork;
-    networkState['isConnected'] = true;
-    networkState['latestBlock'] = 0;
-    this.setState({ network: networkState });
-
-    const addrs = settings.chain[this.state.network.network];
-
-    const saiState = { ...this.state.sai };
-    saiState['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
-    this.setState({ sai: saiState });
-
-    this.initContracts(addrs['top'], addrs['lpc']);
+    networkState.network = newNetwork;
+    networkState.isConnected = true;
+    networkState.latestBlock = 0;
+    this.setState({ network: networkState }, () => {
+      const addrs = settings.chain[this.state.network.network];
+      this.initContracts(addrs.top);
+    });
   }
 
-  checkAccounts = () => {
+  checkAccounts = (checkAccountChange = true) => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
         const networkState = { ...this.state.network };
-        networkState['accounts'] = accounts;
-        networkState['defaultAccount'] = accounts[0];
-        web3.eth.defaultAccount = networkState['defaultAccount'];
+        networkState.accounts = accounts;
+        const oldDefaultAccount = networkState.defaultAccount;
+        networkState.defaultAccount = accounts[0];
+        web3.eth.defaultAccount = networkState.defaultAccount;
         this.setState({ network: networkState }, () => {
-          if (web3.isAddress(this.state.network.defaultAccount)) {
-            web3.eth.getBalance(this.state.network.defaultAccount, (e, r) => {
-              const networkState = { ...this.state.network };
-              networkState['accountBalance'] = r;
-              this.setState({ network: networkState }, () => {
-                this.checkUserAuth();
-              });
-            });
+          if (checkAccountChange && oldDefaultAccount !== networkState.defaultAccount) {
+            this.initContracts(this.state.system.top.address);
           }
         });
       }
@@ -278,12 +275,12 @@ class App extends Component {
     initWeb3(web3);
 
     this.checkNetwork();
-    this.checkAccounts();
+    this.checkAccounts(false);
 
     this.setHashParams();
     window.onhashchange = () => {
       this.setHashParams();
-      this.initContracts(this.state.sai.top.address, this.state.sai.lpc.address);
+      this.initContracts(this.state.system.top.address);
     }
 
     if (localStorage.getItem('termsModal')) {
@@ -304,60 +301,70 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateAddresses = (topAddress, lpcAddress) => {
-    return web3.isAddress(topAddress) && (web3.isAddress(lpcAddress) || lpcAddress === '' || lpcAddress === null);
+  validateAddresses = topAddress => {
+    return web3.isAddress(topAddress);
   }
 
-  initContracts = (topAddress, lpcAddress) => {
-    if (!this.validateAddresses(topAddress, lpcAddress)) {
+  initContracts = topAddress => {
+    if (!this.validateAddresses(topAddress)) {
       return;
     }
     web3.reset(true);
+    if (typeof this.timeVariablesInterval !== 'undefined') clearInterval(this.timeVariablesInterval);
+    if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
-    this.setState({
-      ...initialState
+    this.setState((prevState, props) => {
+      return { system: {...initialState}.system };
     }, () => {
-      // We need to verify that tap and top correspond to the tub
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
-      window.lpcObj = this.lpcObj = this.loadObject(lpc.abi, lpcAddress);
+      const addrs = settings.chain[this.state.network.network];
 
       const setUpPromises = [this.getTubAddress(), this.getTapAddress()];
-      Promise.all(setUpPromises).then((r) => {
-        if (r[0] && r[1] && web3.isAddress(r[0]) &&web3.isAddress(r[1])) {
+      if (addrs.proxyFactory) {
+        window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
+        setUpPromises.push(this.getProxyAddress());
+      }
+      Promise.all(setUpPromises).then(r => {
+        if (r[0] && r[1] && web3.isAddress(r[0]) && web3.isAddress(r[1])) {
           window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
-          const sai = { ...this.state.sai };
+          const system = { ...this.state.system };
+          const profile = { ...this.state.profile };
 
-          sai['whitelisted'] = settings.chain[this.state.network.network]['whitelisted'];
-          sai['top'].address = topAddress;
-          sai['lpc'].address = lpcAddress;
-          sai['tub'].address = r[0];
-          sai['tap'].address = r[1];
+          system.top.address = topAddress;
+          system.tub.address = r[0];
+          system.tap.address = r[1];
 
-          this.setState({ sai }, () => {
-            const promises = [this.setUpJar(), this.setUpTip()];
-            Promise.all(promises).then((r) => {
+          if (addrs.proxyFactory && r[2]) {
+            profile.proxy = r[2];
+            profile.activeProfile = localStorage.getItem('mode') === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
+            window.proxyObj = this.proxyObj = this.loadObject(dsproxy.abi, profile.proxy);
+          } else {
+            profile.activeProfile = this.state.network.defaultAccount;
+            profile.mode = 'account';
+            localStorage.setItem('mode', 'account');
+          }
+
+          this.setState({ system, profile }, () => {
+            const promises = [this.setUpVox(), this.setUpPit()];
+            Promise.all(promises).then(r => {
               this.initializeSystemStatus();
 
-              this.setUpLPS();
-              const promises2 = [this.setUpPot(), this.setUpPit()];
-              Promise.all(promises2).then((r) => {
-                this.setUpToken('gem');
-                this.setUpToken('skr');
-                this.setUpToken('sai');
-                this.setUpToken('sin');
+              this.setUpToken('gem');
+              this.setUpToken('gov');
+              this.setUpToken('skr');
+              this.setUpToken('dai');
+              this.setUpToken('sin');
 
-                this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.network.defaultAccount);
-                this.setFiltersTap();
-                this.setFiltersTip();
-                this.setFiltersJar();
-                this.setFiltersLpc();
-                this.setFilterFeedValue();
-                this.setTimeVariablesInterval();
+              this.setFiltersTub();
+              this.setFiltersTap();
+              this.setFiltersVox();
+              this.setFilterFeedValue('pip');
+              this.setFilterFeedValue('pep');
+              this.setTimeVariablesInterval();
 
-                // This is necessary to finish transactions that failed after signing
-                this.checkPendingTransactionsInterval = setInterval(this.checkPendingTransactions, 10000);
-              });
+              // This is necessary to finish transactions that failed after signing
+              this.setPendingTxInterval();
             });
           });
         } else {
@@ -370,64 +377,44 @@ class App extends Component {
   loadEraRho = () => {
     const promises = [
                       this.getParameterFromTub('rho'),
-                      this.getParameterFromTip('era')
+                      this.getParameterFromVox('era')
                       ];
-    Promise.all(promises).then((r) => {
-      if (r[0] === true && r[1] === true && this.state.sai.tub.tax.gte(0) && this.state.sai.sin.potBalance.gte(0)) {
+    Promise.all(promises).then(r => {
+      if (r[0] === true && r[1] === true && this.state.system.tub.tax.gte(0) && this.state.system.sin.tubBalance.gte(0)) {
         this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const sin = {...sai.sin};
-          sin.issuerFee = sai.sin.potBalance.times(web3.fromWei(sai.tub.tax).pow(sai.tip.era.minus(sai.tub.rho))).minus(sai.sin.potBalance).round(0);
-          sai.sin = sin;
-          return { sai };
+          const system = {...prevState.system};
+          const sin = {...system.sin};
+          sin.issuerFee = system.sin.tubBalance.times(web3.fromWei(system.tub.tax).pow(system.vox.era.minus(system.tub.rho))).minus(system.sin.tubBalance).round(0);
+          system.sin = sin;
+          return { system };
         });
       }
     });
   }
 
   setTimeVariablesInterval = () => {
-    setInterval(() => {
+    this.timeVariablesInterval = setInterval(() => {
       this.getParameterFromTub('chi', true);
-      this.getParameterFromTip('par');
-      this.getParameterFromLpc('per', true);
+      this.getParameterFromTub('rhi', true);
+      this.getParameterFromVox('par', true);
       this.loadEraRho();
+      this.getAccountBalance();
     }, 5000);
   }
 
-  loadRoles = (value) => {
-    this.tubObj.authority((e, r) => {
-      window.rolesObj = this.rolesObj = this.loadObject(dsroles.abi, r);
-      this.checkUserAuth();
-    });
+  setPendingTxInterval = () => {
+    this.pendingTxInterval = setInterval(() => {
+      this.checkPendingTransactions()
+    }, 10000);
   }
 
-  checkUserAuth = () => {
-    if (this.state.network && this.state.network.defaultAccount !== null && typeof this.rolesObj !== 'undefined') {
-      this.rolesObj.isUserRoot.call(this.state.network.defaultAccount, (e, r) => {
-        if (!e) {
-          if (r) {
-            this.setState((prevState, props) => {
-              const sai = {...prevState.sai};
-              const tub = {...sai.tub};
-              tub.role = 'root';
-              sai.tub = tub;
-              return { sai };
-            });
-          } else {
-             this.rolesObj.hasUserRole.call(this.state.network.defaultAccount, 1, (e2, r2) => {
-               if (!e2) {
-                this.setState((prevState, props) => {
-                  const sai = {...prevState.sai};
-                  const tub = {...sai.tub};
-                  tub.role = r2 ? 'user' : 'public';
-                  sai.tub = tub;
-                  return { sai };
-                });
-               }
-             });
-          }
-        }
-      })
+  getAccountBalance = () => {
+    if (web3.isAddress(this.state.profile.activeProfile)) {
+      web3.eth.getBalance(this.state.profile.activeProfile, (e, r) => {
+        const profile = { ...this.state.profile };
+        profile.accountBalance = r;
+        this.setState({ profile });
+      });
     }
   }
 
@@ -457,18 +444,54 @@ class App extends Component {
     return p;
   }
 
-  setUpJar = () => {
+  getProxyOwner = (proxy) => {
+    return new Promise((resolve, reject) => {
+      this.loadObject(dsproxy.abi, proxy).owner((e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  getProxyAddress = () => {
+    const network = this.state.network;
+    return new Promise((resolve, reject) => {
+      const addrs = settings.chain[network.network];
+      this.proxyFactoryObj.Created({ sender: network.defaultAccount }, { fromBlock: addrs.fromBlock }).get(async (e, r) => {
+        if (!e) {
+          if (r.length > 0) {
+            for (let i = r.length - 1; i >= 0; i--) {
+              if (await this.getProxyOwner(r[i].args.proxy) === network.defaultAccount) {
+                resolve(r[i].args.proxy);
+                break;
+              }
+            }
+            resolve(null);
+          } else {
+            resolve(null);
+          }
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  setUpVox = () => {
     const p = new Promise((resolve, reject) => {
-      this.tubObj.jar((e, r) => {
+      this.tubObj.vox.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const jar = {...sai.jar};
-            jar.address = r;
-            sai.jar = jar;
-            return { sai };
+            const system = {...prevState.system};
+            const vox = {...system.vox};
+            vox.address = r;
+            system.vox = vox;
+            return { system };
           }, () => {
-            window.jarObj = this.jarObj = this.loadObject(jar.abi, r);
+            window.voxObj = this.voxObj = this.loadObject(vox.abi, r);
             resolve(true);
           });
         } else {
@@ -479,99 +502,36 @@ class App extends Component {
     return p;
   }
 
-  setUpTip = () => {
+  setUpPit = () => {
     const p = new Promise((resolve, reject) => {
-      this.tubObj.tip((e, r) => {
+      this.tubObj.pit.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const tip = {...sai.tip};
-            tip.address = r;
-            sai.tip = tip;
-            return { sai };
-          }, () => {
-            window.tipObj = this.tipObj = this.loadObject(tip.abi, r);
-            resolve(true);
-          });
-        } else {
-          reject(e);
-        }
-      });
-    });
-    return p;
-  }
-
-  setUpPot = (object) => {
-    const p = new Promise((resolve, reject) => {
-      this.tubObj.pot((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const pot = {...sai.pot};
-            pot.address = r;
-            sai.pot = pot;
-            return { sai };
-          }, () => {
-            resolve(true);
-          });
-        } else {
-          reject(e);
-        }
-      })
-    });
-    return p;
-  }
-
-  setUpPit = (object) => {
-    const p = new Promise((resolve, reject) => {
-      this.tubObj.pit((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const pit = {...sai.pit};
+            const system = {...prevState.system};
+            const pit = {...system.pit};
             pit.address = r;
-            sai.pit = pit;
-            return { sai };
+            system.pit = pit;
+            return { system };
           }, () => {
             resolve(true);
           });
         } else {
           reject(e);
         }
-      })
+      });
     });
     return p;
-  }
-
-  setUpLPS = () => {
-    if (this.lpcObj.address) {
-      this.lpcObj.lps((e, r) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const lps = {...sai.lps};
-            lps.address = r;
-            sai.lps = lps;
-            return { sai };
-          }, () => {
-            window.lpsObj = this.lpsObj = this.loadObject(dstoken.abi, this.state.sai.lps.address);
-            this.getDataFromToken('lps');
-            this.setFilterToken('lps');
-          });
-        }
-      });
-    }
   }
 
   setUpToken = (token) => {
-    this.tubObj[token]((e, r) => {
+    this.tubObj[token.replace('dai', 'sai')].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const tok = {...sai[token]};
+          const system = {...prevState.system};
+          const tok = {...system[token]};
           tok.address = r;
-          sai[token] = tok;
-          return { sai };
+          system[token] = tok;
+          return { system };
         }, () => {
           window[`${token}Obj`] = this[`${token}Obj`] = this.loadObject(token === 'gem' ? dsethtoken.abi : dstoken.abi, r);
           this.getDataFromToken(token);
@@ -582,23 +542,18 @@ class App extends Component {
   }
 
   setFilterToken = (token) => {
-    const filters = ['Transfer', 'LogNoteMint', 'LogNoteBurn'];
+    const filters = ['Transfer', 'Approval'];
 
     if (token === 'gem') {
       filters.push('Deposit');
       filters.push('Withdrawal');
+    } else {
+      filters.push('Mint');
+      filters.push('Burn');
     }
 
     for (let i = 0; i < filters.length; i++) {
       const conditions = {};
-      if (filters[i] === 'LogNoteMint') {
-        conditions.sig = this.methodSig('mint(uint128)');
-        filters[i] = 'LogNote';
-      }
-      if (filters[i] === 'LogNoteBurn') {
-        conditions.sig = this.methodSig('burn(uint128)');
-        filters[i] = 'LogNote';
-      }
       if (this[`${token}Obj`][filters[i]]) {
         this[`${token}Obj`][filters[i]](conditions, { fromBlock: 'latest' }, (e, r) => {
           if (!e) {
@@ -610,20 +565,59 @@ class App extends Component {
     }
   }
 
-  getCupsFromChain = (address, conditions, fromBlock) => {
-    this.tubObj.LogNewCup(conditions, { fromBlock }, (e, r) => {
-      if (!e) {
-        this.getCup(r.args['cup'], address);
-      }
-    });
-    if (address) {
-      // Get cups given to address (only if not seeing all cups).
-      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock }, (e, r) => {
-        if (!e) {
-          this.getCup(r.args.foo, address);
-        }
-      });
+  getCupsFromChain = (onConditions, offConditions, fromBlock, promises = []) => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        this.tubObj.LogNewCup(onConditions, { fromBlock }).get((e, r) => {
+          if (!e) {
+            const promises2 = [];
+            for (let i = 0; i < r.length; i++) {
+              promises2.push(this.getCup(r[i].args.cup, Object.assign(onConditions, offConditions)));
+            }
+            Promise.all(promises2).then(r => {
+              // Set filter from block of last cup
+              this.tubObj.LogNewCup(onConditions, { fromBlock: r.length > 0 ? r[r.length - 1].blockNumber: fromBlock }, (e, r) => {
+                if (!e) {
+                  this.getCup(r.args.cup, Object.assign(onConditions, offConditions));
+                }
+              });
+              resolve(true);
+            });
+          } else {
+            reject(e);
+          }
+        });
+      })
+    );
+    if (typeof onConditions.lad !== 'undefined') {
+      promises.push(
+        new Promise((resolve, reject) => {
+          // Get cups given to address (only if not seeing all cups).
+          this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(onConditions.lad) }, { fromBlock }).get((e, r) => {
+            if (!e) {
+              const promises2 = [];
+              for (let i = 0; i < r.length; i++) {
+                promises2.push(this.getCup(r[i].args.foo, Object.assign(onConditions, offConditions)));
+              }
+              Promise.all(promises2).then(r => {
+                resolve(true);
+              });
+            } else {
+              reject(e);
+            }
+          });
+        })
+      );
     }
+    Promise.all(promises).then(r => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        const tub = {...system.tub};
+        tub.cupsLoading = false;
+        system.tub = tub;
+        return { system };
+      });
+    });
   }
 
   getFromService = (service, conditions = {}, sort = {}) => {
@@ -658,58 +652,77 @@ class App extends Component {
     return p;
   }
 
-  setFiltersTub = (address) => {
-    // Get open cups by address (or all)
-    let conditions = {};
-    if (address) {
-      conditions = { lad: address }
+  getCupsListConditions = () => {
+    const conditions = { on: {}, off: {} };
+    switch (this.state.cupsList) {
+      case 'open':
+        conditions.off.closed = false;
+        break;
+      case 'unsafe':
+        conditions.off.closed = false;
+        conditions.off.safe = false;
+        break;
+      case 'mine':
+      default:
+        conditions.on.lad = this.state.profile.activeProfile;
+        break;
     }
+    return conditions;
+  }
 
+  setFiltersTub = () => {
+    const conditions = this.getCupsListConditions();
     const me = this;
-    if (settings.chain[this.state.network.network]['service']) {
-      Promise.resolve(this.getFromService('cups', conditions, { cupi:'desc' })).then((response) => {
-        response.results.forEach(function (v) {
-          me.getCup(toBytes32(v.cupi), address);
+    if (settings.chain[this.state.network.network].service) {
+      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'desc' })).then(response => {
+        const promises = [];
+        response.results.forEach(v => {
+          promises.push(me.getCup(toBytes32(v.cupi), Object.assign(conditions.on, conditions.off)));
         });
-        me.getCupsFromChain(address, conditions, response.last_block);
-      }).catch((error) => {
-        me.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
+        me.getCupsFromChain(conditions.on, conditions.off, response.last_block, promises);
+      }).catch(error => {
+        me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
       });
     } else {
-      this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network]['fromBlock']);
+      this.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
     }
 
     const cupSignatures = [
-      'lock(bytes32,uint128)',
-      'free(bytes32,uint128)',
-      'draw(bytes32,uint128)',
-      'wipe(bytes32,uint128)',
+      'lock(bytes32,uint256)',
+      'free(bytes32,uint256)',
+      'draw(bytes32,uint256)',
+      'wipe(bytes32,uint256)',
       'bite(bytes32)',
       'shut(bytes32)',
       'give(bytes32,address)',
-    ].map((v) => this.methodSig(v));
+    ].map(v => this.methodSig(v));
 
     this.tubObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
-          this.getCup(r.args.foo, address);
-        } else if (r.args.sig === this.methodSig('cage()')) {
-          this.getParameterFromTub('reg');
+          const conditions = this.getCupsListConditions();
+          this.getCup(r.args.foo, Object.assign(conditions.on, conditions.off));
+        } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
+          const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
+          const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};          
+          this.getParameterFromTub(web3.toAscii(r.args.foo).substring(0,3), ray, callback);
+        } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
+          this.getParameterFromTub('off');
           this.getParameterFromTub('fit');
-        } else if (r.args.sig === this.methodSig('chop(uint128)')) {
-          this.getParameterFromTub('axe', true);
-        } else if (r.args.sig === this.methodSig('cuff(uint128)')) {
-          this.getParameterFromTub('mat', true);
-        } else if (r.args.sig === this.methodSig('cork(uint128)')) {
-          this.getParameterFromTub('hat');
-        } else if (r.args.sig === this.methodSig('vent()')) {
-          this.getParameterFromTub('reg');
-        } else if (r.args.sig === this.methodSig('crop(uint128)') || r.args.sig === this.methodSig('warp(uint64)') || r.args.sig === this.methodSig('drip()')) {
-          if (r.args.sig === this.methodSig('crop(uint128)')) {
-            this.getParameterFromTub('tax', true);
-          }
+          this.getParameterFromTap('fix', true);
+        } else if (r.args.sig === this.methodSig('flow()')) {
+          this.getParameterFromTub('out');
+        }
+        if (r.args.sig === this.methodSig('drip()') ||
+            r.args.sig === this.methodSig('chi()') ||
+            r.args.sig === this.methodSig('rhi()') ||
+            r.args.sig === this.methodSig('draw(bytes32,uint256)') ||
+            r.args.sig === this.methodSig('wipe(bytes32,uint256)') ||
+            r.args.sig === this.methodSig('shut(bytes32)') ||
+            (r.args.sig === this.methodSig('mold(bytes32,uint256)') && web3.toAscii(r.args.foo).substring(0,3) === 'tax')) {
           this.getParameterFromTub('chi', true);
+          this.getParameterFromTub('rhi', true);
           this.loadEraRho();
         }
       }
@@ -720,69 +733,47 @@ class App extends Component {
     this.tapObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('jump(uint128)')) {
+        if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           this.getParameterFromTap('gap', false, this.getBoomBustValues());
         }
       }
     });
   }
 
-  setFiltersTip = () => {
-    this.tipObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
+  setFiltersVox = () => {
+    this.voxObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('coax(uint128)')) {
-          this.getParameterFromTip('way', true);
+        if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
+          this.getParameterFromVox('way', true);
         }
       }
     });
   }
 
-  setFiltersJar = () => {
-    this.jarObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
-      if (!e) {
-        this.logTransactionConfirmed(r.transactionHash);
-        if (r.args.sig === this.methodSig('jump(uint128)')) {
-          this.getParameterFromJar('gap');
-        }
-      }
-    });
-  }
-
-  setFiltersLpc = () => {
-    if (this.lpcObj.address) {
-      this.lpcObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
-        if (!e) {
-          this.logTransactionConfirmed(r.transactionHash);
-          if (r.args.sig === this.methodSig('jump(uint128)')) {
-            this.getParameterFromLpc('gap');
-          }
-        }
-      });
-    }
-  }
-
-  setFilterFeedValue = () => {
-    this.jarObj.pip.call((e, r) => {
+  setFilterFeedValue = obj => {
+    this.tubObj[obj].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const pip = {...sai.pip};
-          pip.address = r;
-          sai.pip = pip;
-          return { sai };
+          const system = {...prevState.system};
+          const feed = {...system[obj]};
+          feed.address = r;
+          system[obj] = feed;
+          return { system };
         }, () => {
-          window.pipObj = this.pipObj = this.loadObject(dsvalue.abi, r);
-          this.getValFromPip();
+          window[`${obj}Obj`] = this[`${obj}Obj`] = this.loadObject(dsvalue.abi, r);
+          this.getValFromFeed(obj);
 
-          this.pipObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
+          this[`${obj}Obj`].LogNote({}, { fromBlock: 'latest' }, (e, r) => {
             if (!e) {
               if (
                 r.args.sig === this.methodSig('poke(bytes32)') ||
                 r.args.sig === this.methodSig('poke()')
               ) {
-                this.getParameterFromJar('tag');
-                this.getValFromPip();
+                this.getValFromFeed(obj);
+                if (obj === 'pip') {
+                  this.getParameterFromTub('tag', true, this.calculateSafetyAndDeficit);
+                }
               }
             }
           });
@@ -791,44 +782,54 @@ class App extends Component {
     })
   }
 
-  getDataFromToken = (token) => {
+  getDataFromToken = token => {
     this.getTotalSupply(token);
 
-    if (token !== 'lps') {
-      this.getParameterFromLpc('pie');
-      this.getParameterFromLpc('gap');
-      this.getParameterFromLpc('per', true);
-    }
     if (token !== 'sin') {
-      this.getBalanceOf(token, this.state.network.defaultAccount, 'myBalance');
+      this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
     }
-    if (token === 'sin') {
-      this.getBalanceOf(token, this.state.sai.pot.address, 'potBalance');
+    if (token === 'gem' || token === 'skr' || token === 'sin') {
+      this.getBalanceOf(token, this.state.system.tub.address, 'tubBalance');
     }
-    if (token === 'gem' || token === 'skr') {
-      this.getBalanceOf(token, this.state.sai.jar.address, 'jarBalance');
-    }
-    if (token === 'sai' || token === 'gem') {
-      this.getBalanceOf(token, this.state.sai.lpc.address, 'lpcBalance');
-    }
-    if (token === 'gem' || token === 'skr' || token === 'sai' || token === 'sin') {
-      this.getBalanceOf(token, this.state.sai.pit.address, 'pitBalance');
+    if (token === 'gem' || token === 'skr' || token === 'dai' || token === 'sin') {
+      this.getBalanceOf(token, this.state.system.tap.address, 'tapBalance');
       this.getBoomBustValues();
     }
     if (token === 'gem' || token === 'skr') {
-      this.getParameterFromJar('per', true);
+      this.getParameterFromTub('per', true);
+    }
+    if (token === 'gem' || token === 'skr' || token === 'dai' || token === 'gov') {
+      this.getApproval(token, 'tub');
+      if (token !== 'gov') {
+        this.getApproval(token, 'tap');
+      }
+    }
+    if (token === 'gov') {
+      this.getBalanceOf(token, this.state.system.pit.address, 'pitBalance');
     }
   }
 
-  getTotalSupply = (name) => {
-    this[`${name}Obj`].totalSupply((e, r) => {
+  getApproval = (token, dst) => {
+    Promise.resolve(this.allowance(token, dst)).then(r => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        const tok = {...system[token]};
+        tok[`${dst}Approved`] = r.eq(web3.toBigNumber(2).pow(256).minus(1));
+        system[token] = tok;
+        return { system };
+      });
+    });
+  }
+
+  getTotalSupply = name => {
+    this[`${name}Obj`].totalSupply.call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const tok = {...sai[name]};
+          const system = {...prevState.system};
+          const tok = {...system[name]};
           tok.totalSupply = r;
-          sai[name] = tok;
-          return { sai };
+          system[name] = tok;
+          return { system };
         }, () => {
           if (name === 'sin') {
             this.calculateSafetyAndDeficit();
@@ -839,16 +840,16 @@ class App extends Component {
   }
 
   getBalanceOf = (name, address, field) => {
-    this[`${name}Obj`].balanceOf(address, (e, r) => {
+    this[`${name}Obj`].balanceOf.call(address, (e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const tok = {...sai[name]};
+          const system = {...prevState.system};
+          const tok = {...system[name]};
           tok[field] = r;
-          sai[name] = tok;
-          return { sai };
+          system[name] = tok;
+          return { system };
         }, () => {
-          if ((name === 'skr' || name === 'sai') && field === 'jarBalance') {
+          if ((name === 'skr' || name === 'dai') && field === 'tubBalance') {
             this.calculateSafetyAndDeficit();
           }
         });
@@ -857,26 +858,28 @@ class App extends Component {
   }
 
   initializeSystemStatus = () => {
-    this.getParameterFromTub('authority', false, this.loadRoles());
-    this.getParameterFromTub('reg', false);
+    this.getParameterFromTub('authority');
+    this.getParameterFromTub('off');
+    this.getParameterFromTub('out');
     this.getParameterFromTub('axe', true);
     this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
-    this.getParameterFromTub('hat');
+    this.getParameterFromTub('cap');
     this.getParameterFromTub('fit');
     this.getParameterFromTub('tax', true);
+    this.getParameterFromTub('fee', true);
     this.getParameterFromTub('chi', true);
-    this.getParameterFromJar('per', true);
-    this.getParameterFromJar('gap');
-    this.getParameterFromJar('tag', false, this.calculateSafetyAndDeficit);
-    this.getParameterFromTap('gap', false, this.getBoomBustValues());
-    this.getParameterFromTip('way', true);
-    this.getParameterFromTip('par');
+    this.getParameterFromTub('rhi', true);
+    this.getParameterFromTub('per', true);
+    this.getParameterFromTub('gap');
+    this.getParameterFromTub('tag', true, this.calculateSafetyAndDeficit);
+    this.getParameterFromTap('fix', true);
+    this.getParameterFromTap('gap', false, this.getBoomBustValues);
+    this.getParameterFromVox('way', true);
+    this.getParameterFromVox('par', true);
     this.loadEraRho();
-    this.getParameterFromLpc('pie');
-    this.getParameterFromLpc('gap');
-    this.getParameterFromLpc('per', true, this.calculateSafetyAndDeficit);
-    if (settings.chain[this.state.network.network]['service']) {
-      if (settings.chain[this.state.network.network]['chart']) {
+    this.getAccountBalance();
+    if (settings.chain[this.state.network.network].service) {
+      if (settings.chain[this.state.network.network].chart) {
         this.getChartData();
       }
       this.getStats();
@@ -884,20 +887,20 @@ class App extends Component {
   }
 
   calculateSafetyAndDeficit = () => {
-    if (this.state.sai.tub.mat.gte(0) && this.state.sai.skr.jarBalance.gte(0) && this.state.sai.jar.tag.gte(0) && this.state.sai.sin.totalSupply.gte(0)) {
+    if (this.state.system.tub.mat.gte(0) && this.state.system.skr.tubBalance.gte(0) && this.state.system.tub.tag.gte(0) && this.state.system.sin.totalSupply.gte(0)) {
       this.setState((prevState, props) => {
-        const sai = {...prevState.sai};
-        const tub = {...sai.tub};
+        const system = {...prevState.system};
+        const tub = {...system.tub};
 
-        const pro = wmul(sai.skr.jarBalance, sai.jar.tag);
-        const con = sai.sin.totalSupply;
+        const pro = wmul(system.skr.tubBalance, system.tub.tag);
+        const con = system.sin.totalSupply;
         tub.eek = pro.lt(con);
 
         const min = wmul(con, tub.mat);
         tub.safe = pro.gte(min);
 
-        sai.tub = tub;
-        return { sai };
+        system.tub = tub;
+        return { system };
       });
     }
   }
@@ -907,41 +910,20 @@ class App extends Component {
       this.tubObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const tub = {...sai.tub};
+            const system = {...prevState.system};
+            const tub = {...system.tub};
             tub[field] = ray ? fromRaytoWad(value) : value;
-            sai.tub = tub;
-            return { sai };
+            system.tub = tub;
+            return { system };
           }, () => {
             this.getBoomBustValues();
-            Object.keys(this.state.sai.tub.cups).map(key =>
-              this.updateCup(key)
+            const conditions = this.getCupsListConditions();
+            Object.keys(this.state.system.tub.cups).map(key =>
+              this.updateCup(key, conditions.off)
             );
             if (callback) {
               callback(value);
             }
-            resolve(true);
-          });
-        } else {
-          reject(e);
-        }
-      });
-    });
-    return p;
-  }
-
-  getParameterFromJar = (field, ray = false, callback = false) => {
-    const p = new Promise((resolve, reject) => {
-      this.jarObj[field].call((e, value) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const jar = {...sai.jar};
-            jar[field] = ray ? fromRaytoWad(value) : value;
-            sai.jar = jar;
-            return { sai };
-          }, () => {
-            this.getBoomBustValues();
             resolve(true);
           });
         } else {
@@ -957,11 +939,11 @@ class App extends Component {
       this.tapObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const tap = {...sai.tap};
+            const system = {...prevState.system};
+            const tap = {...system.tap};
             tap[field] = ray ? fromRaytoWad(value) : value;
-            sai.tap = tap;
-            return { sai };
+            system.tap = tap;
+            return { system };
           }, () => {
             resolve(true);
           });
@@ -973,16 +955,16 @@ class App extends Component {
     return p;
   }
 
-  getParameterFromTip = (field, ray = false) => {
+  getParameterFromVox = (field, ray = false) => {
     const p = new Promise((resolve, reject) => {
-      this.tipObj[field].call((e, value) => {
+      this.voxObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const tip = {...sai.tip};
-            tip[field] = ray ? fromRaytoWad(value) : value;
-            sai.tip = tip;
-            return { sai };
+            const system = {...prevState.system};
+            const vox = {...system.vox};
+            vox[field] = ray ? fromRaytoWad(value) : value;
+            system.vox = vox;
+            return { system };
           }, () => {
             resolve(true);
           });
@@ -994,34 +976,20 @@ class App extends Component {
     return p;
   }
 
-  getParameterFromLpc = (field, ray = false) => {
-    if (this.lpcObj.address) {
-      this.lpcObj[field].call((e, value) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const lpc = {...sai.lpc};
-            lpc[field] = ray ? fromRaytoWad(value) : value;
-            sai.lpc = lpc;
-            return { sai };
-          });
-        }
-      });
-    }
-  }
-
-  getValFromPip = (field) => {
+  getValFromFeed = (obj) => {
     const p = new Promise((resolve, reject) => {
-      this.pipObj.peek.call((e, r) => {
+      this[`${obj}Obj`].peek.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const pip = {...sai.pip};
-            pip.val = web3.toBigNumber(r[1] ? parseInt(r[0], 16) : -2);
-            sai.pip = pip;
-            return { sai };
+            const system = {...prevState.system};
+            const feed = {...system[obj]};
+            feed.val = web3.toBigNumber(r[1] ? parseInt(r[0], 16) : -2);
+            system[obj] = feed;
+            return { system };
           }, () => {
-            this.getBoomBustValues();
+            if (obj === 'pip') {
+              this.getBoomBustValues();
+            }
             resolve(true);
           });
         } else {
@@ -1033,90 +1001,123 @@ class App extends Component {
   }
 
   getBoomBustValues = () => {
-    if (this.state.sai.sai.pitBalance.gte(0)
-        && this.state.sai.sin.issuerFee.gte(0)
-        && this.state.sai.sin.pitBalance.gte(0)
-        && this.state.sai.tip.par.gte(0)
-        && this.state.sai.jar.tag.gte(0)
-        && this.state.sai.tap.gap.gte(0)
-        && this.state.sai.pip.val.gte(0)
-        && this.state.sai.skr.pitBalance.gte(0)
-        && this.state.sai.sin.potBalance.gte(0)
-        && this.state.sai.tub.tax.gte(0)
-        && this.state.sai.skr.pitBalance.gte(0)
-        && this.state.sai.skr.totalSupply.gte(0)
-        && this.state.sai.gem.jarBalance.gte(0)) {
+    if (this.state.system.dai.tapBalance.gte(0)
+        //&& this.state.system.sin.issuerFee.gte(0)
+        && this.state.system.sin.tapBalance.gte(0)
+        && this.state.system.vox.par.gte(0)
+        && this.state.system.tub.tag.gte(0)
+        && this.state.system.tap.gap.gte(0)
+        && this.state.system.pip.val.gte(0)
+        && this.state.system.skr.tapBalance.gte(0)
+        && this.state.system.sin.tubBalance.gte(0)
+        && this.state.system.tub.tax.gte(0)
+        && this.state.system.skr.tapBalance.gte(0)
+        && this.state.system.skr.totalSupply.gte(0)
+        && this.state.system.gem.tubBalance.gte(0)) {
       this.setState((prevState, props) => {
-        const sai = {...prevState.sai};
-        const tub = {...sai.tub};
+        const system = {...prevState.system};
+        const tub = {...system.tub};
 
-        const dif = sai.sai.pitBalance.add(sai.sin.issuerFee).minus(sai.sin.pitBalance);
-        // console.log('dif', dif.valueOf());
-        tub.avail_boom_sai = tub.avail_boom_skr = web3.toBigNumber(0);
-        tub.avail_bust_sai = tub.avail_bust_skr = web3.toBigNumber(0);
+        // const dif = system.dai.tapBalance.add(system.sin.issuerFee).minus(system.sin.tapBalance); bust & boom don't execute drip anymore so we do not need to do the estimation
+        const dif = system.dai.tapBalance.minus(system.sin.tapBalance);
+        tub.avail_boom_dai = tub.avail_boom_skr = web3.toBigNumber(0);
+        tub.avail_bust_dai = tub.avail_bust_skr = web3.toBigNumber(0);
+
+        // if higher or equal, it means vox.par is static or increases over the time
+        // if lower, it means it decreases over the time, so we calculate a future par (in 10 minutes) to reduce risk of tx failures
+        const futurePar = system.vox.way.gte(WAD) ? system.vox.par : system.vox.par.times(web3.fromWei(system.vox.way).pow(10*60));
 
         if (dif.gt(0)) {
           // We can boom
-          tub.avail_boom_sai = dif;
-          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_sai, sai.tip.par), sai.jar.tag), WAD.times(2).minus(sai.tap.gap));
+          tub.avail_boom_dai = dif;
+          tub.avail_boom_skr = wdiv(wdiv(wmul(tub.avail_boom_dai, futurePar), system.tub.tag), WAD.times(2).minus(system.tap.gap));
         }
 
-        if (sai.skr.pitBalance.gt(0) || dif.lt(0)) {
+        if (system.skr.tapBalance.gt(0) || dif.lt(0)) {
           // We can bust
 
           // This is a margin we need to take into account as bust quantity goes down per second
-          const futureFee = sai.sin.potBalance.times(web3.fromWei(tub.tax).pow(120)).minus(sai.sin.potBalance).round(0);
-          const saiNeeded = dif.abs().minus(futureFee);
-          const equivalentSKR = wdiv(wdiv(wmul(saiNeeded, sai.tip.par), sai.jar.tag), sai.tap.gap);
+          // const futureFee = system.sin.tubBalance.times(web3.fromWei(tub.tax).pow(120)).minus(system.sin.tubBalance).round(0); No Drip anymore!!!
+          // const daiNeeded = dif.abs().minus(futureFee);
+          const daiNeeded = dif.gte(0) ? web3.toBigNumber(0) : dif.abs();
+          const equivalentSKR = wdiv(wdiv(wmul(daiNeeded, futurePar), system.tub.tag), system.tap.gap);
 
-          if (sai.skr.pitBalance.gte(equivalentSKR)) {
-            tub.avail_bust_skr = sai.skr.pitBalance;
-            tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, sai.tip.par), sai.jar.tag), sai.tap.gap);
-            tub.avail_bust_sai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
+          if (system.skr.tapBalance.gte(equivalentSKR)) {
+            tub.avail_bust_skr = system.skr.tapBalance;
+            tub.avail_bust_ratio = wmul(wmul(wdiv(WAD, system.vox.par), system.tub.tag), system.tap.gap);
+            tub.avail_bust_dai = wmul(tub.avail_bust_skr, tub.avail_bust_ratio);
           } else {
-            tub.avail_bust_sai = saiNeeded;
-            // We need to consider the case where SKR needs to be minted generating a change in 'sai.jar.tag'
-            tub.avail_bust_skr = wdiv(sai.skr.totalSupply.minus(sai.skr.pitBalance), wdiv(wmul(wmul(sai.pip.val, sai.tap.gap), sai.gem.jarBalance), wmul(tub.avail_bust_sai, sai.tip.par)).minus(WAD));
-            tub.avail_bust_ratio = wdiv(tub.avail_bust_sai, tub.avail_bust_skr);
+            tub.avail_bust_dai = daiNeeded;
+            // We need to consider the case where PETH needs to be minted generating a change in 'system.tub.tag'
+            tub.avail_bust_skr = wdiv(system.skr.totalSupply.minus(system.skr.tapBalance), wdiv(wmul(wmul(system.pip.val, system.tap.gap), system.gem.tubBalance), wmul(tub.avail_bust_dai, system.vox.par)).minus(WAD));
+            tub.avail_bust_ratio = wdiv(tub.avail_bust_dai, tub.avail_bust_skr);
           }
         }
-        sai.tub = tub;
-        return { sai };
+        system.tub = tub;
+        return { system };
       });
     }
   }
 
-  getCup = (idHex, address) => {
-    this.tubObj.cups(idHex, (e, cupData) => {
-      const id = parseInt(idHex, 16);
-      const firstLoad = typeof this.state.sai.tub.cups[id] === 'undefined';
-      if (!address || address === cupData[0]) {
-        // This verification needs to be done as the cup could have been given or closed by the user
-        this.setState((prevState, props) => {
-          const sai = {...prevState.sai};
-          const tub = {...sai.tub};
-          const cups = {...tub.cups};
-          const cup = {
-            lad: cupData[0],
-            art: cupData[1],
-            ink: cupData[2],
-            safe: firstLoad ? 'N/A' : cups[id]['safe']
-          };
-          cups[id] = cup;
-          tub.cups = cups;
-          sai.tub = tub;
-          return { sai };
-        }, () => {
-          this.updateCup(id);
-        });
-      } else if(!firstLoad) {
-        // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
-        delete this.state.sai.tub.cups[id];
-      }
+  getCup = (idHex, conditions) => {
+    return new Promise((resolve, reject) => {
+      this.tubObj.cups.call(idHex, (e, cupData) => {
+        if (!e) {
+          const id = parseInt(idHex, 16);
+          const firstLoad = typeof this.state.system.tub.cups[id] === 'undefined';
+          if (
+            (typeof conditions.lad === 'undefined' || conditions.lad === cupData[0]) &&
+            (typeof conditions.closed === 'undefined' ||
+              (conditions.closed && cupData[0] === '0x0000000000000000000000000000000000000000') ||
+              (!conditions.closed && cupData[0] !== '0x0000000000000000000000000000000000000000') )
+            ) {
+            // This verification needs to be done as the cup could have been given or closed by the user
+            this.setState((prevState, props) => {
+              const system = {...prevState.system};
+              const tub = {...system.tub};
+              const cups = {...tub.cups};
+              const cup = {
+                lad: cupData[0],
+                ink: cupData[1],
+                art: cupData[2],
+                ire: cupData[3],
+                safe: firstLoad ? 'N/A' : cups[id]['safe']
+              };
+              tub.ownCup = tub.ownCup || cup.lad === this.state.profile.activeProfile;
+              cups[id] = cup;
+              tub.cups = cups;
+              system.tub = tub;
+              return { system };
+            }, () => {
+              Promise.resolve(this.updateCup(id, conditions)).then(() => {
+                resolve(true);
+              });
+            });
+          } else if(!firstLoad) {
+            this.setState((prevState, props) => {
+              const system = {...prevState.system};
+              if (typeof system.tub.cups[id] !== 'undefined') {
+                const tub = {...system.tub};
+                const cups = {...tub.cups};
+                delete cups[id];
+                tub.cups = cups;
+                system.tub = tub;
+              }
+              return { system }
+            }, () => {
+              resolve(true);
+            });
+          } else {
+            resolve(true);
+          }
+        } else {
+          reject(e);
+        }
+      });
     });
   }
 
-  parseCandleData = (data) => {
+  parseCandleData = data => {
     const dataParsed = [];
     data.forEach(value => {
       const timestamp = (new Date(value.timestamp * 1000)).setHours(0,0,0);
@@ -1143,38 +1144,38 @@ class App extends Component {
   setChartState = (key, value) => {
     return new Promise((resolve, reject) => {
       this.setState((prevState, props) => {
-        const sai = {...prevState.sai};
-        const chartData = {...sai.chartData};
+        const system = {...prevState.system};
+        const chartData = {...system.chartData};
         chartData[key] = value;
-        sai.chartData = chartData;
-        return { sai };
+        system.chartData = chartData;
+        return { system };
       }, () => {
         resolve(value);
       });
     });
   }
 
-  getETHUSDPrice = (timestamps) => {
+  getETHUSDPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('pips', { 'timestamp.gte': timestamps[30] }, { 'timestamp': 'asc' })).then((response) => {
+      Promise.resolve(this.getFromService('pips', { 'timestamp.gte': timestamps[30] }, { 'timestamp': 'asc' })).then(response => {
         response.results = this.parseCandleData(response.results);
         Promise.resolve(this.setChartState('ethusd', response)).then(() => {
           resolve(response);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
   }
 
-  getSKRETHPrice = (timestamps) => {
+  getSKRETHPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then((response) => {
+      Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then(response => {
         const finalResponse = { last_block: response.last_block, results: [] };
 
-        // If there is not result before 30 days ago, we assume that the value of SKR/ETH was 1 at that moment
+        // If there is not result before 30 days ago, we assume that the value of PETH/ETH was 1 at that moment
         finalResponse.results.push({ value: 10 ** 18, timestamp: timestamps[30] });
 
         let lastIndex = 30;
@@ -1198,18 +1199,18 @@ class App extends Component {
         finalResponse.results = this.parseCandleData(finalResponse.results);
         Promise.resolve(this.setChartState('skreth', finalResponse)).then(() => {
           resolve(finalResponse);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
   }
 
-  getSAIUSDPrice = (timestamps) => {
+  getDAIUSDPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('ways')).then((response) => {
+      Promise.resolve(this.getFromService('ways')).then(response => {
         const finalResponse = { last_block: response.last_block, results: [] };
 
         let lastIndex = 30;
@@ -1254,12 +1255,12 @@ class App extends Component {
         }
 
         finalResponse.results = this.parseCandleData(finalResponse.results);
-        Promise.resolve(this.setChartState('saiusd', finalResponse)).then(() => {
+        Promise.resolve(this.setChartState('daiusd', finalResponse)).then(() => {
           resolve(finalResponse);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
@@ -1273,16 +1274,16 @@ class App extends Component {
     const promises = [];
     // ETH/USD
     promises.push(this.getETHUSDPrice(timestamps));
-    // SAI/USD
-    promises.push(this.getSAIUSDPrice(timestamps));
-    // SKR/ETH
+    // DAI/USD
+    promises.push(this.getDAIUSDPrice(timestamps));
+    // PETH/ETH
     this.getSKRETHPrice(timestamps);
 
-    Promise.all(promises).then((r) => {
+    Promise.all(promises).then(r => {
       if (r[0] && r[1]) {
-        const ethsai = { results: [] };
+        const ethdai = { results: [] };
         r[0].results.forEach((value, index) => {
-          ethsai.results.push({
+          ethdai.results.push({
             date: value.date,
             open: value.open / r[1].results[index].open,
             high: value.high / r[1].results[index].high,
@@ -1290,119 +1291,149 @@ class App extends Component {
             close: value.close / r[1].results[index].close,
           });
         });
-        this.setChartState('ethsai', ethsai);
+        this.setChartState('ethdai', ethdai);
       }
-    }).catch((error) => {
+    }).catch(error => {
     });
   }
 
   getStats = () => {
-    Promise.resolve(this.getFromService('cupStats')).then((response) => {
+    Promise.resolve(this.getFromService('cupStats')).then(response => {
       this.setState((prevState, props) => {
-        const sai = {...prevState.sai};
-        sai.stats = { error: false, results: response.results };
-        return { sai };
+        const system = {...prevState.system};
+        system.stats = { error: false, results: response.results };
+        return { system };
       });
-    }).catch((error) => {
+    }).catch(error => {
       this.setState((prevState, props) => {
-        const sai = {...prevState.sai};
-        sai.stats = { error: true };
-        return { sai };
+        const system = {...prevState.system};
+        system.stats = { error: true };
+        return { system };
       });
     });
   }
 
-  tab = (art) => {
-    return wmul(art, this.state.sai.tub.chi).round(0);
+  tab = cup => {
+    return wmul(cup.art, this.state.system.tub.chi).round(0);
   }
 
-  updateCup = (id) => {
-    this.setState((prevState, props) => {
-      const sai = {...prevState.sai};
-      const tub = {...sai.tub};
-      const cups = {...tub.cups};
-      const cup = {...cups[id]};
+  rap = cup => {
+    return wmul(cup.ire, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
+  }
 
-      cup.pro = wmul(cup.ink, sai.jar.tag).round(0);
-      cup.ratio = cup.pro.div(wmul(this.tab(cup.art), sai.tip.par));
-      // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-      const marginTax = web3.fromWei(tub.tax).pow(120);
-      cup.avail_sai = wdiv(cup.pro, wmul(tub.mat, sai.tip.par)).minus(this.tab(cup.art)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it multiplying on safe function)
-      cup.avail_sai_with_margin = wdiv(cup.pro, wmul(tub.mat, sai.tip.par)).minus(this.tab(cup.art).times(marginTax)).round(0).minus(1);
-      cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art), tub.mat), sai.tip.par), sai.jar.tag)).round(0);
-      cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup.art).times(marginTax), tub.mat), sai.tip.par), sai.jar.tag)).round(0);
-      cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup.art), tub.mat), sai.jar.per), cup.ink) : web3.toBigNumber(0);
+  updateCup = (id, conditions) => {
+    return new Promise((resolve, reject) => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        if (typeof system.tub.cups[id] !== 'undefined') {
+          const tub = {...system.tub};
+          const cups = {...tub.cups};
+          const cup = {...cups[id]};
 
-      cups[id] = cup;
-      tub.cups = cups;
-      sai.tub = tub;
-      return { sai }
-    }, () => {
-      this.tubObj.safe['bytes32'](toBytes32(id), (e, safe) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const sai = {...prevState.sai};
-            const tub = {...sai.tub};
-            const cups = {...tub.cups};
-            const cup = {...cups[id]};
+          cup.pro = wmul(cup.ink, system.tub.tag).round(0);
+          cup.ratio = cup.pro.div(wmul(this.tab(cup), system.vox.par));
+          // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
+          const marginTax = web3.fromWei(tub.tax).pow(120);
+          cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
+          cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
+          cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
+          cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), system.vox.par), system.tub.tag)).round(0);
+          cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), system.vox.par), system.tub.tag)).round(0);
+          cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
+          cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), system.tub.per), cup.ink) : web3.toBigNumber(0);
 
-            cup['safe'] = safe;
-
-            cups[id] = cup;
-            tub.cups = cups;
-            sai.tub = tub;
-            return { sai }
-          });
+          cups[id] = cup;
+          tub.cups = cups;
+          system.tub = tub;
         }
+        return { system }
+      }, () => {
+        this.tubObj.safe['bytes32'].call(toBytes32(id), (e, safe) => {
+          if (!e) {
+            if (typeof conditions.safe === 'undefined' || conditions.safe === safe) {
+              this.setState((prevState, props) => {
+                const system = {...prevState.system};
+                if (typeof system.tub.cups[id] !== 'undefined') {
+                  const tub = {...system.tub};
+                  const cups = {...tub.cups};
+                  const cup = {...cups[id]};
+
+                  cup.safe = safe;
+
+                  cups[id] = cup;
+                  tub.cups = cups;
+                  system.tub = tub;
+                }
+                return { system }
+              }, () => {
+                resolve(true);
+              });
+            } else {
+              this.setState((prevState, props) => {
+                const system = {...prevState.system};
+                if (typeof system.tub.cups[id] !== 'undefined') {
+                  const tub = {...system.tub};
+                  const cups = {...tub.cups};
+                  delete cups[id];
+                  tub.cups = cups;
+                  system.tub = tub;
+                }
+                return { system }
+              }, () => {
+                resolve(true);
+              });
+            }
+          }
+        });
       });
     });
   }
 
-  methodSig = (method) => {
+  methodSig = method => {
     return web3.sha3(method).substring(0, 10)
   }
 
   // Modals
-  handleOpenModal = (e) => {
+  handleOpenModal = e => {
     e.preventDefault();
     const method = e.target.getAttribute('data-method');
     const cup = e.target.getAttribute('data-cup') ? e.target.getAttribute('data-cup') : false;
     this.setState({ modal: { show: true, method, cup } });
   }
 
-  handleCloseModal = (e) => {
+  handleCloseModal = e => {
     e.preventDefault();
     this.setState({ modal: { show: false } });
   }
 
-  handleOpenVideoModal = (e) => {
+  handleOpenVideoModal = e => {
     e.preventDefault();
     this.setState({ videoModal: { show: true } });
   }
 
-  handleCloseVideoModal = (e) => {
+  handleCloseVideoModal = e => {
     e.preventDefault();
     this.markAsAccepted('video');
     this.setState({ videoModal: { show: false } });
   }
 
-  handleOpenTerminologyModal = (e) => {
+  handleOpenTerminologyModal = e => {
     e.preventDefault();
     this.setState({ terminologyModal: { show: true } });
   }
 
-  handleCloseTerminologyModal = (e) => {
+  handleCloseTerminologyModal = e => {
     e.preventDefault();
     this.setState({ terminologyModal: { show: false } });
   }
 
-  handleOpenCupHistoryModal = (e) => {
+  handleOpenCupHistoryModal = e => {
     e.preventDefault();
     const id = e.target.getAttribute('data-id');
     const me = this;
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
-      if (settings.chain[this.state.network.network]['service']) {
-        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
+      if (settings.chain[this.state.network.network].service) {
+        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then(response => {
           me.setState({ cupHistoryModal: { show: true, error: false, id, actions: response.results } });
         }).catch(error => {
           me.setState({ cupHistoryModal: { show: true, error: true } });
@@ -1411,12 +1442,12 @@ class App extends Component {
     });
   }
 
-  handleCloseCupHistoryModal = (e) => {
+  handleCloseCupHistoryModal = e => {
     e.preventDefault();
     this.setState({ cupHistoryModal: { show: false } });
   }
 
-  markAsAccepted = (type) => {
+  markAsAccepted = type => {
     const termsModal = { ...this.state.termsModal };
     termsModal[type] = false;
     this.setState({ termsModal }, () => {
@@ -1444,43 +1475,38 @@ class App extends Component {
     });
   }
 
-  logPendingTransaction = (tx, title, callback = {}) => {
+  logRequestTransaction = (id, title) => {
+    const msgTemp = 'Waiting for transaction signature...';
+    this.refs.notificator.info(id, title, msgTemp, false);
+  }
+
+  logPendingTransaction = (id, tx, title, callback = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = { ...this.state.transactions };
     transactions[tx] = { pending: true, title, callback }
     this.setState({ transactions });
-    console.log(msgTemp.replace('TX', tx))
+    console.log(msgTemp.replace('TX', tx));
+    this.refs.notificator.hideNotification(id);
     this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
   }
 
-  logTransactionConfirmed = (tx) => {
+  logTransactionConfirmed = tx => {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = { ...this.state.transactions };
-    if (transactions[tx]) {
+    if (transactions[tx] && transactions[tx].pending) {
       transactions[tx].pending = false;
-      this.setState({ transactions });
-
-      this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
-      const c = transactions[tx].callback;
-      if (c.method) {
-        if(c.method.indexOf('lpc-') !== -1) {
-          this.executeLpcMethod(c.method, c.token, c.value);
-        } else if (c.method === 'shut') {
-          this.executeMethodCup(c.method, c.cup)
-        } else if (c.cup && c.value) {
-          this.executeMethodCupValue(c.method, c.cup, c.value);
-        } else if (c.value) {
-          this.executeMethodValue((c.method === 'bust' || c.method === 'boom') ? 'tap' : 'tub', c.method, c.value);
-        } else if (c.cup) {
-          this.executeMethodCup(c.method, c.cup);
-        } else {
-          this.executeMethod(c.method === 'cash' ? 'top' : 'tub', c.method);
+      this.setState({ transactions }, () => {
+        console.log(msgTemp.replace('TX', tx));
+        this.refs.notificator.hideNotification(tx);
+        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
+        if (transactions[tx].callback.length > 0) {
+          this.executeCallback(transactions[tx].callback);
         }
-      }
+      });
     }
   }
 
-  logTransactionFailed = (tx) => {
+  logTransactionFailed = tx => {
     const msgTemp = 'Transaction TX failed.';
     const transactions = { ...this.state.transactions };
     if (transactions[tx]) {
@@ -1489,134 +1515,156 @@ class App extends Component {
       this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
     }
   }
+
+  logTransactionRejected = (tx, title) => {
+    const msgTemp = 'User denied transaction signature.';
+    this.refs.notificator.error(tx, title, msgTemp, 4000);
+  }
   //
 
   // Actions
   executeMethod = (object, method) => {
-    this[`${object}Obj`][method]({}, (e, tx) => {
+    const id = Math.random();
+    const title = `${object.toUpperCase()}: ${method}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object}: ${method}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
+                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.system[object].address, false)}`,
+                            log);
+    } else {
+      this[`${object}Obj`][method]({}, log);
+    }
   }
 
   executeMethodCup = (method, cup) => {
-    this.tubObj[method](toBytes32(cup), {}, (e, tx) => {
+    const id = Math.random();
+    const title = `TUB: ${method} ${cup}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${cup}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
+                            `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
+                            log);
+    } else {
+      this.tubObj[method](toBytes32(cup), {}, log);
+    }
   }
 
   executeMethodValue = (object, method, value) => {
-    this[`${object}Obj`][method](web3.toWei(value), {}, (e, tx) => {
+    const id = Math.random();
+    const title = `${object.toUpperCase()}: ${method} ${value}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${object}: ${method} ${value}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
+                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.system[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
+                            log);
+    } else {
+      this[`${object}Obj`][method](web3.toWei(value), {}, log);
+    }
   }
 
   executeMethodCupValue = (method, cup, value, toWei = true) => {
-    this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, (e, tx) => {
+    const id = Math.random();
+    const title = `TUB: ${method} ${cup} ${value}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `tub: ${method} ${cup} ${value}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
+                            `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
+                            log);
+    } else {
+      this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, log);
+    }
   }
 
-  pitAllowance = (token, method, value, value2 = false) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pit.address, (e, r) => {
-      if (!e) {
-        const valueAllowance = value2 ? value2 : value;
-        const valueObj = web3.toBigNumber(web3.toWei(valueAllowance));
-        if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pit.address, web3.toWei(valueAllowance), {}, (e, tx) => {
-            if (!e) {
-              value = method === 'cash' ? false : value;
-              this.logPendingTransaction(tx, `${token}: approve pit ${valueAllowance}`, { method, value });
-            } else {
-              console.log(e);
-            }
-          });
+  allowance = (token, dst) => {
+    return new Promise((resolve, reject) => {
+      this[`${token}Obj`].allowance.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
+        if (!e) {
+          resolve(r);
         } else {
-          method === 'cash' ? this.executeMethod('top', method) : this.executeMethodValue('tap', method, value);
+          reject(e);
         }
-      }
+      });
     });
   }
 
-  jarAllowance = (token, method, cup, value) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.jarObj.address, (e, r) => {
-      if (!e) {
-        const valueObj = web3.toBigNumber(web3.toWei(value));
-        if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.jarObj.address, web3.toWei(value), {}, (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, `${token.replace('gem', 'weth')}: approve jar ${value}`, { method, cup, value });
-            } else {
-              console.log(e);
-            }
-          });
-        } else {
-          cup ? this.executeMethodCupValue(method, cup, value) : this.executeMethodValue('tub', method, value);
-        }
-      }
-    });
+  executeCallback = args => {
+    const method = args.shift();
+    this[method](...args);
   }
 
-  potAllowance = (token, method, cup, value) => {
-    this[`${token}Obj`].allowance(this.state.network.defaultAccount, this.state.sai.pot.address, (e, r) => {
-      if (!e) {
-        const valueObj = web3.toBigNumber(web3.toWei(value));
-        if (r.lt(valueObj)) {
-          this[`${token}Obj`].approve(this.state.sai.pot.address, web3.toWei(value), {}, (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, `${token}: approve pot ${value}`, { method, cup, value });
-            } else {
-              console.log(e);
-            }
-          });
-        } else {
-          method === 'shut' ? this.executeMethodCup(method, cup) : this.executeMethodCupValue(method, cup, value);
-        }
-      }
-    });
-  }
+  checkAllowance = (token, dst, callback) => {
+    let promise;
+    let valueObj;
+    valueObj = web3.toBigNumber(2).pow(256).minus(1); // uint(-1)
 
-  executeLpcMethod = (method, token, value) => {
-    const cleanMethod = method.replace('lpc-', '');
-    this.lpcObj[cleanMethod](this.state.sai[token].address, web3.toWei(value), {}, (e, tx) => {
-      if (!e) {
-        this.logPendingTransaction(tx, `lpc: ${cleanMethod} ${token} ${value}`);
+    promise = this.allowance(token, dst);
+
+    Promise.resolve(promise).then(r => {
+      if (r.gte(valueObj)) {
+        this.executeCallback(callback);
       } else {
-        console.log(e);
-      }
-    });
-  }
-
-  lpcAllowance = (tokenMethod, tokenAllowance, method, value, valueAllowance) => {
-    this[`${tokenAllowance}Obj`].allowance(this.state.network.defaultAccount, this.lpcObj.address, (e, r) => {
-      if (!e) {
-        const valueObj = web3.toBigNumber(valueAllowance);
-        if (r.lt(valueObj)) {
-          this[`${tokenAllowance}Obj`].approve(this.lpcObj.address, valueAllowance, {}, (e, tx) => {
-            if (!e) {
-              this.logPendingTransaction(tx, `${tokenAllowance}: approve lpc ${web3.fromWei(valueAllowance)}`, { method, token: tokenMethod, value });
-            } else {
-              console.log(e);
-            }
-          });
-        } else {
-          this.executeLpcMethod(method, tokenMethod, value);
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+        const action = {
+          gem: {
+            tub: 'Join',
+            tap: 'Mock'
+          },
+          skr: {
+            tub: 'Exit/Lock',
+            tap: 'Boom'
+          },
+          dai: {
+            tub: 'Wipe/Shut',
+            tap: 'Bust/Cash'
+          },
+          gov: {
+            tub: 'Wipe/Shut'
+          }
         }
+        const id = Math.random();
+        const title = `${tokenName}: approve ${action[token][dst]}`;
+        this.logRequestTransaction(id, title);
+        const log = (e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(id, tx, title, callback);
+          } else {
+            console.log(e);
+            this.logTransactionRejected(id, title);
+          }
+        }
+        this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
       }
     });
   }
@@ -1626,96 +1674,131 @@ class App extends Component {
     const cup = this.state.modal.cup;
     let error = false;
     switch(method) {
+      case 'proxy':
+        const id = Math.random();
+        const title = 'PROXY: create new profile';
+        this.logRequestTransaction(id, title);
+        this.proxyFactoryObj.build((e, tx) => {
+          if (!e) {
+            this.logPendingTransaction(id, tx, title);
+            this.proxyFactoryObj.Created({ sender: this.state.network.defaultAccount }, { fromBlock: 'latest' }, (e, r) => {
+              if (!e) {
+                const profile = { ...this.state.profile }
+                profile.proxy = r.args.proxy;
+                this.setState({ profile }, () => {
+                  this.changeMode();
+                });
+              } else {
+                console.log(e);
+              }
+            });
+          } else {
+            console.log(e);
+            this.logTransactionRejected(id, title);
+          }
+        });
+      break;
       case 'open':
+      case 'drip':
         this.executeMethod('tub', method);
         break;
       case 'shut':
         // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.sai.tub.cups[cup].art).times(web3.fromWei(this.state.sai.tub.tax).pow(120));
-        if (this.state.sai.sai.myBalance.lt(debt)) {
-          error = `Not enough balance of SAI to shut CDP ${cup}.`;
+        const debt = this.tab(this.state.system.tub.cups[cup]).times(web3.fromWei(this.state.system.tub.tax).pow(120));
+        if (this.state.system.dai.myBalance.lt(debt)) {
+          error = `Not enough balance of DAI to shut CDP ${cup}.`;
         } else {
-          this.potAllowance('sai', method, cup, web3.fromWei(debt));
+          const futureGovFee = web3.fromWei(wdiv(this.state.system.tub.fee, this.state.system.tub.tax)).pow(180).round(0); // 3 minutes of future fee
+          const govDebt = wmul(wdiv(this.rap(this.state.system.tub.cups[cup]), this.state.system.pep.val), futureGovFee);
+          if (govDebt.gt(this.state.system.gov.myBalance)) {
+            error = `Not enough balance of MKR to shut CDP ${cup}.`;
+          } else {
+            if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+              this.executeMethodCup(method, cup);
+            } else {
+              this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCup', method, cup]]);
+            }
+          }
         }
         break;
       case 'bite':
         this.executeMethodCup(method, cup);
         break;
       case 'join':
-        this.jarAllowance('gem', method, false, value);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tub', method, value);
+        } else {
+          // const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
+          this.checkAllowance('gem', 'tub', ['executeMethodValue', 'tub', method, value]);
+        }
         break;
       case 'exit':
-        if (this.state.sai.tub.reg.eq(1)) {
-          this.jarAllowance('skr', method, false, web3.fromWei(this.state.sai.skr.myBalance));
-        } else if (this.state.sai.tub.reg.eq(0)) {
-          this.jarAllowance('skr', method, false, value);
+        value = this.state.system.tub.off === true ? web3.fromWei(this.state.system.skr.myBalance) : value;
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tub', method, value);
+        } else {
+          this.checkAllowance('skr', 'tub', ['executeMethodValue', 'tub', method, value]);
         }
         break;
       case 'boom':
-        this.pitAllowance('skr', method, value);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          this.checkAllowance('skr', 'tap', ['executeMethodValue', 'tap', method, value]);
+        }
         break;
       case 'bust':
-        const valueSAI = wmul(web3.toBigNumber(value), this.state.sai.tub.avail_bust_ratio).ceil();
-        this.pitAllowance('sai', method, value, valueSAI);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
+          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
+        }
         break;
       case 'lock':
-        this.jarAllowance('skr', method, cup, value);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodCupValue(method, cup, value);
+        } else {
+          this.checkAllowance('skr', 'tub', ['executeMethodCupValue', method, cup, value]);
+        }
         break;
       case 'free':
+        if (this.state.system.tub.off) {
+          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr));
+        } else {
+          this.executeMethodCupValue(method, cup, value);
+        }
+        break;
       case 'draw':
         this.executeMethodCupValue(method, cup, value);
         break;
       case 'wipe':
-        this.potAllowance('sai', method, cup, value);
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodCupValue(method, cup, value);
+        } else {
+          this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCupValue', method, cup, value]]);
+        }
         break;
       case 'give':
         this.executeMethodCupValue(method, cup, value, false);
         break;
       case 'cash':
-        this.pitAllowance('sai', method, web3.fromWei(this.state.sai.sai.myBalance));
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
+        }
+        break;
+      case 'mock':
+        if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+          this.executeMethodValue('tap', method, value);
+        } else {
+          this.checkAllowance('gem', 'tap', ['executeMethodValue', 'tap', method, value]);
+        }
         break;
       case 'vent':
-        this.executeMethod('top', method);
-        break;
-      case 'lpc-pool':
-        this.lpcAllowance(token, token, method, value, web3.toWei(value));
-        break;
-      case 'lpc-exit':
-        let lpsEq = null;
-        if (token === 'gem') {
-          lpsEq = wdiv(web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.per)), this.state.sai.tip.par);
-        } else {
-          lpsEq = web3.toBigNumber(value).times(this.state.sai.lpc.per);
-        }
-        lpsEq = lpsEq.round(0);
-        if (lpsEq.lt(this.state.sai.lpc.pie)) {
-          lpsEq = wmul(lpsEq, this.state.sai.lpc.gap);
-        }
-
-        if (this.state.sai.lps.myBalance.lt(lpsEq)) {
-          error = 'Not enough balance in LPS to exit this amount of TOKEN.'.replace('TOKEN', token.toUpperCase());
-        } else {
-          // Margin in allowance to solve dynamic 'par' value
-          lpsEq = lpsEq.times(1.01);
-          this.lpcAllowance(token, 'lps', method, value, lpsEq);
-        }
-        break;
-      case 'lpc-take':
-        if (token === 'gem') {
-          const valueSai = web3.toBigNumber(value).times(wmul(this.state.sai.pip.val, this.state.sai.lpc.gap));
-          if (this.state.sai.sai.myBalance.lt(valueSai)) {
-            error = `Not enough balance in SAI to take ${value} WETH.`;
-          } else {
-            this.lpcAllowance(token, 'sai', method, value, valueSai);
-          }
-        } else if (token === 'sai') {
-          const valueGem = web3.toBigNumber(value).times(wdiv(this.state.sai.lpc.gap, this.state.sai.pip.val)).round(0);
-          if (this.state.sai.gem.myBalance.lt(valueGem)) {
-            error = `Not enough balance in WETH to take ${value} SAI.`;
-          } else {
-            this.lpcAllowance(token, 'gem', method, value, valueGem);
-          }
-        }
+      case 'heal':
+        this.executeMethod('tap', method);
         break;
       default:
         break;
@@ -1731,119 +1814,272 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, (e, tx) => {
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const id = Math.random();
+    const title = `${tokenName}: transfer ${to} ${amount}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(tx, `${token}: transfer ${to} ${amount}`);
+        this.logPendingTransaction(id, tx, title);
       } else {
         console.log(e);
+        this.logTransactionRejected(id, title);
       }
-    });
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
+                            `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
+                            log);
+    } else {
+      this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, log);
+    }
   }
 
   wrapUnwrap = (operation, amount) => {
+    const id = Math.random();
+    const title = `WETH: ${operation} ${amount}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(id, tx, title);
+      } else {
+        console.log(e);
+        this.logTransactionRejected(id, title);
+      }
+    }
     if (operation === 'wrap') {
-      this.gemObj.deposit({ value: web3.toWei(amount) }, (e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
-        } else {
-          console.log(e);
-        }
-      });
+      if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
+          `${this.methodSig(`deposit(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
+          log);
+      } else {
+        this.gemObj.deposit({ value: web3.toWei(amount) }, log);
+      }
     } else if (operation === 'unwrap') {
-      this.gemObj.withdraw(web3.toWei(amount), {}, (e, tx) => {
-        if (!e) {
-          this.logPendingTransaction(tx, `weth: ${operation} ${amount}`);
-        } else {
-          console.log(e);
-        }
-      });
+      if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+        this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
+          `${this.methodSig(`withdraw(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
+          log);
+      } else {
+        this.gemObj.withdraw(web3.toWei(amount), {}, log);
+      }
+    }
+  }
+
+  approve = (token, dst, val) => {
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const action = {
+      gem: {
+        tub: 'Join',
+        tap: 'Mock'
+      },
+      skr: {
+        tub: 'Exit/Lock',
+        tap: 'Boom'
+      },
+      dai: {
+        tub: 'Wipe/Shut',
+        tap: 'Bust/Cash'
+      },
+      gov: {
+        tub: 'Wipe/Shut'
+      }
+    }
+    const id = Math.random();
+    const title = `${tokenName}: ${val ? 'approve': 'deny'} ${action[token][dst]}`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(id, tx, title);
+      } else {
+        console.log(e);
+        this.logTransactionRejected(id, title);
+      }
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
+        `${this.methodSig('approve(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val ? web3.toBigNumber(2).pow(256).minus(1).valueOf() : 0, false)}`,
+        log);
+    } else {
+      this[`${token}Obj`].approve(this[`${dst}Obj`].address, val ? -1 : 0, (e, tx) => log(e, tx));
+    }
+  }
+
+  approveAll = val => {
+    const id = Math.random();
+    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
+    this.logRequestTransaction(id, title);
+    const log = (e, tx) => {
+      if (!e) {
+        this.logPendingTransaction(id, tx, title);
+      } else {
+        console.log(e);
+        this.logTransactionRejected(id, title);
+      }
+    }
+    if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
+      this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.customActions,
+                            `${this.methodSig('approveAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
+                            log);
     }
   }
   //
 
-  hasUserRights = () => {
-    return web3.isAddress(this.state.network.defaultAccount) && (!this.state.sai.whitelisted || ['root', 'user'].indexOf(this.state.sai.tub.role) !== -1);
+  changeMode = () => {
+    const profile = { ...this.state.profile };
+    profile.mode = profile.mode !== 'proxy' ? 'proxy' : 'account';
+    profile.activeProfile = profile.mode === 'proxy' ? profile.proxy : this.state.network.defaultAccount;
+    profile.accountBalance = web3.toBigNumber(-1);
+    if (profile.mode === 'proxy' && !web3.isAddress(profile.proxy)) {
+      this.setState({ modal: { show: true, method: 'proxy' } });
+    } else {
+      this.setState({ profile }, () => {
+        localStorage.setItem('mode', profile.mode);
+        this.initContracts(this.state.system.top.address);
+      });
+    }
   }
 
+  listCups = e => {
+    e.preventDefault();
+    const cupsList = e.target.getAttribute('data-value');
+    this.setState({ cupsList }, () => {
+      localStorage.setItem('cupsList', cupsList);
+      this.initContracts(this.state.system.top.address);
+    });
+  }
+  //
+
   renderMain() {
-    const actions = {
-      open: this.hasUserRights() && this.state.sai.tub.reg.eq(0),
-      join: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.gem.myBalance.gt(0),
-      exit: this.hasUserRights() && this.state.sai.skr.myBalance.gt(0)
-                          && (this.state.sai.tub.reg.eq(0) ||
-                             (this.state.sai.tub.reg.eq(1) && this.state.sai.sin.potBalance.eq(0) && this.state.sai.skr.pitBalance.eq(0))),
-      bust: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_bust_sai && this.state.sai.tub.avail_bust_sai.gt(0),
-      boom: this.hasUserRights() && this.state.sai.tub.reg.eq(0) && this.state.sai.tub.avail_boom_sai && this.state.sai.tub.avail_boom_sai.gt(0),
-    };
+    // const actions = {
+    //   heal: {
+    //           display: 'Heal',
+    //           active: this.state.system.dai.tapBalance.gt(0),
+    //           helper: ''
+    //         },
+    //   drip: {
+    //           display: 'Drip',
+    //           active: this.state.system.tub.off === false,
+    //           helper: ''
+    //         }
+    // };
+    // if (this.state.system.tub.off === true) {
+    //   actions.vent = {
+    //                     display: 'Vent',
+    //                     active: this.state.system.skr.tapBalance.gt(0),
+    //                     helper: 'Clean up the CDP state after cage'
+    //                  }
+    // }
 
-    const helpers = {
-      open: 'Open a new CDP',
-      join: 'Exchange ETH for SKR',
-      exit: 'Exchange SKR for ETH',
-      boom: 'Buy SAI with SKR',
-      bust: 'Buy SKR with SAI',
-    };
-
-    if (this.state.sai.tub.reg.eq(1)) {
-      actions.cash = this.hasUserRights() && this.state.sai.sai.myBalance.gt(0);
-      actions.vent = this.hasUserRights() && this.state.sai.skr.pitBalance.gt(0);
-      helpers.cash = 'Exchange your SAI for ETH at the cage price';
-      helpers.vent = 'Clean up the CDP state after cage';
+    const openAction = {
+      display: 'Open Your CDP',
+      active: this.state.network.defaultAccount && this.state.system.tub.off === false && !this.state.system.tub.ownCup && !this.state.system.tub.cupsLoading,
+      helper: 'Open a new CDP'
     }
+
+    const bustBoomActions = {
+      bust: {
+        display: 'Buy PETH with DAI',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
+      },
+      boom: {
+        display: 'Buy Dai with PETH',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
+      },
+    }
+
+    const skrActions = {
+      join: {
+        display: 'Convert WETH to PETH',
+        active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.gem.myBalance.gt(0),
+      },
+      exit: {
+        display: 'Convert PETH to WETH',
+        active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
+                    && (this.state.system.tub.off === false ||
+                       (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
+      },
+    };
+
+    const daiActions = {
+      cash: {
+        display: 'Convert DAI to WETH',
+        active: this.state.system.tub.off === true && this.state.system.dai.myBalance.gt(0),
+        helper: 'Exchange your DAI for ETH at the cage price (enabled upon cage)'
+      },
+      mock: {
+        display: 'Convert WETH to DAI',
+        active: this.state.system.tub.off === true && this.state.system.gem.myBalance.gt(0),
+        helper: 'Exchange your ETH for DAI at the cage price (enabled upon cage)'
+     }
+    };
 
     return (
       <div className="content-wrapper">
         <section className="content-header">
           <h1>
-            <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
+            <a href="/" className="logo"><img src={ logo } alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
           </h1>
+          {
+            settings.chain[this.state.network.network].proxyFactory
+            ?
+              <div className="onoffswitch mode-box">
+                <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={ this.state.profile.mode === 'proxy' } onChange={ this.changeMode } />
+                <label className="onoffswitch-label" htmlFor="myonoffswitchpMode">
+                    <span className="onoffswitch-inner"></span>
+                    <span className="onoffswitch-switch"></span>
+                </label>
+              </div>
+            :
+              ''
+          }
         </section>
         <section className="content">
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo sai={ this.state.sai.sai.address } top={ this.state.sai.top.address } tub={ this.state.sai.tub.address } tap={ this.state.sai.tap.address } jar={ this.state.sai.jar.address } tip={ this.state.sai.tip.address } lpc={ this.state.sai.lpc.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } role={ this.state.sai.tub.role }
+                <GeneralInfo dai={ this.state.system.dai.address } top={ this.state.system.top.address } tub={ this.state.system.tub.address } tap={ this.state.system.tap.address } vox={ this.state.system.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' reg={ this.state.sai.tub.reg } />
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' />
-              <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sai' color='bg-green' />
-              {/* <Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
-              {/*<Token sai={ this.state.sai } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='lps' color='bg-blue' />*/}
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.system.tub.off } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.system.tub.off } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' actions={ skrActions } handleOpenModal={ this.handleOpenModal } />
+              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' actions={ daiActions } handleOpenModal={ this.handleOpenModal } />
+              {/* <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
               <div className="col-md-9 main">
                 {
-                  settings.chain[this.state.network.network]['service']
-                  ? <Stats stats={ this.state.sai.stats } />
+                  settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
+                  ? <PriceChart chartData={ this.state.system.chartData } />
                   : ''
                 }
-                {
-                  settings.chain[this.state.network.network]['service'] && settings.chain[this.state.network.network]['chart']
-                  ? <PriceChart chartData={ this.state.sai.chartData } />
-                  : ''
-                }
-                <SystemStatus sai={ this.state.sai } />
+                <SystemStatus system={ this.state.system } actions={ bustBoomActions } handleOpenModal={ this.handleOpenModal } service={ settings.chain[this.state.network.network].service } stats={ this.state.system.stats } />
                 {
                   web3.isAddress(this.state.network.defaultAccount)
                   ?
                     <div className="row">
                       <div className="col-md-6">
-                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.network.accountBalance } sai={ this.state.sai } />
+                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } system={ this.state.system } />
                       </div>
                       <div className="col-md-6">
-                        <Transfer transferToken={ this.transferToken } sai={ this.state.sai } />
+                        <Transfer transferToken={ this.transferToken } system={ this.state.system } profile={ this.state.profile } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
                       </div>
                     </div>
                   :
                     ''
                 }
-                <Cups sai={ this.state.sai } network={ this.state.network } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } hasUserRights={ this.hasUserRights } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                {
+                  openAction.active
+                  ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
+                  : <span className="buttonAction openAction" title={ openAction.helper }><span>{ openAction.display }</span></span>
+                }
               </div>
               <div className="col-md-3 right-sidebar">
-                <div className="box">
+                {/* <div className="box">
                   <div className="box-header with-border">
                     <h3 className="box-title">General Actions</h3>
                   </div>
@@ -1853,30 +2089,31 @@ class App extends Component {
                         {
                           Object.keys(actions).map(key =>
                             <span key={ key } style={ {textTransform: 'capitalize'} }>
-                              { actions[key] ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+                              { actions[key].active
+                                  ? <a href="#action" data-method={ key } onClick={ this.handleOpenModal } title={ actions[key].helper }>{ actions[key].display }</a>
+                                  : <span title={ actions[key].helper }>{ actions[key].display }</span> }
                               { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
                             </span>
                           )
                         }
                       </div>
-                      <div className="row">
-                        <div className="col-md-12">
-                          { this.state.network.network === 'kovan' && <Faucet account={ this.state.network.defaultAccount } gem={ this.state.sai.gem.address } /> }
-                        </div>
-                      </div>
                     </div>
                   </div>
-                </div>
-                <a className="resource buy-sai" href="https://oasisdex.com" target="_blank" rel="noopener noreferrer" >
-                  <span>Buy SAI</span>
+                </div> */}
+                <a className="resource buy-dai" href="https://oasisdex.com/#trade/W-ETH/DAI" target="_blank" rel="noopener noreferrer" >
+                  <span>Buy DAI</span>
                 </a>
                 {
-                  this.state.sai.lpc.address &&
-                  <Lpc state={ this.state } hasUserRights={ this.hasUserRights } handleOpenModal={ this.handleOpenModal } />
+                  this.state.network.defaultAccount &&
+                  <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } approve={ this.approve } approveAll={ this.approveAll } />
                 }
                 {
-                  this.state.sai.pip.address && this.state.network.network !== 'private' &&
-                  <FeedValue address={ this.state.sai.pip.address } pipVal={ this.state.sai.pip.val } />
+                  this.state.system.pip.address && this.state.network.network !== 'private' &&
+                  <FeedValue address={ this.state.system.pip.address } val={ this.state.system.pip.val } currency="ETH" />
+                }
+                {
+                  this.state.system.pep.address && this.state.network.network !== 'private' &&
+                  <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
               </div>
@@ -1886,7 +2123,7 @@ class App extends Component {
           <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
-          <Modal sai={ this.state.sai } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } reg={ this.state.sai.tub.reg } tab={ this.tab } />
+          <Modal system={ this.state.system } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
           <ReactNotify ref='notificator'/>
         </section>
       </div>

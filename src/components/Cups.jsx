@@ -4,25 +4,36 @@ import { printNumber, wdiv } from '../helpers';
 
 const settings = require('../settings');
 
-const renderCupActions = (feedValue, hasUserRights, reg, lock, cupId, cup, handleOpenModal, defaultAccount) => {
+const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenModal) => {
   const actions = {
-    lock: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && lock,
-    free: feedValue.gt(0) && hasUserRights && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    draw: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.ink.gt(0) && cup.safe,
-    wipe: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount && cup.art.gt(0),
-    shut: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    give: feedValue.gt(0) && hasUserRights && reg.eq(0) && cup.lad === defaultAccount,
-    bite: feedValue.gt(0) && hasUserRights && ((reg.eq(1) && cup.art.gt(0)) || cup.safe === false),
-  };
-
-  const helpers = {
-    lock: 'Add collateral to a CDP',
-    free: 'Remove collateral from a CDP',
-    draw: 'Create Sai against a CDP',
-    wipe: 'Use Sai to cancel CDP debt',
-    shut: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP',
-    give: 'Transfer CDP ownership',
-    bite: 'Initiate liquidation of an undercollateralized CDP',
+    lock: {
+            active: account && cup.lad === account && off === false && lock,
+            helper: 'Add collateral to a CDP'
+          },
+    free: {
+            active: feedValue.gt(0) && account && cup.lad === account && cup.ink.gt(0) && cup.safe && (off === false || cup.art.eq(0)),
+            helper: 'Remove collateral from a CDP'
+          },
+    draw: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
+            helper: 'Create Dai against a CDP'
+          },
+    wipe: {
+            active: account && cup.lad === account && off === false && cup.art.gt(0),
+            helper: 'Use Dai to cancel CDP debt'
+          },
+    shut: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account,
+            helper: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP'
+          },
+    give: {
+            active: feedValue.gt(0) && account && off === false && cup.lad === account,
+            helper: 'Transfer CDP ownership'
+          },
+    bite: {
+            active: feedValue.gt(0) && account && ((off === true && cup.art.gt(0)) || cup.safe === false),
+            helper: 'Initiate liquidation of an undercollateralized CDP'
+          },
   };
 
   return (
@@ -30,7 +41,9 @@ const renderCupActions = (feedValue, hasUserRights, reg, lock, cupId, cup, handl
       {
         Object.keys(actions).map(key =>
           <span key={ key } style={ {textTransform: 'capitalize'} }>
-            { actions[key] ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ helpers[key] }>{ key }</a> : <span title={ helpers[key] }>{ key }</span> }
+            { actions[key].active
+                ? <a href="#action" data-method={ key } data-cup={ cupId } onClick={ handleOpenModal } title={ actions[key].helper }>{ key }</a>
+                : <span title={ actions[key].helper }>{ key }</span> }
             { Object.keys(actions).pop() !== key ? <span> / </span> : '' }
           </span>
         )
@@ -42,8 +55,10 @@ const renderCupActions = (feedValue, hasUserRights, reg, lock, cupId, cup, handl
 const Cups = (props) => {
   return (
     <div className="box">
-      <div className="box-header with-border">
-        <h3 className="box-title">{ props.all ? 'All' : 'My' } CDPs - <a href={ props.all ? '#mine' : '#all' }>Show { props.all ? 'only my' : 'all' } CDPs</a></h3>
+      <div className="box-header with-border cupsTabs">
+        <a href="#action" data-value="mine" onClick={ props.listCups } className={ props.cupsList === 'mine' ? 'selected' : '' }>My CDPs</a>
+        <a href="#action" data-value="open" onClick={ props.listCups } className={ props.cupsList === 'open' ? 'selected' : '' }>Open CDPs</a>
+        <a href="#action" data-value="unsafe" onClick={ props.listCups } className={ props.cupsList === 'unsafe' ? 'selected' : '' }>Unsafe CDPs</a>
       </div>
       <div className="box-body" id="cups">
         <div className="row">
@@ -51,17 +66,18 @@ const Cups = (props) => {
             <table className="text-right">
               <thead>
                 <tr>
-                  <th>CDP Id</th>
-                  <th title="Amount of outstanding SAI debt in a CDP">Debt (SAI)</th>
-                  <th title="Amount of SKR collateral in a CDP">Locked (SKR)</th>
-                  <th title="Ratio of collateral SKR to total outstanding SKR">% Tot (SKR)</th>
-                  <th title="Collateral ratio of the CDP">% Ratio</th>
-                  <th title="Maximum Sai that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
-                  <th title="Maximum SKR that can currently be released from a CDP">Avail. SKR (to free)</th>
-                  <th title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
-                  <th title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
+                  <th className="text-right">CDP Id</th>
+                  <th className="text-right" title="Amount of outstanding DAI debt in a CDP">Stability Debt (DAI)</th>
+                  <th className="text-right" title="">Governance Debt (MKR)</th>
+                  <th className="text-right" title="Amount of PETH collateral in a CDP">Locked (PETH)</th>
+                  <th className="text-right" title="Ratio of collateral PETH to total outstanding PETH">% Tot (PETH)</th>
+                  <th className="text-right" title="Collateral ratio of the CDP">% Ratio</th>
+                  <th className="text-right" title="Maximum DAI that can currently be drawn from a CDP">Avail. DAI (to draw)</th>
+                  <th className="text-right" title="Maximum PETH that can currently be released from a CDP">Avail. PETH (to free)</th>
+                  <th className="text-right" title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
+                  <th className="text-right" title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
                   {
-                    settings.chain[props.network.network]['service']
+                    settings.chain[props.network].service
                     ?<th>History</th>
                     :<th></th>
                   }
@@ -70,81 +86,100 @@ const Cups = (props) => {
               </thead>
               <tbody>
                 {
-                  Object.keys(props.sai.tub.cups).map(key =>
-                    <tr key={ key }>
-                      <td>
-                        { key }
-                      </td>
-                      <td>
-                        { printNumber(props.tab(props.sai.tub.cups[key].art)) }
-                      </td>
-                      <td>
-                        { printNumber(props.sai.tub.cups[key].ink) }
-                      </td>
-                      <td>
-                        {
-                          props.sai.skr.totalSupply.gte(0)
-                            ? props.sai.skr.totalSupply.gt(0)
-                              ? <span>{ printNumber(wdiv(props.sai.tub.cups[key].ink, props.sai.skr.totalSupply).times(100)) }%</span>
-                              : <span title="0">0.000%</span>
-                            : 'Loading...'
-                        }
-                      </td>
-                      <td className={ props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].ratio && props.sai.tub.cups[key].art.gt(web3.toBigNumber(0))
-                                      ? (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.1))
-                                        ? 'error-color'
-                                        : (web3.toWei(props.sai.tub.cups[key].ratio).lte(props.sai.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
-                                      : '' }>
-                        {
-                          props.sai.tub.reg.eq(0)
-                            ? props.sai.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.sai.tub.cups[key].pro
-                              ? <span>
-                                  { printNumber(web3.toWei(props.sai.tub.cups[key].ratio).times(100)) }%
-                                </span>
-                              : '-'
-                            : '-'
-                        }
-                      </td>
-                      <td>
-                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_sai) : '-' }
-                      </td>
-                      <td>
-                        { props.sai.tub.reg.eq(0) ? printNumber(props.sai.tub.cups[key].avail_skr) : '-' }
-                      </td>
-                      <td>
-                        { props.sai.tub.reg.eq(0) && props.sai.tub.cups[key].liq_price && props.sai.tub.cups[key].liq_price.gt(0) ? printNumber(props.sai.tub.cups[key].liq_price) : '-' }
-                      </td>
-                      <td className={ `text-center ${ props.sai.tub.reg.eq(0) ? (props.sai.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.sai.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
-                        {
-                          props.sai.tub.reg.eq(0)
-                          ?
-                            props.sai.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
-                            ?
-                              'Closed'
-                            :
-                              props.sai.tub.cups[key].safe === 'N/A' || props.sai.pip.val.lt(0)
-                              ?
-                                'N/A'
-                              :
-                                props.sai.tub.cups[key].safe
-                                ?
-                                  'Safe'
-                                :
-                                  'Unsafe'
-                          :
-                            '-'
-                        }
-                      </td>
-                      {
-                        settings.chain[props.network.network]['service']
-                        ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>Show</a></td>
-                        :<td></td>
-                      }
-                      <td className="text-left">
-                        { renderCupActions(props.sai.pip.val, props.hasUserRights(), props.sai.tub.reg, props.sai.skr.myBalance && props.sai.skr.myBalance.gt(0), key, props.sai.tub.cups[key], props.handleOpenModal, props.network.defaultAccount) }
-                      </td>
+                  props.system.tub.cupsLoading
+                  ?
+                    <tr>
+                      <td colSpan="11" className="cupsMessage">Loading CDPs...</td>
                     </tr>
-                  )
+                  :
+                    Object.keys(props.system.tub.cups).length === 0
+                    ?
+                      <tr>
+                        <td colSpan="11" className="cupsMessage">No existing CDPs for this filter...</td>
+                      </tr>
+                    :
+                      Object.keys(props.system.tub.cups).map(key =>
+                        <tr key={ key }>
+                          <td>
+                            { key }
+                          </td>
+                          <td>
+                            { printNumber(props.tab(props.system.tub.cups[key])) }
+                          </td>
+                          <td>
+                            {
+                              props.system.pep.val.gte(0)
+                              ? printNumber(wdiv(props.rap(props.system.tub.cups[key]), props.system.pep.val))
+                              : 'Loading...'
+                            }
+                          </td>
+                          <td>
+                            { printNumber(props.system.tub.cups[key].ink) }
+                          </td>
+                          <td>
+                            {
+                              props.system.skr.totalSupply.gte(0)
+                                ? props.system.skr.totalSupply.gt(0)
+                                  ? <span>{ printNumber(wdiv(props.system.tub.cups[key].ink, props.system.skr.totalSupply).times(100)) }%</span>
+                                  : <span title="0">0.000%</span>
+                                : 'Loading...'
+                            }
+                          </td>
+                          <td className={ props.system.tub.off === false && props.system.tub.cups[key].ratio && props.system.tub.cups[key].art.gt(web3.toBigNumber(0))
+                                          ? (web3.toWei(props.system.tub.cups[key].ratio).lte(props.system.tub.mat.times(1.1))
+                                            ? 'error-color'
+                                            : (web3.toWei(props.system.tub.cups[key].ratio).lte(props.system.tub.mat.times(1.5)) ? 'warning-color' : 'success-color'))
+                                          : '' }>
+                            {
+                              props.system.tub.off === false
+                                ? props.system.tub.cups[key].art.gt(web3.toBigNumber(0)) && props.system.tub.cups[key].pro
+                                  ? <span>
+                                      { printNumber(web3.toWei(props.system.tub.cups[key].ratio).times(100)) }%
+                                    </span>
+                                  : '-'
+                                : '-'
+                            }
+                          </td>
+                          <td>
+                            { props.system.tub.off === false ? printNumber(props.system.tub.cups[key].avail_dai) : '-' }
+                          </td>
+                          <td>
+                            { props.system.tub.off === false ? printNumber(props.system.tub.cups[key].avail_skr) : '-' }
+                          </td>
+                          <td>
+                            { props.system.tub.off === false && props.system.tub.cups[key].liq_price && props.system.tub.cups[key].liq_price.gt(0) ? printNumber(props.system.tub.cups[key].liq_price) : '-' }
+                          </td>
+                          <td className={ `text-center ${ props.system.tub.off === false ? (props.system.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.system.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
+                            {
+                              props.system.tub.off === false
+                              ?
+                                props.system.tub.cups[key].lad === '0x0000000000000000000000000000000000000000'
+                                ?
+                                  'Closed'
+                                :
+                                  props.system.tub.cups[key].safe === 'N/A' || props.system.pip.val.lt(0)
+                                  ?
+                                    'N/A'
+                                  :
+                                    props.system.tub.cups[key].safe
+                                    ?
+                                      'Safe'
+                                    :
+                                      'Unsafe'
+                              :
+                                '-'
+                            }
+                          </td>
+                          {
+                            settings.chain[props.network].service
+                            ?<td><a href="#action" data-id={ key } onClick={ props.handleOpenCupHistoryModal }>Show</a></td>
+                            :<td></td>
+                          }
+                          <td className="text-left">
+                            { renderCupActions(props.system.pip.val, props.profile, props.system.tub.off, props.system.skr.myBalance && props.system.skr.myBalance.gt(0), key, props.system.tub.cups[key], props.handleOpenModal) }
+                          </td>
+                        </tr>
+                      )
                 }
               </tbody>
             </table>
