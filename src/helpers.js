@@ -80,12 +80,12 @@ export function printNumber(number) {
 
 // Multiply WAD values
 export function wmul(a, b) {
-  return a.times(b).div(WAD);
+  return web3.toBigNumber(a).times(b).div(WAD);
 }
 
 //Divide WAD values
 export function wdiv(a, b) {
-  return a.times(WAD).div(b);
+  return web3.toBigNumber(a).times(WAD).div(b);
 }
 
 function etherscanUrl(network) {

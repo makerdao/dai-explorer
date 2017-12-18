@@ -64,6 +64,7 @@ class App extends Component {
       modal: {
         show: false
       },
+      cupsList: localStorage.getItem('cupsList') !== '' ? localStorage.getItem('cupsList') : 'mine',
       params: ''
     }
   }
@@ -95,6 +96,7 @@ class App extends Component {
           avail_bust_skr: web3.toBigNumber(-1),
           avail_bust_dai: web3.toBigNumber(-1),
           cups: {},
+          cupsLoading: true,
           ownCup: false,
         },
         top: {
@@ -179,7 +181,7 @@ class App extends Component {
   }
 
   checkNetwork = () => {
-    web3.version.getNode((error) => {
+    web3.version.getNode(error => {
       const isConnected = !error;
 
       // Check if we are synced
@@ -236,7 +238,7 @@ class App extends Component {
     });
   }
 
-  initNetwork = (newNetwork) => {
+  initNetwork = newNetwork => {
     //checkAccounts();
     const networkState = { ...this.state.network };
     networkState.network = newNetwork;
@@ -299,11 +301,11 @@ class App extends Component {
     return web3.eth.contract(abi).at(address);
   }
 
-  validateAddresses = (topAddress) => {
+  validateAddresses = topAddress => {
     return web3.isAddress(topAddress);
   }
 
-  initContracts = (topAddress) => {
+  initContracts = topAddress => {
     if (!this.validateAddresses(topAddress)) {
       return;
     }
@@ -311,8 +313,8 @@ class App extends Component {
     if (typeof this.timeVariablesInterval !== 'undefined') clearInterval(this.timeVariablesInterval);
     if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
-    this.setState({
-      ...initialState
+    this.setState((prevState, props) => {
+      return { system: {...initialState}.system };
     }, () => {
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
       const addrs = settings.chain[this.state.network.network];
@@ -322,7 +324,7 @@ class App extends Component {
         window.proxyFactoryObj = this.proxyFactoryObj = this.loadObject(dsproxyfactory.abi, addrs.proxyFactory);
         setUpPromises.push(this.getProxyAddress());
       }
-      Promise.all(setUpPromises).then((r) => {
+      Promise.all(setUpPromises).then(r => {
         if (r[0] && r[1] && web3.isAddress(r[0]) && web3.isAddress(r[1])) {
           window.tubObj = this.tubObj = this.loadObject(tub.abi, r[0]);
           window.tapObj = this.tapObj = this.loadObject(tap.abi, r[1]);
@@ -345,7 +347,7 @@ class App extends Component {
 
           this.setState({ system, profile }, () => {
             const promises = [this.setUpVox(), this.setUpPit()];
-            Promise.all(promises).then((r) => {
+            Promise.all(promises).then(r => {
               this.initializeSystemStatus();
 
               this.setUpToken('gem');
@@ -354,7 +356,7 @@ class App extends Component {
               this.setUpToken('dai');
               this.setUpToken('sin');
 
-              this.setFiltersTub(this.state.params && this.state.params[0] && this.state.params[0] === 'all' ? false : this.state.profile.activeProfile);
+              this.setFiltersTub();
               this.setFiltersTap();
               this.setFiltersVox();
               this.setFilterFeedValue('pip');
@@ -377,7 +379,7 @@ class App extends Component {
                       this.getParameterFromTub('rho'),
                       this.getParameterFromVox('era')
                       ];
-    Promise.all(promises).then((r) => {
+    Promise.all(promises).then(r => {
       if (r[0] === true && r[1] === true && this.state.system.tub.tax.gte(0) && this.state.system.sin.tubBalance.gte(0)) {
         this.setState((prevState, props) => {
           const system = {...prevState.system};
@@ -563,20 +565,59 @@ class App extends Component {
     }
   }
 
-  getCupsFromChain = (address, conditions, fromBlock) => {
-    this.tubObj.LogNewCup(conditions, { fromBlock }, (e, r) => {
-      if (!e) {
-        this.getCup(r.args.cup, address);
-      }
-    });
-    if (address) {
-      // Get cups given to address (only if not seeing all cups).
-      this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(address) }, { fromBlock }, (e, r) => {
-        if (!e) {
-          this.getCup(r.args.foo, address);
-        }
-      });
+  getCupsFromChain = (onConditions, offConditions, fromBlock, promises = []) => {
+    promises.push(
+      new Promise((resolve, reject) => {
+        this.tubObj.LogNewCup(onConditions, { fromBlock }).get((e, r) => {
+          if (!e) {
+            const promises2 = [];
+            for (let i = 0; i < r.length; i++) {
+              promises2.push(this.getCup(r[i].args.cup, Object.assign(onConditions, offConditions)));
+            }
+            Promise.all(promises2).then(r => {
+              // Set filter from block of last cup
+              this.tubObj.LogNewCup(onConditions, { fromBlock: r.length > 0 ? r[r.length - 1].blockNumber: fromBlock }, (e, r) => {
+                if (!e) {
+                  this.getCup(r.args.cup, Object.assign(onConditions, offConditions));
+                }
+              });
+              resolve(true);
+            });
+          } else {
+            reject(e);
+          }
+        });
+      })
+    );
+    if (typeof onConditions.lad !== 'undefined') {
+      promises.push(
+        new Promise((resolve, reject) => {
+          // Get cups given to address (only if not seeing all cups).
+          this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(onConditions.lad) }, { fromBlock }).get((e, r) => {
+            if (!e) {
+              const promises2 = [];
+              for (let i = 0; i < r.length; i++) {
+                promises2.push(this.getCup(r[i].args.foo, Object.assign(onConditions, offConditions)));
+              }
+              Promise.all(promises2).then(r => {
+                resolve(true);
+              });
+            } else {
+              reject(e);
+            }
+          });
+        })
+      );
     }
+    Promise.all(promises).then(r => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        const tub = {...system.tub};
+        tub.cupsLoading = false;
+        system.tub = tub;
+        return { system };
+      });
+    });
   }
 
   getFromService = (service, conditions = {}, sort = {}) => {
@@ -611,25 +652,39 @@ class App extends Component {
     return p;
   }
 
-  setFiltersTub = (address) => {
-    // Get open cups by address (or all)
-    let conditions = {};
-    if (address) {
-      conditions = { lad: address }
+  getCupsListConditions = () => {
+    const conditions = { on: {}, off: {} };
+    switch (this.state.cupsList) {
+      case 'open':
+        conditions.off.closed = false;
+        break;
+      case 'unsafe':
+        conditions.off.closed = false;
+        conditions.off.safe = false;
+        break;
+      case 'mine':
+      default:
+        conditions.on.lad = this.state.profile.activeProfile;
+        break;
     }
+    return conditions;
+  }
 
+  setFiltersTub = () => {
+    const conditions = this.getCupsListConditions();
     const me = this;
     if (settings.chain[this.state.network.network].service) {
-      Promise.resolve(this.getFromService('cups', conditions, { cupi: 'desc' })).then((response) => {
-        response.results.forEach(function (v) {
-          me.getCup(toBytes32(v.cupi), address);
+      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'desc' })).then(response => {
+        const promises = [];
+        response.results.forEach(v => {
+          promises.push(me.getCup(toBytes32(v.cupi), Object.assign(conditions.on, conditions.off)));
         });
-        me.getCupsFromChain(address, conditions, response.last_block);
-      }).catch((error) => {
-        me.getCupsFromChain(address, conditions, settings.chain[this.state.network.network].fromBlock);
+        me.getCupsFromChain(conditions.on, conditions.off, response.last_block, promises);
+      }).catch(error => {
+        me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
       });
     } else {
-      this.getCupsFromChain(address, conditions, settings.chain[this.state.network.network].fromBlock);
+      this.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
     }
 
     const cupSignatures = [
@@ -640,13 +695,14 @@ class App extends Component {
       'bite(bytes32)',
       'shut(bytes32)',
       'give(bytes32,address)',
-    ].map((v) => this.methodSig(v));
+    ].map(v => this.methodSig(v));
 
     this.tubObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
-          this.getCup(r.args.foo, address);
+          const conditions = this.getCupsListConditions();
+          this.getCup(r.args.foo, Object.assign(conditions.on, conditions.off));
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
           const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};          
@@ -695,7 +751,7 @@ class App extends Component {
     });
   }
 
-  setFilterFeedValue = (obj) => {
+  setFilterFeedValue = obj => {
     this.tubObj[obj].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
@@ -726,7 +782,7 @@ class App extends Component {
     })
   }
 
-  getDataFromToken = (token) => {
+  getDataFromToken = token => {
     this.getTotalSupply(token);
 
     if (token !== 'sin') {
@@ -765,7 +821,7 @@ class App extends Component {
     });
   }
 
-  getTotalSupply = (name) => {
+  getTotalSupply = name => {
     this[`${name}Obj`].totalSupply.call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
@@ -861,8 +917,9 @@ class App extends Component {
             return { system };
           }, () => {
             this.getBoomBustValues();
+            const conditions = this.getCupsListConditions();
             Object.keys(this.state.system.tub.cups).map(key =>
-              this.updateCup(key)
+              this.updateCup(key, conditions.off)
             );
             if (callback) {
               callback(value);
@@ -1002,39 +1059,65 @@ class App extends Component {
     }
   }
 
-  getCup = (idHex, address) => {
-    this.tubObj.cups.call(idHex, (e, cupData) => {
-      const id = parseInt(idHex, 16);
-      const firstLoad = typeof this.state.system.tub.cups[id] === 'undefined';
-      if (!address || address === cupData[0]) {
-        // This verification needs to be done as the cup could have been given or closed by the user
-        this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const tub = {...system.tub};
-          const cups = {...tub.cups};
-          const cup = {
-            lad: cupData[0],
-            ink: cupData[1],
-            art: cupData[2],
-            ire: cupData[3],
-            safe: firstLoad ? 'N/A' : cups[id]['safe']
-          };
-          tub.ownCup = tub.ownCup || cup.lad === this.state.profile.activeProfile;
-          cups[id] = cup;
-          tub.cups = cups;
-          system.tub = tub;
-          return { system };
-        }, () => {
-          this.updateCup(id);
-        });
-      } else if(!firstLoad) {
-        // This means was already in the collection but the user doesn't own it anymore (used 'give' or 'shut')
-        delete this.state.system.tub.cups[id];
-      }
+  getCup = (idHex, conditions) => {
+    return new Promise((resolve, reject) => {
+      this.tubObj.cups.call(idHex, (e, cupData) => {
+        if (!e) {
+          const id = parseInt(idHex, 16);
+          const firstLoad = typeof this.state.system.tub.cups[id] === 'undefined';
+          if (
+            (typeof conditions.lad === 'undefined' || conditions.lad === cupData[0]) &&
+            (typeof conditions.closed === 'undefined' ||
+              (conditions.closed && cupData[0] === '0x0000000000000000000000000000000000000000') ||
+              (!conditions.closed && cupData[0] !== '0x0000000000000000000000000000000000000000') )
+            ) {
+            // This verification needs to be done as the cup could have been given or closed by the user
+            this.setState((prevState, props) => {
+              const system = {...prevState.system};
+              const tub = {...system.tub};
+              const cups = {...tub.cups};
+              const cup = {
+                lad: cupData[0],
+                ink: cupData[1],
+                art: cupData[2],
+                ire: cupData[3],
+                safe: firstLoad ? 'N/A' : cups[id]['safe']
+              };
+              tub.ownCup = tub.ownCup || cup.lad === this.state.profile.activeProfile;
+              cups[id] = cup;
+              tub.cups = cups;
+              system.tub = tub;
+              return { system };
+            }, () => {
+              Promise.resolve(this.updateCup(id, conditions)).then(() => {
+                resolve(true);
+              });
+            });
+          } else if(!firstLoad) {
+            this.setState((prevState, props) => {
+              const system = {...prevState.system};
+              if (typeof system.tub.cups[id] !== 'undefined') {
+                const tub = {...system.tub};
+                const cups = {...tub.cups};
+                delete cups[id];
+                tub.cups = cups;
+                system.tub = tub;
+              }
+              return { system }
+            }, () => {
+              resolve(true);
+            });
+          } else {
+            resolve(true);
+          }
+        } else {
+          reject(e);
+        }
+      });
     });
   }
 
-  parseCandleData = (data) => {
+  parseCandleData = data => {
     const dataParsed = [];
     data.forEach(value => {
       const timestamp = (new Date(value.timestamp * 1000)).setHours(0,0,0);
@@ -1072,24 +1155,24 @@ class App extends Component {
     });
   }
 
-  getETHUSDPrice = (timestamps) => {
+  getETHUSDPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('pips', { 'timestamp.gte': timestamps[30] }, { 'timestamp': 'asc' })).then((response) => {
+      Promise.resolve(this.getFromService('pips', { 'timestamp.gte': timestamps[30] }, { 'timestamp': 'asc' })).then(response => {
         response.results = this.parseCandleData(response.results);
         Promise.resolve(this.setChartState('ethusd', response)).then(() => {
           resolve(response);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
   }
 
-  getSKRETHPrice = (timestamps) => {
+  getSKRETHPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then((response) => {
+      Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then(response => {
         const finalResponse = { last_block: response.last_block, results: [] };
 
         // If there is not result before 30 days ago, we assume that the value of PETH/ETH was 1 at that moment
@@ -1116,18 +1199,18 @@ class App extends Component {
         finalResponse.results = this.parseCandleData(finalResponse.results);
         Promise.resolve(this.setChartState('skreth', finalResponse)).then(() => {
           resolve(finalResponse);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
   }
 
-  getDAIUSDPrice = (timestamps) => {
+  getDAIUSDPrice = timestamps => {
     return new Promise((resolve, reject) => {
-      Promise.resolve(this.getFromService('ways')).then((response) => {
+      Promise.resolve(this.getFromService('ways')).then(response => {
         const finalResponse = { last_block: response.last_block, results: [] };
 
         let lastIndex = 30;
@@ -1174,10 +1257,10 @@ class App extends Component {
         finalResponse.results = this.parseCandleData(finalResponse.results);
         Promise.resolve(this.setChartState('daiusd', finalResponse)).then(() => {
           resolve(finalResponse);
-        }).catch((error) => {
+        }).catch(error => {
           reject(error);
         });
-      }).catch((error) => {
+      }).catch(error => {
         reject(error);
       });
     });
@@ -1196,7 +1279,7 @@ class App extends Component {
     // PETH/ETH
     this.getSKRETHPrice(timestamps);
 
-    Promise.all(promises).then((r) => {
+    Promise.all(promises).then(r => {
       if (r[0] && r[1]) {
         const ethdai = { results: [] };
         r[0].results.forEach((value, index) => {
@@ -1210,18 +1293,18 @@ class App extends Component {
         });
         this.setChartState('ethdai', ethdai);
       }
-    }).catch((error) => {
+    }).catch(error => {
     });
   }
 
   getStats = () => {
-    Promise.resolve(this.getFromService('cupStats')).then((response) => {
+    Promise.resolve(this.getFromService('cupStats')).then(response => {
       this.setState((prevState, props) => {
         const system = {...prevState.system};
         system.stats = { error: false, results: response.results };
         return { system };
       });
-    }).catch((error) => {
+    }).catch(error => {
       this.setState((prevState, props) => {
         const system = {...prevState.system};
         system.stats = { error: true };
@@ -1230,103 +1313,127 @@ class App extends Component {
     });
   }
 
-  tab = (cup) => {
+  tab = cup => {
     return wmul(cup.art, this.state.system.tub.chi).round(0);
   }
 
-  rap = (cup) => {
+  rap = cup => {
     return wmul(cup.ire, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
   }
 
-  updateCup = (id) => {
-    this.setState((prevState, props) => {
-      const system = {...prevState.system};
-      const tub = {...system.tub};
-      const cups = {...tub.cups};
-      const cup = {...cups[id]};
+  updateCup = (id, conditions) => {
+    return new Promise((resolve, reject) => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        if (typeof system.tub.cups[id] !== 'undefined') {
+          const tub = {...system.tub};
+          const cups = {...tub.cups};
+          const cup = {...cups[id]};
 
-      cup.pro = wmul(cup.ink, system.tub.tag).round(0);
-      cup.ratio = cup.pro.div(wmul(this.tab(cup), system.vox.par));
-      // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-      const marginTax = web3.fromWei(tub.tax).pow(120);
-      cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
-      cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
-      cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
-      cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), system.vox.par), system.tub.tag)).round(0);
-      cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), system.vox.par), system.tub.tag)).round(0);
-      cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
-      cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), system.tub.per), cup.ink) : web3.toBigNumber(0);
+          cup.pro = wmul(cup.ink, system.tub.tag).round(0);
+          cup.ratio = cup.pro.div(wmul(this.tab(cup), system.vox.par));
+          // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
+          const marginTax = web3.fromWei(tub.tax).pow(120);
+          cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
+          cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
+          cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
+          cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), system.vox.par), system.tub.tag)).round(0);
+          cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), system.vox.par), system.tub.tag)).round(0);
+          cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
+          cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), system.tub.per), cup.ink) : web3.toBigNumber(0);
 
-      cups[id] = cup;
-      tub.cups = cups;
-      system.tub = tub;
-      return { system }
-    }, () => {
-      this.tubObj.safe['bytes32'].call(toBytes32(id), (e, safe) => {
-        if (!e) {
-          this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const tub = {...system.tub};
-            const cups = {...tub.cups};
-            const cup = {...cups[id]};
-
-            cup.safe = safe;
-
-            cups[id] = cup;
-            tub.cups = cups;
-            system.tub = tub;
-            return { system }
-          });
+          cups[id] = cup;
+          tub.cups = cups;
+          system.tub = tub;
         }
+        return { system }
+      }, () => {
+        this.tubObj.safe['bytes32'].call(toBytes32(id), (e, safe) => {
+          if (!e) {
+            if (typeof conditions.safe === 'undefined' || conditions.safe === safe) {
+              this.setState((prevState, props) => {
+                const system = {...prevState.system};
+                if (typeof system.tub.cups[id] !== 'undefined') {
+                  const tub = {...system.tub};
+                  const cups = {...tub.cups};
+                  const cup = {...cups[id]};
+
+                  cup.safe = safe;
+
+                  cups[id] = cup;
+                  tub.cups = cups;
+                  system.tub = tub;
+                }
+                return { system }
+              }, () => {
+                resolve(true);
+              });
+            } else {
+              this.setState((prevState, props) => {
+                const system = {...prevState.system};
+                if (typeof system.tub.cups[id] !== 'undefined') {
+                  const tub = {...system.tub};
+                  const cups = {...tub.cups};
+                  delete cups[id];
+                  tub.cups = cups;
+                  system.tub = tub;
+                }
+                return { system }
+              }, () => {
+                resolve(true);
+              });
+            }
+          }
+        });
       });
     });
   }
 
-  methodSig = (method) => {
+  methodSig = method => {
     return web3.sha3(method).substring(0, 10)
   }
 
   // Modals
-  handleOpenModal = (e) => {
+  handleOpenModal = e => {
     e.preventDefault();
     const method = e.target.getAttribute('data-method');
     const cup = e.target.getAttribute('data-cup') ? e.target.getAttribute('data-cup') : false;
     this.setState({ modal: { show: true, method, cup } });
   }
 
-  handleCloseModal = (e) => {
+  handleCloseModal = e => {
     e.preventDefault();
     this.setState({ modal: { show: false } });
   }
 
-  handleOpenVideoModal = (e) => {
+  handleOpenVideoModal = e => {
     e.preventDefault();
     this.setState({ videoModal: { show: true } });
   }
 
-  handleCloseVideoModal = (e) => {
+  handleCloseVideoModal = e => {
     e.preventDefault();
     this.markAsAccepted('video');
     this.setState({ videoModal: { show: false } });
   }
 
-  handleOpenTerminologyModal = (e) => {
+  handleOpenTerminologyModal = e => {
     e.preventDefault();
     this.setState({ terminologyModal: { show: true } });
   }
 
-  handleCloseTerminologyModal = (e) => {
+  handleCloseTerminologyModal = e => {
     e.preventDefault();
     this.setState({ terminologyModal: { show: false } });
   }
 
-  handleOpenCupHistoryModal = (e) => {
+  handleOpenCupHistoryModal = e => {
     e.preventDefault();
     const id = e.target.getAttribute('data-id');
     const me = this;
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
       if (settings.chain[this.state.network.network].service) {
-        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then((response) => {
+        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then(response => {
           me.setState({ cupHistoryModal: { show: true, error: false, id, actions: response.results } });
         }).catch(error => {
           me.setState({ cupHistoryModal: { show: true, error: true } });
@@ -1335,12 +1442,12 @@ class App extends Component {
     });
   }
 
-  handleCloseCupHistoryModal = (e) => {
+  handleCloseCupHistoryModal = e => {
     e.preventDefault();
     this.setState({ cupHistoryModal: { show: false } });
   }
 
-  markAsAccepted = (type) => {
+  markAsAccepted = type => {
     const termsModal = { ...this.state.termsModal };
     termsModal[type] = false;
     this.setState({ termsModal }, () => {
@@ -1383,7 +1490,7 @@ class App extends Component {
     this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
   }
 
-  logTransactionConfirmed = (tx) => {
+  logTransactionConfirmed = tx => {
     const msgTemp = 'Transaction TX was confirmed.';
     const transactions = { ...this.state.transactions };
     if (transactions[tx] && transactions[tx].pending) {
@@ -1399,7 +1506,7 @@ class App extends Component {
     }
   }
 
-  logTransactionFailed = (tx) => {
+  logTransactionFailed = tx => {
     const msgTemp = 'Transaction TX failed.';
     const transactions = { ...this.state.transactions };
     if (transactions[tx]) {
@@ -1512,7 +1619,7 @@ class App extends Component {
     });
   }
 
-  executeCallback = (args) => {
+  executeCallback = args => {
     const method = args.shift();
     this[method](...args);
   }
@@ -1524,7 +1631,7 @@ class App extends Component {
 
     promise = this.allowance(token, dst);
 
-    Promise.resolve(promise).then((r) => {
+    Promise.resolve(promise).then(r => {
       if (r.gte(valueObj)) {
         this.executeCallback(callback);
       } else {
@@ -1798,7 +1905,7 @@ class App extends Component {
     }
   }
 
-  approveAll = (val) => {
+  approveAll = val => {
     const id = Math.random();
     const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
@@ -1816,6 +1923,7 @@ class App extends Component {
                             log);
     }
   }
+  //
 
   changeMode = () => {
     const profile = { ...this.state.profile };
@@ -1830,6 +1938,15 @@ class App extends Component {
         this.initContracts(this.state.system.top.address);
       });
     }
+  }
+
+  listCups = e => {
+    e.preventDefault();
+    const cupsList = e.target.getAttribute('data-value');
+    this.setState({ cupsList }, () => {
+      localStorage.setItem('cupsList', cupsList);
+      this.initContracts(this.state.system.top.address);
+    });
   }
   //
 
@@ -1856,7 +1973,7 @@ class App extends Component {
 
     const openAction = {
       display: 'Open Your CDP',
-      active: this.state.network.defaultAccount && this.state.system.tub.off === false && !this.state.system.tub.ownCup,
+      active: this.state.network.defaultAccount && this.state.system.tub.off === false && !this.state.system.tub.ownCup && !this.state.system.tub.cupsLoading,
       helper: 'Open a new CDP'
     }
 
@@ -1954,7 +2071,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
                 {
                   openAction.active
                   ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>

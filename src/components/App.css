@@ -605,3 +605,23 @@ a.buttonAction span {
   float: left;
   padding: 5px 30px;
 }
+
+.cupsMessage {
+  font-size: 18px;
+  text-align: center;
+  padding-top: 15px;
+}
+
+.cupsTabs {
+  padding-left: 0px;
+}
+
+.cupsTabs a {
+  padding: 10px;
+  border: 1px solid #f4f4f4;
+}
+
+.cupsTabs a.selected {
+  background: #3c8dbc;
+  color: #fff;
+}
