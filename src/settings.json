@@ -15,10 +15,10 @@
       }
     },
     "kovan": {
-      "top": "0x0d26c4942e34eb25cb23bdb12e654e8e20287122",
+      "top": "0x0c6476699309f166f3a7188f57f3648dc3d07e7d",
       "faucet": "",
-      "fromBlock": 5005833,
-      "service": "https://devar.connaxis.com/dai-service",
+      "fromBlock": 5108579,
+      "service": "",
       "chart": false,
       "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
       "proxyContracts": {
