@@ -785,7 +785,7 @@ class App extends Component {
   getDataFromToken = token => {
     this.getTotalSupply(token);
 
-    if (token !== 'sin') {
+    if (token !== 'sin' && web3.isAddress(this.state.profile.activeProfile)) {
       this.getBalanceOf(token, this.state.profile.activeProfile, 'myBalance');
     }
     if (token === 'gem' || token === 'skr' || token === 'sin') {
@@ -818,7 +818,7 @@ class App extends Component {
         system[token] = tok;
         return { system };
       });
-    });
+    }, () => {});
   }
 
   getTotalSupply = name => {
@@ -1609,13 +1609,17 @@ class App extends Component {
 
   allowance = (token, dst) => {
     return new Promise((resolve, reject) => {
-      this[`${token}Obj`].allowance.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
-        if (!e) {
-          resolve(r);
-        } else {
-          reject(e);
-        }
-      });
+      if (this.state.profile.activeProfile) {
+        this[`${token}Obj`].allowance.call(this.state.profile.activeProfile, this[`${dst}Obj`].address, (e, r) => {
+          if (!e) {
+            resolve(r);
+          } else {
+            reject(e);
+          }
+        });
+      } else {
+        reject(true);
+      }
     });
   }
 
@@ -1666,7 +1670,7 @@ class App extends Component {
         }
         this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
       }
-    });
+    }, () => {});
   }
 
   updateValue = (value, token) => {

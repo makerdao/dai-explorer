@@ -28,9 +28,9 @@
       }
     },
     "main": {
-      "top": "",
+      "top": "0x9b0ccf7c8994e19f39b2b4cf708e0a7df65fa8a3",
       "faucet": "",
-      "fromBlock": 0,
+      "fromBlock": 4752013,
       "service": "",
       "chart": false,
       "proxyFactory": "",
