@@ -9,7 +9,7 @@ class AnnouncementText extends Component {
         </p>
 
         <p>
-          We call this system Dai. It is a very basic decentralized stablecoin design that is soft-pegged to 1 USD and backed by ETH as collateral. You can read about it in more detail here: <a href="https://blog.makerdao.com/2017/06/05/introducing-sai/" target="_blank" rel="noopener noreferrer">https://blog.makerdao.com/2017/06/05/introducing-sai/</a>.
+          We call this system Dai. It is a very basic decentralized stablecoin design that is soft-pegged to 1 USD and backed by ETH as collateral. You can read about it in more detail here: <a href="https://makerdao.com/whitepaper" target="_blank" rel="noopener noreferrer">https://makerdao.com/whitepaper</a>.
         </p>
 
         <p>
@@ -53,7 +53,7 @@ class AnnouncementText extends Component {
         </p>
 
         <p>
-          Use of the Dai system requires deep knowledge of smart contract technology and related fields. Its use without proper skills and preparation may result in unintended consequences. Source code of the Dai system as well as information on security reviews conducted so far is available here: <a href="https://github.com/makerdao/sai" target="_blank" rel="noopener noreferrer">https://github.com/makerdao/sai</a>.
+          Use of the Dai system requires deep knowledge of smart contract technology and related fields. Its use without proper skills and preparation may result in unintended consequences. Source code of the Dai system as well as information on security reviews conducted so far is available here: <a href="https://medium.com/@MakerDAO/single-collateral-dai-source-code-and-security-reviews-523e1a01a3c8" target="_blank" rel="noopener noreferrer">https://medium.com/@MakerDAO/single-collateral-dai-source-code-and-security-reviews-523e1a01a3c8</a>.
         </p>
 
         <p>
