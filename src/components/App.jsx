@@ -662,6 +662,11 @@ class App extends Component {
         conditions.off.closed = false;
         conditions.off.safe = false;
         break;
+      case 'closed':
+        conditions.off.closed = true;
+        break;
+      case 'all':
+        break;
       case 'mine':
       default:
         conditions.on.lad = this.state.profile.activeProfile;
@@ -705,7 +710,7 @@ class App extends Component {
           this.getCup(r.args.foo, Object.assign(conditions.on, conditions.off));
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
-          const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};          
+          const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};
           this.getParameterFromTub(web3.toAscii(r.args.foo).substring(0,3), ray, callback);
         } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
           this.getParameterFromTub('off');
