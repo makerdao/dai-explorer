@@ -64,7 +64,7 @@ class App extends Component {
       modal: {
         show: false
       },
-      cupsList: localStorage.getItem('cupsList') !== '' ? localStorage.getItem('cupsList') : 'mine',
+      cupsList: localStorage.getItem('cupsList') || 'mine',
       params: ''
     }
   }
