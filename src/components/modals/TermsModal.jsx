@@ -37,7 +37,7 @@ class TermsModal extends Component {
   checkBottom = () => {
     if (typeof this.refs.termsContent !== 'undefined') {
       const termsContent = this.refs.termsContent;
-      if (termsContent.clientHeight + termsContent.scrollTop >= termsContent.scrollHeight) {
+      if (termsContent.clientHeight + termsContent.scrollTop >= termsContent.scrollHeight - 50) {
         let gotScrollBottom = {...this.state.gotScrollBottom};
         gotScrollBottom = true;
         this.setState({ gotScrollBottom });
@@ -78,6 +78,8 @@ class TermsModal extends Component {
           <h2>{ this.props.modal.announcement ? 'Dai public announcement' : 'Terms of Use' }</h2>
           <div className="content" ref="termsContent">
             { this.props.modal.announcement ? <AnnouncementText /> : <TermsText /> }
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
           </div>
           <form ref={(input) => this.termsForm = input} onSubmit={(e) => this.acceptTerms(e)}>
             <input ref={(input) => this.type = input} type="hidden" value={ this.props.modal.announcement ? 'announcement' : 'terms' } />
