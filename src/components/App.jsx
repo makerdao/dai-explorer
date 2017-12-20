@@ -14,7 +14,7 @@ import Cups from './Cups';
 import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
-// import ResourceButtons from './ResourceButtons';
+import ResourceButtons from './ResourceButtons';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
@@ -2124,7 +2124,7 @@ class App extends Component {
                   this.state.system.pep.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
-                {/* <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } /> */}
+                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
               </div>
             </div>
           </div>
