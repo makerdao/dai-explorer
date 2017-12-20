@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import NoConnection from './NoConnection';
 import TermsModal from './modals/TermsModal';
 import Modal from './modals/Modal';
-import VideoModal from './modals/VideoModal';
+// import VideoModal from './modals/VideoModal';
 import TerminologyModal from './modals/TerminologyModal';
 import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
@@ -14,7 +14,7 @@ import Cups from './Cups';
 import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
-import ResourceButtons from './ResourceButtons';
+// import ResourceButtons from './ResourceButtons';
 import web3, { initWeb3 } from  '../web3';
 import ReactNotify from '../notify';
 import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
@@ -2124,12 +2124,12 @@ class App extends Component {
                   this.state.system.pep.address && this.state.network.network !== 'private' &&
                   <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
-                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
+                {/* <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } /> */}
               </div>
             </div>
           </div>
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
-          <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
+          {/* <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } /> */}
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
           <Modal system={ this.state.system } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
