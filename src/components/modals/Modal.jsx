@@ -252,7 +252,7 @@ class Modal extends Component {
           if (this.props.system.skr.myBalance.lt(valueWei)) {
             error = 'Not enough balance to lock this amount of PETH.';
             this.submitEnabled = false;
-          } else if (this.props.system.tub.cups[cup].avail_skr.add(valueWei).lt(web3.toWei(0.005))) {
+          } else if (!this.props.system.tub.cups[cup].avail_skr.add(valueWei).eq(0) && this.props.system.tub.cups[cup].avail_skr.add(valueWei).lt(web3.toWei(0.005))) {
             error = 'It is not allowed to lock a low amount of PETH in a CDP. It needs to be equal or higher than 0.005 PETH.';
             this.submitEnabled = false;
           }
