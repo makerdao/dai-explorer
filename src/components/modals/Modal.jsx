@@ -87,7 +87,7 @@ class Modal extends Component {
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
         <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
         {
-          type === 'number' && method !== 'draw' && (method !== 'free' || this.props.system.tub.off)
+          type === 'number' && method !== 'draw' && (method !== 'free' || this.props.system.tub.cups[this.props.modal.cup].art.eq(0))
           ? <span>&nbsp;<a href="#action" onClick={ this.setMax }>Set max</a></span>
           : ''
         }
@@ -248,8 +248,12 @@ class Modal extends Component {
           const valueWei = web3.toBigNumber(web3.toWei(value));
           let error = '';
           this.submitEnabled = true;
+          const cup = this.props.modal.cup;
           if (this.props.system.skr.myBalance.lt(valueWei)) {
             error = 'Not enough balance to lock this amount of PETH.';
+            this.submitEnabled = false;
+          } else if (this.props.system.tub.cups[cup].avail_skr.add(valueWei).lt(web3.toWei(0.005))) {
+            error = 'It is not allowed to lock a low amount of PETH in a CDP. It needs to be equal or higher than 0.005 PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -270,6 +274,9 @@ class Modal extends Component {
             this.submitEnabled = true;
             if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
               error = 'This amount of PETH exceeds the maximum available to free.';
+              this.submitEnabled = false;
+            } else if (this.props.system.tub.cups[cup].avail_skr.minus(valueWei).lt(web3.toWei(0.005)) && !this.props.system.tub.cups[cup].avail_skr.eq(valueWei)) {
+              error = 'CDP can not be left with a dust amount lower than 0.005 PETH. You have to either leave more or free the whole amount.';
               this.submitEnabled = false;
             } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
               error = 'This amount puts your CDP in risk to be liquidated';
