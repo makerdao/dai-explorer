@@ -684,7 +684,7 @@ class App extends Component {
         response.results.forEach(v => {
           promises.push(me.getCup(toBytes32(v.cupi), Object.assign(conditions.on, conditions.off)));
         });
-        me.getCupsFromChain(conditions.on, conditions.off, response.last_block, promises);
+        me.getCupsFromChain(conditions.on, conditions.off, response.lastBlockNumber, promises);
       }).catch(error => {
         me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
       });
@@ -1178,7 +1178,7 @@ class App extends Component {
   getSKRETHPrice = timestamps => {
     return new Promise((resolve, reject) => {
       Promise.resolve(this.getFromService('pers', {}, { 'timestamp': 'asc' })).then(response => {
-        const finalResponse = { last_block: response.last_block, results: [] };
+        const finalResponse = { lastBlockNumber: response.lastBlockNumber, results: [] };
 
         // If there is not result before 30 days ago, we assume that the value of PETH/ETH was 1 at that moment
         finalResponse.results.push({ value: 10 ** 18, timestamp: timestamps[30] });
@@ -1216,7 +1216,7 @@ class App extends Component {
   getDAIUSDPrice = timestamps => {
     return new Promise((resolve, reject) => {
       Promise.resolve(this.getFromService('ways')).then(response => {
-        const finalResponse = { last_block: response.last_block, results: [] };
+        const finalResponse = { lastBlockNumber: response.lastBlockNumber, results: [] };
 
         let lastIndex = 30;
         let lastTimestamp = -1;
