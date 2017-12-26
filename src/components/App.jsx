@@ -658,7 +658,6 @@ class App extends Component {
       case 'open':
         conditions.off.closed = false;
         conditions.off['ink.gt'] = 0;
-        conditions.off['art.gt'] = 0;
         break;
       case 'unsafe':
         conditions.off.closed = false;
@@ -1076,7 +1075,7 @@ class App extends Component {
             (typeof conditions.lad === 'undefined' || conditions.lad === cupData[0]) &&
             (typeof conditions.closed === 'undefined' ||
               (conditions.closed && cupData[0] === '0x0000000000000000000000000000000000000000') ||
-              (!conditions.closed && cupData[0] !== '0x0000000000000000000000000000000000000000' && (cupData[1] > 0 || cupData[2] > 0)))
+              (!conditions.closed && cupData[0] !== '0x0000000000000000000000000000000000000000' && cupData[1] > 0))
             ) {
             // This verification needs to be done as the cup could have been given or closed by the user
             this.setState((prevState, props) => {
