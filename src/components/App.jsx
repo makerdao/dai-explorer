@@ -2088,7 +2088,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } />
                 {
                   openAction.active
                   ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
