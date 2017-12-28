@@ -1389,6 +1389,13 @@ class App extends Component {
     this.setState({ videoModal: { show: true } });
   }
 
+  handleOpenTermsModal = e => {
+    e.preventDefault();
+    const termsModal = {...this.state.termsModal};
+    termsModal[e.target.getAttribute('data-modal')] = true;
+    this.setState({ termsModal: termsModal });
+  }
+
   handleCloseVideoModal = e => {
     e.preventDefault();
     this.markAsAccepted('video');
@@ -2133,6 +2140,10 @@ class App extends Component {
                   <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
+                {/* <div>
+                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="announcement">Dai Public Announcement</a><br />
+                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="terms">Dai Terms of Service</a>
+                </div> */}
               </div>
             </div>
           </div>

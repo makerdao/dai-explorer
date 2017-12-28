@@ -35,7 +35,7 @@ class CupHistoryModal extends Component {
         <div id="termsWrapper">
           <a href="#action" className="close" onClick={ this.props.handleCloseCupHistoryModal }>X</a>
           <h2>CDP { this.props.modal.id } History</h2>
-            <div className="content" ref="termsContent">
+            <div className="content">
               {
                 this.props.modal.error
                 ?
