@@ -185,6 +185,26 @@ const Cups = (props) => {
                 }
               </tbody>
             </table>
+            {
+              props.system.tub.cupsCount > 0 && !props.system.tub.cupsLoading &&
+              <div className="paginator">
+                {
+                  props.system.tub.cupsPage > 1
+                  ?
+                    <a href="#action" onClick={ props.moveCupsPage } data-page={ props.system.tub.cupsPage - 1 }>&lt; Prev</a>
+                  :
+                    <span>&lt; Prev</span>
+                }
+                &nbsp;-&nbsp;
+                {
+                  props.system.tub.cupsCount > props.system.tub.cupsPage * settings['CDPsPerPage']
+                  ?
+                    <a href="#action" onClick={ props.moveCupsPage } data-page={ props.system.tub.cupsPage + 1 }>Next &gt;</a>
+                  :
+                    <span>Next &gt;</span>
+                }
+              </div>
+            }
           </div>
         </div>
       </div>

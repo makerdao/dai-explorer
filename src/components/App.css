@@ -625,3 +625,9 @@ a.buttonAction span {
   background: #3c8dbc;
   color: #fff;
 }
+
+.paginator {
+  float: right;
+  font-size: 18px;
+  margin: 15px 25px 0 0;
+}

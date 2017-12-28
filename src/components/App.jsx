@@ -97,6 +97,8 @@ class App extends Component {
           avail_bust_dai: web3.toBigNumber(-1),
           cups: {},
           cupsLoading: true,
+          cupsCount: 0,
+          cupsPage: 1,
           ownCup: false,
         },
         top: {
@@ -356,6 +358,8 @@ class App extends Component {
               this.setUpToken('dai');
               this.setUpToken('sin');
 
+              this.getCups(settings['CDPsPerPage']);
+
               this.setFiltersTub();
               this.setFiltersTap();
               this.setFiltersVox();
@@ -565,24 +569,34 @@ class App extends Component {
     }
   }
 
-  getCupsFromChain = (onConditions, offConditions, fromBlock, promises = []) => {
-    promises.push(
+  getCups = (limit, skip = 0) => {
+    const conditions = this.getCupsListConditions();
+    const me = this;
+    if (settings.chain[this.state.network.network].service) {
+      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
+        const promises = [];
+        response.results.forEach(v => {
+          promises.push(me.getCup(toBytes32(v.cupi)));
+        });
+        me.getCupsFromChain(conditions.on, conditions.off, response.lastBlockNumber, limit, skip, promises);
+      }).catch(error => {
+        me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
+      });
+    } else {
+      this.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
+    }
+  }
+
+  getCupsFromChain = (onConditions, offConditions, fromBlock, limit, skip, promises = []) => {
+    const promisesLogs = [];
+    promisesLogs.push(
       new Promise((resolve, reject) => {
         this.tubObj.LogNewCup(onConditions, { fromBlock }).get((e, r) => {
           if (!e) {
-            const promises2 = [];
             for (let i = 0; i < r.length; i++) {
-              promises2.push(this.getCup(r[i].args.cup, Object.assign(onConditions, offConditions)));
+              promises.push(this.getCup(r[i].args.cup));
             }
-            Promise.all(promises2).then(r => {
-              // Set filter from block of last cup
-              this.tubObj.LogNewCup(onConditions, { fromBlock: r.length > 0 ? r[r.length - 1].blockNumber: fromBlock }, (e, r) => {
-                if (!e) {
-                  this.getCup(r.args.cup, Object.assign(onConditions, offConditions));
-                }
-              });
-              resolve(true);
-            });
+            resolve();
           } else {
             reject(e);
           }
@@ -590,18 +604,15 @@ class App extends Component {
       })
     );
     if (typeof onConditions.lad !== 'undefined') {
-      promises.push(
+      promisesLogs.push(
         new Promise((resolve, reject) => {
           // Get cups given to address (only if not seeing all cups).
           this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(onConditions.lad) }, { fromBlock }).get((e, r) => {
             if (!e) {
-              const promises2 = [];
               for (let i = 0; i < r.length; i++) {
-                promises2.push(this.getCup(r[i].args.foo, Object.assign(onConditions, offConditions)));
+                promises.push(this.getCup(r[i].args.foo, Object.assign(onConditions, offConditions)));
               }
-              Promise.all(promises2).then(r => {
-                resolve(true);
-              });
+              resolve();
             } else {
               reject(e);
             }
@@ -609,13 +620,90 @@ class App extends Component {
         })
       );
     }
-    Promise.all(promises).then(r => {
-      this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const tub = {...system.tub};
-        tub.cupsLoading = false;
-        system.tub = tub;
-        return { system };
+    Promise.all(promisesLogs).then(r => {
+      Promise.all(promises).then(cups => {
+        const conditions = Object.assign(onConditions, offConditions);
+        const cupsToShow = {};
+        const cupsFiltered = {};
+        let ownCup = this.state.system.tub.ownCup;
+        for (let i = 0; i < cups.length; i++) {
+          if ((typeof conditions.lad === 'undefined' || conditions.lad === cups[i].lad) &&
+              (typeof conditions.closed === 'undefined' ||
+                (conditions.closed && cups[i].lad === '0x0000000000000000000000000000000000000000') ||
+                (!conditions.closed && cups[i].lad !== '0x0000000000000000000000000000000000000000' && cups[i].ink.gt(0))) &&
+              (typeof conditions.safe === 'undefined' ||
+                (conditions.safe && cups[i].safe) ||
+                (!conditions.safe && !cups[i].safe))
+              ) {
+              cupsFiltered[cups[i].id] = cups[i];
+          }
+          ownCup = ownCup || cups[i].lad === this.state.profile.activeProfile;
+        }
+        const keys = Object.keys(cupsFiltered).sort((a, b) => a - b);
+        for (let i = skip; i < Math.min(skip + limit, keys.length); i++) {
+          cupsToShow[keys[i]] = cupsFiltered[keys[i]];
+        }
+
+        this.setState((prevState, props) => {
+          const system = {...prevState.system};
+          const tub = {...system.tub};
+          tub.cupsLoading = false;
+          tub.cupsCount = keys.length;
+          tub.cups = cupsToShow;
+          tub.ownCup = ownCup;
+          system.tub = tub;
+          return { system };
+        });
+      });
+    });
+  }
+
+  getCup = (idHex) => {
+    return new Promise((resolve, reject) => {
+      this.tubObj.cups.call(idHex, (e, cupData) => {
+        if (!e) {
+          const id = parseInt(idHex, 16);
+          let cupBaseData = {
+            id,
+            lad: cupData[0],
+            ink: cupData[1],
+            art: cupData[2],
+            ire: cupData[3],
+          };
+
+          Promise.resolve(this.addExtraCupData(cupBaseData)).then(cup => {
+            resolve(cup);
+          }, e => {
+            reject(e);
+          });
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  addExtraCupData = (cup) => {
+    cup.pro = wmul(cup.ink, this.state.system.tub.tag).round(0);
+    cup.ratio = cup.pro.div(wmul(this.tab(cup), this.state.system.vox.par));
+    // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
+    const marginTax = web3.fromWei(this.state.system.tub.tax).pow(120);
+    cup.avail_dai = wdiv(cup.pro, wmul(this.state.system.tub.mat, this.state.system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
+    cup.avail_dai_with_margin = wdiv(cup.pro, wmul(this.state.system.tub.mat, this.state.system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
+    cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
+    cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), this.state.system.tub.mat), this.state.system.vox.par), this.state.system.tub.tag)).round(0);
+    cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), this.state.system.tub.mat), this.state.system.vox.par), this.state.system.tub.tag)).round(0);
+    cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
+    cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), this.state.system.tub.mat), this.state.system.tub.per), cup.ink) : web3.toBigNumber(0);
+
+    return new Promise((resolve, reject) => {
+      this.tubObj.safe['bytes32'].call(toBytes32(cup.id), (e, safe) => {
+        if (!e) {
+          cup.safe = safe;
+          resolve(cup);
+        } else {
+          reject(e);
+        }
       });
     });
   }
@@ -677,22 +765,6 @@ class App extends Component {
   }
 
   setFiltersTub = () => {
-    const conditions = this.getCupsListConditions();
-    const me = this;
-    if (settings.chain[this.state.network.network].service) {
-      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'desc' })).then(response => {
-        const promises = [];
-        response.results.forEach(v => {
-          promises.push(me.getCup(toBytes32(v.cupi), Object.assign(conditions.on, conditions.off)));
-        });
-        me.getCupsFromChain(conditions.on, conditions.off, response.lastBlockNumber, promises);
-      }).catch(error => {
-        me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
-      });
-    } else {
-      this.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock);
-    }
-
     const cupSignatures = [
       'lock(bytes32,uint256)',
       'free(bytes32,uint256)',
@@ -707,8 +779,19 @@ class App extends Component {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
-          const conditions = this.getCupsListConditions();
-          this.getCup(r.args.foo, Object.assign(conditions.on, conditions.off));
+          if (typeof this.state.system.tub.cups[r.args.foo] !== 'undefined') {
+            Promise.resolve(this.getCup(r.args.foo)).then(cup => {
+              this.setState((prevState, props) => {
+                const system = {...prevState.system};
+                const tub = {...system.tub};
+                const cups = {...tub.cups}
+                cups[r.args.foo] = cup;
+                tub.cups = cups;
+                system.tub = tub;
+                return { system };
+              });
+            });
+          }
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
           const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};
@@ -923,10 +1006,25 @@ class App extends Component {
             return { system };
           }, () => {
             this.getBoomBustValues();
-            const conditions = this.getCupsListConditions();
+            const promises = [];
             Object.keys(this.state.system.tub.cups).map(key =>
-              this.updateCup(key, conditions.off)
+              promises.push(this.addExtraCupData(this.state.system.tub.cups[key]))
             );
+            Promise.all(promises).then(r => {
+              if (r.length > 0) {
+                this.setState((prevState, props) => {
+                  const system = {...prevState.system};
+                  const tub = {...system.tub};
+                  const cups = {...tub.cups}
+                  for (let i = 0; i < r.length; i++) {
+                    cups[r[i].id] = r[i];
+                  }
+                  tub.cups = cups;
+                  system.tub = tub;
+                  return { system };
+                });
+              }
+            });
             if (callback) {
               callback(value);
             }
@@ -1063,64 +1161,6 @@ class App extends Component {
         return { system };
       });
     }
-  }
-
-  getCup = (idHex, conditions) => {
-    return new Promise((resolve, reject) => {
-      this.tubObj.cups.call(idHex, (e, cupData) => {
-        if (!e) {
-          const id = parseInt(idHex, 16);
-          const firstLoad = typeof this.state.system.tub.cups[id] === 'undefined';
-          if (
-            (typeof conditions.lad === 'undefined' || conditions.lad === cupData[0]) &&
-            (typeof conditions.closed === 'undefined' ||
-              (conditions.closed && cupData[0] === '0x0000000000000000000000000000000000000000') ||
-              (!conditions.closed && cupData[0] !== '0x0000000000000000000000000000000000000000' && cupData[1] > 0))
-            ) {
-            // This verification needs to be done as the cup could have been given or closed by the user
-            this.setState((prevState, props) => {
-              const system = {...prevState.system};
-              const tub = {...system.tub};
-              const cups = {...tub.cups};
-              const cup = {
-                lad: cupData[0],
-                ink: cupData[1],
-                art: cupData[2],
-                ire: cupData[3],
-                safe: firstLoad ? 'N/A' : cups[id]['safe']
-              };
-              tub.ownCup = tub.ownCup || cup.lad === this.state.profile.activeProfile;
-              cups[id] = cup;
-              tub.cups = cups;
-              system.tub = tub;
-              return { system };
-            }, () => {
-              Promise.resolve(this.updateCup(id, conditions)).then(() => {
-                resolve(true);
-              });
-            });
-          } else if(!firstLoad) {
-            this.setState((prevState, props) => {
-              const system = {...prevState.system};
-              if (typeof system.tub.cups[id] !== 'undefined') {
-                const tub = {...system.tub};
-                const cups = {...tub.cups};
-                delete cups[id];
-                tub.cups = cups;
-                system.tub = tub;
-              }
-              return { system }
-            }, () => {
-              resolve(true);
-            });
-          } else {
-            resolve(true);
-          }
-        } else {
-          reject(e);
-        }
-      });
-    });
   }
 
   parseCandleData = data => {
@@ -1327,74 +1367,6 @@ class App extends Component {
     return wmul(cup.ire, this.state.system.tub.rhi).minus(this.tab(cup)).round(0);
   }
 
-  updateCup = (id, conditions) => {
-    return new Promise((resolve, reject) => {
-      this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        if (typeof system.tub.cups[id] !== 'undefined') {
-          const tub = {...system.tub};
-          const cups = {...tub.cups};
-          const cup = {...cups[id]};
-
-          cup.pro = wmul(cup.ink, system.tub.tag).round(0);
-          cup.ratio = cup.pro.div(wmul(this.tab(cup), system.vox.par));
-          // This is to give a window margin to get the maximum value (as 'chi' is dynamic value per second)
-          const marginTax = web3.fromWei(tub.tax).pow(120);
-          cup.avail_dai = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup)).round(0).minus(1); // "minus(1)" to avoid rounding issues when dividing by mat (in the contract uses it mulvoxlying on safe function)
-          cup.avail_dai_with_margin = wdiv(cup.pro, wmul(tub.mat, system.vox.par)).minus(this.tab(cup).times(marginTax)).round(0).minus(1);
-          cup.avail_dai_with_margin = cup.avail_dai_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_dai_with_margin;
-          cup.avail_skr = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup), tub.mat), system.vox.par), system.tub.tag)).round(0);
-          cup.avail_skr_with_margin = cup.ink.minus(wdiv(wmul(wmul(this.tab(cup).times(marginTax), tub.mat), system.vox.par), system.tub.tag)).round(0);
-          cup.avail_skr_with_margin = cup.avail_skr_with_margin.lt(0) ? web3.toBigNumber(0) : cup.avail_skr_with_margin;
-          cup.liq_price = cup.ink.gt(0) && cup.art.gt(0) ? wdiv(wdiv(wmul(this.tab(cup), tub.mat), system.tub.per), cup.ink) : web3.toBigNumber(0);
-
-          cups[id] = cup;
-          tub.cups = cups;
-          system.tub = tub;
-        }
-        return { system }
-      }, () => {
-        this.tubObj.safe['bytes32'].call(toBytes32(id), (e, safe) => {
-          if (!e) {
-            if (typeof conditions.safe === 'undefined' || conditions.safe === safe) {
-              this.setState((prevState, props) => {
-                const system = {...prevState.system};
-                if (typeof system.tub.cups[id] !== 'undefined') {
-                  const tub = {...system.tub};
-                  const cups = {...tub.cups};
-                  const cup = {...cups[id]};
-
-                  cup.safe = safe;
-
-                  cups[id] = cup;
-                  tub.cups = cups;
-                  system.tub = tub;
-                }
-                return { system }
-              }, () => {
-                resolve(true);
-              });
-            } else {
-              this.setState((prevState, props) => {
-                const system = {...prevState.system};
-                if (typeof system.tub.cups[id] !== 'undefined') {
-                  const tub = {...system.tub};
-                  const cups = {...tub.cups};
-                  delete cups[id];
-                  tub.cups = cups;
-                  system.tub = tub;
-                }
-                return { system }
-              }, () => {
-                resolve(true);
-              });
-            }
-          }
-        });
-      });
-    });
-  }
-
   methodSig = method => {
     return web3.sha3(method).substring(0, 10)
   }
@@ -1529,13 +1501,13 @@ class App extends Component {
   //
 
   // Actions
-  executeMethod = (object, method) => {
+  executeMethod = (object, method, callback = null) => {
     const id = Math.random();
     const title = `${object.toUpperCase()}: ${method}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, callback);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1550,13 +1522,13 @@ class App extends Component {
     }
   }
 
-  executeMethodCup = (method, cup) => {
+  executeMethodCup = (method, cup, callback = null) => {
     const id = Math.random();
     const title = `TUB: ${method} ${cup}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, callback);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1571,13 +1543,13 @@ class App extends Component {
     }
   }
 
-  executeMethodValue = (object, method, value) => {
+  executeMethodValue = (object, method, value, callback = null) => {
     const id = Math.random();
     const title = `${object.toUpperCase()}: ${method} ${value}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, callback);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1592,13 +1564,13 @@ class App extends Component {
     }
   }
 
-  executeMethodCupValue = (method, cup, value, toWei = true) => {
+  executeMethodCupValue = (method, cup, value, toWei = true, callback = null) => {
     const id = Math.random();
     const title = `TUB: ${method} ${cup} ${value}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, callback);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1709,6 +1681,8 @@ class App extends Component {
         });
       break;
       case 'open':
+        this.executeMethod('tub', method, ['showNewCup']);
+        break;
       case 'drip':
         this.executeMethod('tub', method);
         break;
@@ -1950,12 +1924,45 @@ class App extends Component {
     }
   }
 
+  setNewCupsTab = (cupsList) => {
+    this.setState((prevState, props) => {
+      const system = {...prevState.system};
+      const tub = {...system.tub};
+      tub.cups = {};
+      tub.cupsLoading = true;
+      tub.cupsPage = 1;
+      system.tub = tub;
+      return { system, cupsList };
+    }, () => {
+      localStorage.setItem('cupsList', cupsList);
+      this.getCups(settings['CDPsPerPage']);
+    });
+  }
+
+  showNewCup = () => {
+    this.setNewCupsTab('mine');
+  }
+
   listCups = e => {
     e.preventDefault();
     const cupsList = e.target.getAttribute('data-value');
-    this.setState({ cupsList }, () => {
-      localStorage.setItem('cupsList', cupsList);
-      this.initContracts(this.state.system.top.address);
+    this.setNewCupsTab(cupsList);
+  }
+
+  moveCupsPage = e => {
+    e.preventDefault();
+    const page = parseInt(e.target.getAttribute('data-page'), 10);
+
+    this.setState((prevState, props) => {
+      const system = {...prevState.system};
+      const tub = {...system.tub};
+      tub.cups = {};
+      tub.cupsLoading = true;
+      tub.cupsPage = page;
+      system.tub = tub;
+      return { system };
+    }, () => {
+      this.getCups(settings['CDPsPerPage'], settings['CDPsPerPage'] * (page - 1));
     });
   }
   //
@@ -2081,7 +2088,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } all={ (this.state.params && this.state.params[0] && this.state.params[0] === 'all') || !web3.isAddress(this.state.network.defaultAccount) } />
                 {
                   openAction.active
                   ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>

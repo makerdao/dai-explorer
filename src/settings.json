@@ -1,5 +1,6 @@
 {
-  "nodeURL" : "https://sai-service.makerdao.com/node",
+  "nodeURL" : "https://dai-service.makerdao.com/node",
+  "CDPsPerPage": 15,
   "chain": {
     "private": {
       "top": "",
