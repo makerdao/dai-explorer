@@ -2140,10 +2140,10 @@ class App extends Component {
                   <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
-                {/* <div>
+                <div>
                   <a href="#action" onClick={this.handleOpenTermsModal} data-modal="announcement">Dai Public Announcement</a><br />
                   <a href="#action" onClick={this.handleOpenTermsModal} data-modal="terms">Dai Terms of Service</a>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

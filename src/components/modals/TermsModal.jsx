@@ -8,7 +8,8 @@ class TermsModal extends Component {
   constructor() {
     super();
     this.state = {
-      gotScrollBottom: false
+      gotScrollBottom: false,
+      scrollSet: false,
     }
   }
 
@@ -18,20 +19,20 @@ class TermsModal extends Component {
 
     this.props.markAsAccepted(type);
     this.refs.termsContent.scrollTop = 0;
-    let gotScrollBottom = {...this.state.gotScrollBottom};
-    gotScrollBottom = false;
-    this.setState({ gotScrollBottom });
-
+    this.setState({ gotScrollBottom: false, scrollSet: false });
     return false;
   }
 
-  componentDidMount = () => {
-    window.requestAnimationFrame(() => {
-      if (ReactDOM.findDOMNode(this.refs.termsContent)) {
-        this.checkBottom();
-        ReactDOM.findDOMNode(this.refs.termsContent).addEventListener('scroll', this.checkBottom);
-      }
-    });
+  componentWillReceiveProps = (props) => {
+    if (!this.state.scrollSet && (props.modal.announcement || props.modal.terms)) {
+      window.requestAnimationFrame(() => {
+        if (ReactDOM.findDOMNode(this.refs.termsContent)) {
+          this.checkBottom();
+          ReactDOM.findDOMNode(this.refs.termsContent).addEventListener('scroll', this.checkBottom);
+          this.setState({ scrollSet: true });
+        }
+      });
+    }
   };
 
   checkBottom = () => {
