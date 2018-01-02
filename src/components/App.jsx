@@ -1654,7 +1654,7 @@ class App extends Component {
       if (r.gte(valueObj)) {
         callbacks.forEach(callback => this.executeCallback(callback));
       } else {
-        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
         const action = {
           gem: {
             tub: 'Join',
@@ -1835,7 +1835,7 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
     const id = Math.random();
     const title = `${tokenName}: transfer ${to} ${amount}`;
     this.logRequestTransaction(id, title);
@@ -1888,7 +1888,7 @@ class App extends Component {
   }
 
   approve = (token, dst, val) => {
-    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
     const action = {
       gem: {
         tub: 'Join',
