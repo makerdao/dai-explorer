@@ -252,8 +252,8 @@ class Modal extends Component {
           if (this.props.system.skr.myBalance.lt(valueWei)) {
             error = 'Not enough balance to lock this amount of PETH.';
             this.submitEnabled = false;
-          } else if (!this.props.system.tub.cups[cup].avail_skr.add(valueWei).eq(0) && this.props.system.tub.cups[cup].avail_skr.add(valueWei).lt(web3.toWei(0.005))) {
-            error = 'It is not allowed to lock a low amount of PETH in a CDP. It needs to be equal or higher than 0.005 PETH.';
+          } else if (this.props.system.tub.cups[cup].avail_skr.round(0).add(valueWei).gt(0) && this.props.system.tub.cups[cup].avail_skr.add(valueWei).round(0).lte(web3.toWei(0.005))) {
+            error = 'It is not allowed to lock a low amount of PETH in a CDP. It needs to be higher than 0.005 PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -275,8 +275,8 @@ class Modal extends Component {
             if (this.props.system.tub.cups[cup].avail_skr.lt(valueWei)) {
               error = 'This amount of PETH exceeds the maximum available to free.';
               this.submitEnabled = false;
-            } else if (this.props.system.tub.cups[cup].avail_skr.minus(valueWei).lt(web3.toWei(0.005)) && !this.props.system.tub.cups[cup].avail_skr.eq(valueWei)) {
-              error = 'CDP can not be left with a dust amount lower than 0.005 PETH. You have to either leave more or free the whole amount.';
+            } else if (this.props.system.tub.cups[cup].avail_skr.minus(valueWei).round(0).lte(web3.toWei(0.005)) && !this.props.system.tub.cups[cup].avail_skr.round(0).eq(valueWei)) {
+              error = 'CDP can not be left with a dust amount lower or equal than 0.005 PETH. You have to either leave more or free the whole amount.';
               this.submitEnabled = false;
             } else if (this.props.system.tub.off === false && this.props.system.tub.cups[cup].art.gt(0) && valueWei.gt(this.props.system.tub.cups[cup].avail_skr.times(0.9))) {
               error = 'This amount puts your CDP in risk to be liquidated';
