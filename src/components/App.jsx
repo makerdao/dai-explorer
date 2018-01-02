@@ -708,6 +708,16 @@ class App extends Component {
   }
 
   reloadCupData = id => {
+    // Promise.resolve(this.getCup(id).then(cup => {
+    //   const system = {...this.state.system};
+    //   const tub = {...system.tub};
+    //   const cups = {...tub.cups};
+    //   cups[id] = {...cup};
+    //   tub.cups = cups;
+    //   system.tub = tub;
+
+    //   this.setState({ system }, () => console.log('after save', this.state.system.tub.cups[id].ink.valueOf()));
+    // }));
     Promise.resolve(this.getCup(id).then(cup => {
       this.setState((prevState, props) => {
         const system = {...prevState.system};
@@ -1624,9 +1634,13 @@ class App extends Component {
   }
 
   executeCallback = args => {
-    // console.log(args);
     const method = args.shift();
-    this[method](...args);
+    // If the callback is to execute a getter function is better to wait as sometimes the new value is not uopdated instantly when the tx is confirmed
+    const timeout = ['executeMethod', 'executeMethodValue', 'executeMethodCup', 'executeMethodCupValue', 'checkAllowance'].indexOf(method) !== -1 ? 0 : 3000;
+    // console.log(method, args, timeout);
+    setTimeout(() => {
+      this[method](...args);
+    }, timeout);
   }
 
   checkAllowance = (token, dst, callbacks) => {
