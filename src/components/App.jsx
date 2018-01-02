@@ -576,7 +576,7 @@ class App extends Component {
       Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
         const promises = [];
         response.results.forEach(v => {
-          promises.push(me.getCup(toBytes32(v.cupi)));
+          promises.push(me.getCup(v.cupi));
         });
         me.getCupsFromChain(conditions.on, conditions.off, response.lastBlockNumber, limit, skip, promises);
       }).catch(error => {
@@ -594,7 +594,7 @@ class App extends Component {
         this.tubObj.LogNewCup(onConditions, { fromBlock }).get((e, r) => {
           if (!e) {
             for (let i = 0; i < r.length; i++) {
-              promises.push(this.getCup(r[i].args.cup));
+              promises.push(this.getCup(parseInt(r[i].args.cup, 16)));
             }
             resolve();
           } else {
@@ -610,7 +610,7 @@ class App extends Component {
           this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(onConditions.lad) }, { fromBlock }).get((e, r) => {
             if (!e) {
               for (let i = 0; i < r.length; i++) {
-                promises.push(this.getCup(r[i].args.foo, Object.assign(onConditions, offConditions)));
+                promises.push(this.getCup(parseInt(r[i].args.foo, 16), Object.assign(onConditions, offConditions)));
               }
               resolve();
             } else {
@@ -658,13 +658,12 @@ class App extends Component {
     });
   }
 
-  getCup = (idHex) => {
+  getCup = id => {
     return new Promise((resolve, reject) => {
-      this.tubObj.cups.call(idHex, (e, cupData) => {
+      this.tubObj.cups.call(toBytes32(id), (e, cupData) => {
         if (!e) {
-          const id = parseInt(idHex, 16);
           let cupBaseData = {
-            id,
+            id: parseInt(id, 10),
             lad: cupData[0],
             ink: cupData[1],
             art: cupData[2],
@@ -706,6 +705,20 @@ class App extends Component {
         }
       });
     });
+  }
+
+  reloadCupData = id => {
+    Promise.resolve(this.getCup(id).then(cup => {
+      this.setState((prevState, props) => {
+        const system = {...prevState.system};
+        const tub = {...system.tub};
+        const cups = {...tub.cups};
+        cups[id] = {...cup};
+        tub.cups = cups;
+        system.tub = tub;
+        return { system };
+      });
+    }));
   }
 
   getFromService = (service, conditions = {}, sort = {}) => {
@@ -780,7 +793,7 @@ class App extends Component {
         this.logTransactionConfirmed(r.transactionHash);
         if (cupSignatures.indexOf(r.args.sig) !== -1) {
           if (typeof this.state.system.tub.cups[r.args.foo] !== 'undefined') {
-            Promise.resolve(this.getCup(r.args.foo)).then(cup => {
+            Promise.resolve(this.getCup(parseInt(r.args.foo, 16))).then(cup => {
               this.setState((prevState, props) => {
                 const system = {...prevState.system};
                 const tub = {...system.tub};
@@ -1465,10 +1478,10 @@ class App extends Component {
     this.refs.notificator.info(id, title, msgTemp, false);
   }
 
-  logPendingTransaction = (id, tx, title, callback = []) => {
+  logPendingTransaction = (id, tx, title, callbacks = []) => {
     const msgTemp = 'Transaction TX was created. Waiting for confirmation...';
     const transactions = { ...this.state.transactions };
-    transactions[tx] = { pending: true, title, callback }
+    transactions[tx] = { pending: true, title, callbacks }
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx));
     this.refs.notificator.hideNotification(id);
@@ -1484,8 +1497,8 @@ class App extends Component {
         console.log(msgTemp.replace('TX', tx));
         this.refs.notificator.hideNotification(tx);
         this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
-        if (transactions[tx].callback.length > 0) {
-          this.executeCallback(transactions[tx].callback);
+        if (typeof transactions[tx].callbacks !== 'undefined' && transactions[tx].callbacks.length > 0) {
+          transactions[tx].callbacks.forEach(callback => this.executeCallback(callback));
         }
       });
     }
@@ -1508,13 +1521,13 @@ class App extends Component {
   //
 
   // Actions
-  executeMethod = (object, method, callback = null) => {
+  executeMethod = (object, method, callbacks = []) => {
     const id = Math.random();
     const title = `${object.toUpperCase()}: ${method}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title, callback);
+        this.logPendingTransaction(id, tx, title, callbacks);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1529,13 +1542,14 @@ class App extends Component {
     }
   }
 
-  executeMethodCup = (method, cup, callback = null) => {
+  executeMethodCup = (method, cup, callbacks = []) => {
     const id = Math.random();
     const title = `TUB: ${method} ${cup}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title, callback);
+        callbacks.push(['reloadCupData', cup]);
+        this.logPendingTransaction(id, tx, title, callbacks);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1550,13 +1564,13 @@ class App extends Component {
     }
   }
 
-  executeMethodValue = (object, method, value, callback = null) => {
+  executeMethodValue = (object, method, value, callbacks = []) => {
     const id = Math.random();
     const title = `${object.toUpperCase()}: ${method} ${value}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title, callback);
+        this.logPendingTransaction(id, tx, title, callbacks);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1571,13 +1585,14 @@ class App extends Component {
     }
   }
 
-  executeMethodCupValue = (method, cup, value, toWei = true, callback = null) => {
+  executeMethodCupValue = (method, cup, value, toWei = true, callbacks = []) => {
     const id = Math.random();
     const title = `TUB: ${method} ${cup} ${value}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title, callback);
+        callbacks.push(['reloadCupData', cup]);
+        this.logPendingTransaction(id, tx, title, callbacks);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1609,11 +1624,12 @@ class App extends Component {
   }
 
   executeCallback = args => {
+    // console.log(args);
     const method = args.shift();
     this[method](...args);
   }
 
-  checkAllowance = (token, dst, callback) => {
+  checkAllowance = (token, dst, callbacks) => {
     let promise;
     let valueObj;
     valueObj = web3.toBigNumber(2).pow(256).minus(1); // uint(-1)
@@ -1622,7 +1638,7 @@ class App extends Component {
 
     Promise.resolve(promise).then(r => {
       if (r.gte(valueObj)) {
-        this.executeCallback(callback);
+        callbacks.forEach(callback => this.executeCallback(callback));
       } else {
         const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').toUpperCase();
         const action = {
@@ -1647,7 +1663,7 @@ class App extends Component {
         this.logRequestTransaction(id, title);
         const log = (e, tx) => {
           if (!e) {
-            this.logPendingTransaction(id, tx, title, callback);
+            this.logPendingTransaction(id, tx, title, callbacks);
           } else {
             console.log(e);
             this.logTransactionRejected(id, title);
@@ -1688,7 +1704,7 @@ class App extends Component {
         });
       break;
       case 'open':
-        this.executeMethod('tub', method, ['showNewCup']);
+        this.executeMethod('tub', method, [['showNewCup']]);
         break;
       case 'drip':
         this.executeMethod('tub', method);
@@ -1717,57 +1733,57 @@ class App extends Component {
         break;
       case 'join':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tub', method, value);
+          this.executeMethodValue('tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]);
         } else {
           // const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
-          this.checkAllowance('gem', 'tub', ['executeMethodValue', 'tub', method, value]);
+          this.checkAllowance('gem', 'tub', [['getApproval', 'gem', 'tub'], ['executeMethodValue', 'tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]]]);
         }
         break;
       case 'exit':
         value = this.state.system.tub.off === true ? web3.fromWei(this.state.system.skr.myBalance) : value;
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tub', method, value);
+          this.executeMethodValue('tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]);
         } else {
-          this.checkAllowance('skr', 'tub', ['executeMethodValue', 'tub', method, value]);
+          this.checkAllowance('skr', 'tub', [['getApproval', 'skr', 'tub'], ['executeMethodValue', 'tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]]]);
         }
         break;
       case 'boom':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value);
+          this.executeMethodValue('tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]);
         } else {
-          this.checkAllowance('skr', 'tap', ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('skr', 'tap', [['getApproval', 'skr', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]]]);
         }
         break;
       case 'bust':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value);
+          this.executeMethodValue('tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]);
         } else {
           // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
-          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('dai', 'tap', [['getApproval', 'dai', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]]]);
         }
         break;
       case 'lock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodCupValue(method, cup, value);
+          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'skr']]);
         } else {
-          this.checkAllowance('skr', 'tub', ['executeMethodCupValue', method, cup, value]);
+          this.checkAllowance('skr', 'tub', [['getApproval', 'skr', 'tub'], ['executeMethodCupValue', method, cup, value, true, [['setUpToken', 'skr']]]]);
         }
         break;
       case 'free':
         if (this.state.system.tub.off) {
-          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr));
+          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr), true, [['setUpToken', 'skr']]);
         } else {
-          this.executeMethodCupValue(method, cup, value);
+          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'skr']]);
         }
         break;
       case 'draw':
-        this.executeMethodCupValue(method, cup, value);
+        this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin']]);
         break;
       case 'wipe':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodCupValue(method, cup, value);
+          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin']]);
         } else {
-          this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCupValue', method, cup, value]]);
+          this.checkAllowance('dai', 'tub', [['getApproval', 'dai', 'tub'], ['checkAllowance', 'gov', 'tub', [['getApproval', 'gov', 'tub'], ['executeMethodCupValue', method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin'], ['setUpToken', 'gov']]]]]]);
         }
         break;
       case 'give':
@@ -1777,14 +1793,14 @@ class App extends Component {
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('dai', 'tap', ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('dai', 'tap', [['getApproval', 'dai', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'sai'], ['setUpToken', 'gem']]]]);
         }
         break;
       case 'mock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value);
         } else {
-          this.checkAllowance('gem', 'tap', ['executeMethodValue', 'tap', method, value]);
+          this.checkAllowance('gem', 'tap', [['getApproval', 'gem', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'sai'], ['setUpToken', 'gem']]]]);
         }
         break;
       case 'vent':
@@ -1811,7 +1827,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, [['setUpToken', token]]);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1832,7 +1848,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, [['setUpToken', 'gem']]);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
@@ -1881,7 +1897,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title);
+        this.logPendingTransaction(id, tx, title, [['getApproval', token, dst]]);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
