@@ -1722,7 +1722,7 @@ class App extends Component {
             if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
               this.executeMethodCup(method, cup);
             } else {
-              this.checkAllowance('dai', 'tub', ['checkAllowance', 'gov', 'tub', ['executeMethodCup', method, cup]]);
+              this.checkAllowance('dai', 'tub', [['checkAllowance', 'gov', 'tub', [['executeMethodCup', method, cup]]]]);
             }
           }
         }
