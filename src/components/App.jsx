@@ -708,16 +708,6 @@ class App extends Component {
   }
 
   reloadCupData = id => {
-    // Promise.resolve(this.getCup(id).then(cup => {
-    //   const system = {...this.state.system};
-    //   const tub = {...system.tub};
-    //   const cups = {...tub.cups};
-    //   cups[id] = {...cup};
-    //   tub.cups = cups;
-    //   system.tub = tub;
-
-    //   this.setState({ system }, () => console.log('after save', this.state.system.tub.cups[id].ink.valueOf()));
-    // }));
     Promise.resolve(this.getCup(id).then(cup => {
       this.setState((prevState, props) => {
         const system = {...prevState.system};
@@ -801,20 +791,8 @@ class App extends Component {
     this.tubObj.LogNote({}, { fromBlock: 'latest' }, (e, r) => {
       if (!e) {
         this.logTransactionConfirmed(r.transactionHash);
-        if (cupSignatures.indexOf(r.args.sig) !== -1) {
-          if (typeof this.state.system.tub.cups[r.args.foo] !== 'undefined') {
-            Promise.resolve(this.getCup(parseInt(r.args.foo, 16))).then(cup => {
-              this.setState((prevState, props) => {
-                const system = {...prevState.system};
-                const tub = {...system.tub};
-                const cups = {...tub.cups}
-                cups[r.args.foo] = cup;
-                tub.cups = cups;
-                system.tub = tub;
-                return { system };
-              });
-            });
-          }
+        if (cupSignatures.indexOf(r.args.sig) !== -1 && typeof this.state.system.tub.cups[r.args.foo] !== 'undefined') {
+          this.reloadCupData(parseInt(r.args.foo, 16));
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
           const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
           const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};
@@ -1040,7 +1018,14 @@ class App extends Component {
                   const tub = {...system.tub};
                   const cups = {...tub.cups}
                   for (let i = 0; i < r.length; i++) {
-                    cups[r[i].id] = r[i];
+                    cups[r[i].id].pro = r[i].pro;
+                    cups[r[i].id].ratio = r[i].ratio;
+                    cups[r[i].id].avail_dai = r[i].avail_dai;
+                    cups[r[i].id].avail_dai_with_margin = r[i].avail_dai_with_margin;
+                    cups[r[i].id].avail_skr = r[i].avail_skr;
+                    cups[r[i].id].avail_skr_with_margin = r[i].avail_skr_with_margin;
+                    cups[r[i].id].liq_price = r[i].liq_price;
+                    cups[r[i].id].safe = r[i].safe;
                   }
                   tub.cups = cups;
                   system.tub = tub;
