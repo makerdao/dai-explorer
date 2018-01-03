@@ -1750,9 +1750,29 @@ class App extends Component {
             error = `Not enough balance of MKR to shut CDP ${cup}.`;
           } else {
             if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-              this.executeMethodCup(method, cup);
+              this.executeMethodCup(method, cup, [
+                                                   ['setUpToken', 'sai'],
+                                                   ['setUpToken', 'sin'],
+                                                   ['setUpToken', 'gov'],
+                                                   ['setUpToken', 'skr']
+                                                 ]);
             } else {
-              this.checkAllowance('dai', 'tub', [['checkAllowance', 'gov', 'tub', [['executeMethodCup', method, cup]]]]);
+              this.checkAllowance('dai', 'tub', [
+                                                  ['getApproval', 'dai', 'tub'],
+                                                  ['checkAllowance', 'gov', 'tub',
+                                                    [
+                                                      ['getApproval', 'gov', 'tub'],
+                                                      ['executeMethodCup', method, cup,
+                                                        [
+                                                          ['setUpToken', 'sai'],
+                                                          ['setUpToken', 'sin'],
+                                                          ['setUpToken', 'gov'],
+                                                          ['setUpToken', 'skr']
+                                                        ]
+                                                      ]
+                                                    ]
+                                                  ]
+                                                ]);
             }
           }
         }
@@ -1762,57 +1782,139 @@ class App extends Component {
         break;
       case 'join':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]);
+          this.executeMethodValue('tub', method, value, [
+                                                          ['setUpToken', 'gem'],
+                                                          ['setUpToken', 'skr']
+                                                        ]);
         } else {
           // const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
-          this.checkAllowance('gem', 'tub', [['getApproval', 'gem', 'tub'], ['executeMethodValue', 'tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]]]);
+          this.checkAllowance('gem', 'tub', [
+                                              ['getApproval', 'gem', 'tub'],
+                                              ['executeMethodValue', 'tub', method, value,
+                                                [
+                                                  ['setUpToken', 'gem'],
+                                                  ['setUpToken', 'skr']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'exit':
         value = this.state.system.tub.off === true ? web3.fromWei(this.state.system.skr.myBalance) : value;
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]);
+          this.executeMethodValue('tub', method, value, [
+                                                          ['setUpToken', 'gem'],
+                                                          ['setUpToken', 'skr']
+                                                        ]);
         } else {
-          this.checkAllowance('skr', 'tub', [['getApproval', 'skr', 'tub'], ['executeMethodValue', 'tub', method, value, [['setUpToken', 'gem'], ['setUpToken', 'skr']]]]);
+          this.checkAllowance('skr', 'tub', [
+                                              ['getApproval', 'skr', 'tub'],
+                                              ['executeMethodValue', 'tub', method, value,
+                                                [
+                                                  ['setUpToken', 'gem'],
+                                                  ['setUpToken', 'skr']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'boom':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]);
+          this.executeMethodValue('tap', method, value, [
+                                                          ['setUpToken', 'skr'],
+                                                          ['setUpToken', 'sai'],
+                                                          ['setUpToken', 'sin']
+                                                        ]);
         } else {
-          this.checkAllowance('skr', 'tap', [['getApproval', 'skr', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]]]);
+          this.checkAllowance('skr', 'tap', [
+                                              ['getApproval', 'skr', 'tap'],
+                                              ['executeMethodValue', 'tap', method, value,
+                                                [
+                                                  ['setUpToken', 'skr'],
+                                                  ['setUpToken', 'sai'],
+                                                  ['setUpToken', 'sin']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'bust':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]);
+          this.executeMethodValue('tap', method, value, [
+                                                          ['setUpToken', 'skr'],
+                                                          ['setUpToken', 'sai'],
+                                                          ['setUpToken', 'sin']
+                                                        ]);
         } else {
           // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
-          this.checkAllowance('dai', 'tap', [['getApproval', 'dai', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'skr'], ['setUpToken', 'sai'], ['setUpToken', 'sin']]]]);
+          this.checkAllowance('dai', 'tap', [
+                                              ['getApproval', 'dai', 'tap'],
+                                              ['executeMethodValue', 'tap', method, value,
+                                                [
+                                                  ['setUpToken', 'skr'],
+                                                  ['setUpToken', 'sai'],
+                                                  ['setUpToken', 'sin']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'lock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'skr']]);
+          this.executeMethodCupValue(method, cup, value, true, [
+                                                                 ['setUpToken', 'skr']
+                                                               ]);
         } else {
-          this.checkAllowance('skr', 'tub', [['getApproval', 'skr', 'tub'], ['executeMethodCupValue', method, cup, value, true, [['setUpToken', 'skr']]]]);
+          this.checkAllowance('skr', 'tub', [
+                                              ['getApproval', 'skr', 'tub'],
+                                              ['executeMethodCupValue', method, cup, value, true,
+                                                [
+                                                  ['setUpToken', 'skr']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'free':
         if (this.state.system.tub.off) {
-          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr), true, [['setUpToken', 'skr']]);
+          this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr), true, [
+                                                                                                                   ['setUpToken', 'skr']
+                                                                                                                 ]);
         } else {
-          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'skr']]);
+          this.executeMethodCupValue(method, cup, value, true, [
+                                                                 ['setUpToken', 'skr']
+                                                               ]);
         }
         break;
       case 'draw':
-        this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin']]);
+        this.executeMethodCupValue(method, cup, value, true, [
+                                                               ['setUpToken', 'sai'],
+                                                               ['setUpToken', 'sin']
+                                                             ]);
         break;
       case 'wipe':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodCupValue(method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin']]);
+          this.executeMethodCupValue(method, cup, value, true, [
+                                                                 ['setUpToken', 'sai'],
+                                                                 ['setUpToken', 'sin'],
+                                                                 ['setUpToken', 'gov']
+                                                               ]);
         } else {
-          this.checkAllowance('dai', 'tub', [['getApproval', 'dai', 'tub'], ['checkAllowance', 'gov', 'tub', [['getApproval', 'gov', 'tub'], ['executeMethodCupValue', method, cup, value, true, [['setUpToken', 'sai'], ['setUpToken', 'sin'], ['setUpToken', 'gov']]]]]]);
+          this.checkAllowance('dai', 'tub', [
+                                              ['getApproval', 'dai', 'tub'],
+                                              ['checkAllowance', 'gov', 'tub',
+                                                [
+                                                  ['getApproval', 'gov', 'tub'],
+                                                  ['executeMethodCupValue', method, cup, value, true,
+                                                    [
+                                                      ['setUpToken', 'sai'],
+                                                      ['setUpToken', 'sin'],
+                                                      ['setUpToken', 'gov']
+                                                    ]
+                                                  ]
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'give':
@@ -1820,16 +1922,38 @@ class App extends Component {
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value);
+          this.executeMethodValue('tap', method, value, [
+                                                          ['setUpToken', 'sai'],
+                                                          ['setUpToken', 'gem']
+                                                        ]);
         } else {
-          this.checkAllowance('dai', 'tap', [['getApproval', 'dai', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'sai'], ['setUpToken', 'gem']]]]);
+          this.checkAllowance('dai', 'tap', [
+                                              ['getApproval', 'dai', 'tap'],
+                                              ['executeMethodValue', 'tap', method, value,
+                                                [
+                                                  ['setUpToken', 'sai'],
+                                                  ['setUpToken', 'gem']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'mock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-          this.executeMethodValue('tap', method, value);
+          this.executeMethodValue('tap', method, value, [
+                                                          ['setUpToken', 'sai'],
+                                                          ['setUpToken', 'gem']
+                                                        ]);
         } else {
-          this.checkAllowance('gem', 'tap', [['getApproval', 'gem', 'tap'], ['executeMethodValue', 'tap', method, value, [['setUpToken', 'sai'], ['setUpToken', 'gem']]]]);
+          this.checkAllowance('gem', 'tap', [
+                                              ['getApproval', 'gem', 'tap'],
+                                              ['executeMethodValue', 'tap', method, value,
+                                                [
+                                                  ['setUpToken', 'sai'],
+                                                  ['setUpToken', 'gem']
+                                                ]
+                                              ]
+                                            ]);
         }
         break;
       case 'vent':
