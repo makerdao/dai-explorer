@@ -366,6 +366,7 @@ class App extends Component {
               this.setFilterFeedValue('pip');
               this.setFilterFeedValue('pep');
               this.setTimeVariablesInterval();
+              this.setNonTimeVariablesInterval();
 
               // This is necessary to finish transactions that failed after signing
               this.setPendingTxInterval();
@@ -404,6 +405,35 @@ class App extends Component {
       this.loadEraRho();
       this.getAccountBalance();
     }, 5000);
+  }
+
+  setNonTimeVariablesInterval = () => {
+    // This interval should not be necessary if we can rely on the events
+    this.timeVariablesInterval = setInterval(() => {
+      this.setUpToken('gem');
+      this.setUpToken('gov');
+      this.setUpToken('skr');
+      this.setUpToken('dai');
+      this.setUpToken('sin');
+      this.getParameterFromTub('authority');
+      this.getParameterFromTub('off');
+      this.getParameterFromTub('out');
+      this.getParameterFromTub('axe', true);
+      this.getParameterFromTub('mat', true, this.calculateSafetyAndDeficit);
+      this.getParameterFromTub('cap');
+      this.getParameterFromTub('fit');
+      this.getParameterFromTub('tax', true);
+      this.getParameterFromTub('fee', true);
+      this.getParameterFromTub('chi', true);
+      this.getParameterFromTub('rhi', true);
+      this.getParameterFromTub('per', true);
+      this.getParameterFromTub('gap');
+      this.getParameterFromTub('tag', true, this.calculateSafetyAndDeficit);
+      this.getParameterFromTap('fix', true);
+      this.getParameterFromTap('gap', false, this.getBoomBustValues);
+      this.getParameterFromVox('way', true);
+      this.getParameterFromVox('par', true);
+    }, 30000);
   }
 
   setPendingTxInterval = () => {
