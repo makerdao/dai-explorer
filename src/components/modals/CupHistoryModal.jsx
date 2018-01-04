@@ -21,7 +21,7 @@ class CupHistoryModal extends Component {
         right: 'auto',
         top: '50%', // start from center
         transform: 'translate(-50%,-50%)', // adjust top "up" based on height
-        width: '70%',
+        width: '90%',
         maxWidth: '800px',
         overflow: 'hidden'
       }
