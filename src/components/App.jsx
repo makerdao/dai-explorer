@@ -2243,7 +2243,7 @@ class App extends Component {
               {/* <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
-              <div className="col-md-9 main">
+              <div className="col-md-9">
                 {
                   settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
                   ? <PriceChart chartData={ this.state.system.chartData } />
@@ -2265,11 +2265,15 @@ class App extends Component {
                     ''
                 }
                 <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } />
-                {
-                  openAction.active
-                  ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
-                  : <span className="buttonAction openAction" title={ openAction.helper }><span>{ openAction.display }</span></span>
-                }
+                <div className="row">
+                  <div className="col-md-12">
+                    {
+                      openAction.active
+                      ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
+                      : <span className="buttonAction openAction" title={ openAction.helper }><span>{ openAction.display }</span></span>
+                    }
+                  </div>
+                </div>
               </div>
               <div className="col-md-3 right-sidebar">
                 {/* <div className="box">

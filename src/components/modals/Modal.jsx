@@ -119,8 +119,8 @@ class Modal extends Component {
         right: 'auto',
         top: '50%', // start from center
         transform: 'translate(-50%,-50%)', // adjust top "up" based on height
-        width: '40%',
-        maxWidth: '40rem'
+        width: '90%',
+        maxWidth: '400px'
       }
     };
 
