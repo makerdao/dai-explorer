@@ -35,6 +35,14 @@ div#cups .row {
   margin-right: 0px;
 }
 
+div#cups > .row > .col-md-12 {
+  overflow: hidden;
+}
+
+div#cups > .row > .col-md-12 > div {
+  overflow: auto;
+}
+
 .info-box {
   min-height: 90px;
   position: relative;
@@ -604,6 +612,17 @@ a.buttonAction span {
   font-size: 25px;
   float: left;
   padding: 5px 30px;
+  text-transform: uppercase;
+}
+
+@media screen and (max-width:991px) {
+  .openAction {
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 22px;
+    line-height: 36px;
+    padding: 8px 20px;
+  }
 }
 
 .cupsMessage {
@@ -613,12 +632,13 @@ a.buttonAction span {
 }
 
 .cupsTabs {
-  padding-left: 0px;
+  padding: 0px;
 }
 
 .cupsTabs a {
-  padding: 10px;
   border: 1px solid #f4f4f4;
+  float: left;
+  padding: 10px;
 }
 
 .cupsTabs a.selected {
@@ -630,4 +650,15 @@ a.buttonAction span {
   float: right;
   font-size: 18px;
   margin: 15px 25px 0 0;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 1px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.3);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.3);
 }
