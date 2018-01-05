@@ -1048,14 +1048,16 @@ class App extends Component {
                   const tub = {...system.tub};
                   const cups = {...tub.cups}
                   for (let i = 0; i < r.length; i++) {
-                    cups[r[i].id].pro = r[i].pro;
-                    cups[r[i].id].ratio = r[i].ratio;
-                    cups[r[i].id].avail_dai = r[i].avail_dai;
-                    cups[r[i].id].avail_dai_with_margin = r[i].avail_dai_with_margin;
-                    cups[r[i].id].avail_skr = r[i].avail_skr;
-                    cups[r[i].id].avail_skr_with_margin = r[i].avail_skr_with_margin;
-                    cups[r[i].id].liq_price = r[i].liq_price;
-                    cups[r[i].id].safe = r[i].safe;
+                    if (typeof cups[r[i].id] !== 'undefined') {
+                      cups[r[i].id].pro = r[i].pro;
+                      cups[r[i].id].ratio = r[i].ratio;
+                      cups[r[i].id].avail_dai = r[i].avail_dai;
+                      cups[r[i].id].avail_dai_with_margin = r[i].avail_dai_with_margin;
+                      cups[r[i].id].avail_skr = r[i].avail_skr;
+                      cups[r[i].id].avail_skr_with_margin = r[i].avail_skr_with_margin;
+                      cups[r[i].id].liq_price = r[i].liq_price;
+                      cups[r[i].id].safe = r[i].safe;
+                    }
                   }
                   tub.cups = cups;
                   system.tub = tub;
