@@ -34,7 +34,7 @@ const VideoModal = (props) => {
       <a href="#action" className="close" onClick={ props.handleCloseVideoModal }>X</a>
       <div style={{ marginTop: '25px' }}>
         <div className="video-container">
-          <iframe src="https://www.youtube.com/embed/5hZJ0Ot7Iuo" frameBorder="0" title="Dai Simple Stable Coin Dashboard" allowFullScreen></iframe>
+          <iframe src="https://www.youtube.com/embed/7f0ZMQCpov4" frameBorder="0" title="Dai Stablecoin Dashboard from MakerDAO" allowFullScreen></iframe>
         </div>
       </div>
     </ReactModal>

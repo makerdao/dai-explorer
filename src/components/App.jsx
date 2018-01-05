@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import NoConnection from './NoConnection';
 import TermsModal from './modals/TermsModal';
 import Modal from './modals/Modal';
-// import VideoModal from './modals/VideoModal';
+import VideoModal from './modals/VideoModal';
 import TerminologyModal from './modals/TerminologyModal';
 import CupHistoryModal from './modals/CupHistoryModal';
 import Token from './Token';
@@ -2321,7 +2321,7 @@ class App extends Component {
             </div>
           </div>
           <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
-          {/* <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } /> */}
+          <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
           <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
           <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
           <Modal system={ this.state.system } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
