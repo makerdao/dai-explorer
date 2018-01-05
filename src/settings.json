@@ -16,23 +16,23 @@
       }
     },
     "kovan": {
-      "top": "0x0c6476699309f166f3a7188f57f3648dc3d07e7d",
+      "top": "0x5f00393547561da3030ebf30e52f5dc0d5d3362c",
       "faucet": "",
-      "fromBlock": 5108579,
+      "fromBlock": 5216602,
       "service": "",
       "chart": false,
-      "proxyFactory": "0x93ffc328d601c4c5e9cc3c8d257e9afdaf5b0ac0",
+      "proxyFactory": "",
       "proxyContracts": {
-        "basicActions": "0x4e81891f77064f98dc45a2d9028f7624e2ddceeb",
-        "customActions": "0x1fdf5b2336629875b4bf6b82bfca6a83428d510c",
-        "tokenActions": "0x6033bed276430424852f510277e8ab177eac76b0"
+        "basicActions": "",
+        "customActions": "",
+        "tokenActions": ""
       }
     },
     "main": {
       "top": "0x9b0ccf7c8994e19f39b2b4cf708e0a7df65fa8a3",
       "faucet": "",
       "fromBlock": 4752013,
-      "service": "https://dai-service.makerdao.com/",
+      "service": "",
       "chart": false,
       "proxyFactory": "",
       "proxyContracts": {
