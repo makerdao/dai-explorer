@@ -56,11 +56,11 @@ const Cups = (props) => {
   return (
     <div className="box">
       <div className="box-header with-border cupsTabs">
-        <a href="#action" data-value="mine" onClick={ props.listCups } className={ props.cupsList === 'mine' ? 'selected' : '' }>My CDPs</a>
-        <a href="#action" data-value="open" onClick={ props.listCups } className={ props.cupsList === 'open' ? 'selected' : '' }>Open CDPs</a>
-        <a href="#action" data-value="unsafe" onClick={ props.listCups } className={ props.cupsList === 'unsafe' ? 'selected' : '' }>Unsafe CDPs</a>
-        <a href="#action" data-value="closed" onClick={ props.listCups } className={ props.cupsList === 'closed' ? 'selected' : '' }>Closed CDPs</a>
-        <a href="#action" data-value="all" onClick={ props.listCups } className={ props.cupsList === 'all' ? 'selected' : '' }>All CDPs</a>
+        <a href="#action" data-value="mine" onClick={ props.listCups } className={ props.system.tub.cupsList === 'mine' ? 'selected' : '' }>My CDPs</a>
+        <a href="#action" data-value="open" onClick={ props.listCups } className={ props.system.tub.cupsList === 'open' ? 'selected' : '' }>Open CDPs</a>
+        <a href="#action" data-value="unsafe" onClick={ props.listCups } className={ props.system.tub.cupsList === 'unsafe' ? 'selected' : '' }>Unsafe CDPs</a>
+        <a href="#action" data-value="closed" onClick={ props.listCups } className={ props.system.tub.cupsList === 'closed' ? 'selected' : '' }>Closed CDPs</a>
+        <a href="#action" data-value="all" onClick={ props.listCups } className={ props.system.tub.cupsList === 'all' ? 'selected' : '' }>All CDPs</a>
       </div>
       <div className="box-body" id="cups">
         <div className="row">

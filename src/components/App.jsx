@@ -64,7 +64,6 @@ class App extends Component {
       modal: {
         show: false
       },
-      cupsList: localStorage.getItem('cupsList') || 'mine',
       params: ''
     }
   }
@@ -96,6 +95,8 @@ class App extends Component {
           avail_bust_skr: web3.toBigNumber(-1),
           avail_bust_dai: web3.toBigNumber(-1),
           cups: {},
+          cupsList: localStorage.getItem('cupsList') || 'mine',
+          listingCupsRequestId: null,
           cupsLoading: true,
           cupsCount: 0,
           cupsPage: 1,
@@ -600,24 +601,33 @@ class App extends Component {
   }
 
   getCups = (limit, skip = 0) => {
-    const conditions = this.getCupsListConditions();
-    const me = this;
-    if (settings.chain[this.state.network.network].service) {
-      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
-        const promises = [];
-        response.results.forEach(v => {
-          promises.push(me.getCup(v.cupi));
+    const listingCupsRequestId = Math.random(); // This is to avoid race condition when clicking on several tabs
+    this.setState((prevState, props) => {
+      const system = {...prevState.system};
+      const tub = {...system.tub};
+      tub.listingCupsRequestId = listingCupsRequestId;
+      system.tub = tub;
+      return { system };
+    }, () => {
+      const conditions = this.getCupsListConditions();
+      const me = this;
+      if (settings.chain[this.state.network.network].service) {
+        Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
+          const promises = [];
+          response.results.forEach(v => {
+            promises.push(me.getCup(v.cupi));
+          });
+          me.getCupsFromChain(listingCupsRequestId, conditions.on, conditions.off, response.lastBlockNumber, limit, skip, promises);
+        }).catch(error => {
+          me.getCupsFromChain(listingCupsRequestId, conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
         });
-        me.getCupsFromChain(conditions.on, conditions.off, response.lastBlockNumber, limit, skip, promises);
-      }).catch(error => {
-        me.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
-      });
-    } else {
-      this.getCupsFromChain(conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
-    }
+      } else {
+        this.getCupsFromChain(listingCupsRequestId, conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
+      }
+    });
   }
 
-  getCupsFromChain = (onConditions, offConditions, fromBlock, limit, skip, promises = []) => {
+  getCupsFromChain = (listingCupsRequestId, onConditions, offConditions, fromBlock, limit, skip, promises = []) => {
     const promisesLogs = [];
     promisesLogs.push(
       new Promise((resolve, reject) => {
@@ -673,17 +683,18 @@ class App extends Component {
         for (let i = skip; i < Math.min(skip + limit, keys.length); i++) {
           cupsToShow[keys[i]] = cupsFiltered[keys[i]];
         }
-
-        this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const tub = {...system.tub};
-          tub.cupsLoading = false;
-          tub.cupsCount = keys.length;
-          tub.cups = cupsToShow;
-          tub.ownCup = ownCup;
-          system.tub = tub;
-          return { system };
-        });
+        if (listingCupsRequestId === this.state.system.tub.listingCupsRequestId) {
+          this.setState((prevState, props) => {
+            const system = {...prevState.system};
+            const tub = {...system.tub};
+            tub.cupsLoading = false;
+            tub.cupsCount = keys.length;
+            tub.cups = cupsToShow;
+            tub.ownCup = ownCup;
+            system.tub = tub;
+            return { system };
+          });
+        }
       });
     });
   }
@@ -785,7 +796,7 @@ class App extends Component {
 
   getCupsListConditions = () => {
     const conditions = { on: {}, off: {} };
-    switch (this.state.cupsList) {
+    switch (this.state.system.tub.cupsList) {
       case 'open':
         conditions.off.closed = false;
         conditions.off['ink.gt'] = 0;
@@ -2109,8 +2120,9 @@ class App extends Component {
       tub.cups = {};
       tub.cupsLoading = true;
       tub.cupsPage = 1;
+      tub.cupsList = cupsList;
       system.tub = tub;
-      return { system, cupsList };
+      return { system };
     }, () => {
       localStorage.setItem('cupsList', cupsList);
       this.getCups(settings['CDPsPerPage']);
@@ -2266,7 +2278,7 @@ class App extends Component {
                   :
                     ''
                 }
-                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } cupsList={ this.state.cupsList } tab={ this.tab } rap={ this.rap } />
+                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } tab={ this.tab } rap={ this.rap } />
                 <div className="row">
                   <div className="col-md-12">
                     {
