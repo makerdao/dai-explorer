@@ -193,6 +193,14 @@ const Cups = (props) => {
                 {
                   props.system.tub.cupsPage > 1
                   ?
+                    <a href="#action" onClick={ props.moveCupsPage } data-page="1">&lt; First</a>
+                  :
+                    <span>&lt; First</span>
+                }
+                &nbsp;-&nbsp;
+                {
+                  props.system.tub.cupsPage > 1
+                  ?
                     <a href="#action" onClick={ props.moveCupsPage } data-page={ props.system.tub.cupsPage - 1 }>&lt; Prev</a>
                   :
                     <span>&lt; Prev</span>
@@ -204,6 +212,14 @@ const Cups = (props) => {
                     <a href="#action" onClick={ props.moveCupsPage } data-page={ props.system.tub.cupsPage + 1 }>Next &gt;</a>
                   :
                     <span>Next &gt;</span>
+                }
+                &nbsp;-&nbsp;
+                {
+                  props.system.tub.cupsCount > props.system.tub.cupsPage * settings['CDPsPerPage']
+                  ?
+                    <a href="#action" onClick={ props.moveCupsPage } data-page={ Math.ceil(props.system.tub.cupsCount / settings['CDPsPerPage']) }>Last &gt;</a>
+                  :
+                    <span>Last &gt;</span>
                 }
               </div>
             }
