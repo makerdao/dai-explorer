@@ -2006,7 +2006,7 @@ class App extends Component {
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
-        this.logPendingTransaction(id, tx, title, [['setUpToken', 'gem']]);
+        this.logPendingTransaction(id, tx, title, [['setUpToken', 'gem'], ['getAccountBalance']]);
       } else {
         console.log(e);
         this.logTransactionRejected(id, title);
