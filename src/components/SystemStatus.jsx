@@ -86,7 +86,7 @@ class SystemStatus extends Component {
                   }
                 </div>
                 <div>
-                  <strong>Total Liquidity Available</strong>
+                  <strong>Total Liquidity Available from forced CDP liquidations</strong>
                   <span className="boom-bust">
                     {
                       this.props.system.tub.off === -1
