@@ -1,5 +1,5 @@
 {
-  "nodeURL" : "https://dai-service.makerdao.com/node",
+  "nodeURL" : "https://rpc3.makerdao.com",
   "CDPsPerPage": 15,
   "chain": {
     "private": {

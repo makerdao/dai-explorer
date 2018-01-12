@@ -32,12 +32,18 @@ const Token = (props) => {
             token.myBalance &&
             <span className="info-box-number">
               <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your Balance', token.address, props.account) }</span>
-              <AnimatedNumber
-                value={ token.myBalance }
-                title={ formatNumber(token.myBalance, 18) }
-                formatValue={ n => formatNumber(n, 3) }
-                className="printedNumber"
-                onClick = { copyToClipboard } />
+              {
+                props.network.defaultAccount
+                ?
+                  <AnimatedNumber
+                    value={ token.myBalance }
+                    title={ formatNumber(token.myBalance, 18) }
+                    formatValue={ n => formatNumber(n, 3) }
+                    className="printedNumber"
+                    onClick = { copyToClipboard } />
+                :
+                  <span>N/A</span>
+              }
             </span>
           }
           <span className="info-box-number">
