@@ -33,7 +33,7 @@ const Token = (props) => {
             <span className="info-box-number">
               <span style={ { textDecoration: 'underline' } }>{ etherscanToken(props.network, 'Your Balance', token.address, props.account) }</span>
               {
-                props.network.defaultAccount
+                props.account
                 ?
                   <AnimatedNumber
                     value={ token.myBalance }
