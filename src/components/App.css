@@ -179,9 +179,11 @@ tr th, tr td {
   clear: right;
   display: block;
   float: right;
-  width: 200px;
 }
 
+.transfer input, .transfer select {
+  width: 200px;
+}
 
 .transfer input[type=number], .transfer input[type=text], .transfer span {
   text-align: right;

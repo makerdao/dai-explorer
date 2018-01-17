@@ -1,7 +1,6 @@
 import React from 'react';
 import web3 from './web3';
 
-
 export const WAD = web3.toBigNumber(web3.toWei(1));
 
 var padLeft = function (string, chars, sign) {
@@ -71,7 +70,16 @@ export function copyToClipboard(e) {
   aux.select();
   document.execCommand("copy");
   document.body.removeChild(aux);
-  alert(`Value: "${value}" copied to clipboard`);
+  const div = document.createElement("div");
+  div.innerHTML = "Copied to clipboard";
+  div.style.position = 'absolute';
+  div.style.fontSize = '10px';
+  div.style.border = '1px solid'
+  div.style.padding = '2px';
+  div.style.background = '#FFF';
+  e.target.appendChild(div);
+  const parent = e.target;
+  setTimeout(() => parent.removeChild(div), 1000);
 }
 
 export function printNumber(number) {
