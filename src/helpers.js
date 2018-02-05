@@ -74,9 +74,11 @@ export function copyToClipboard(e) {
   div.innerHTML = "Copied to clipboard";
   div.style.position = 'absolute';
   div.style.fontSize = '10px';
-  div.style.border = '1px solid'
+  div.style.border = '1px solid #D2D2D2';
+  div.style.color = '#555';
   div.style.padding = '2px';
   div.style.background = '#FFF';
+  div.style.marginTop = '5px';
   e.target.appendChild(div);
   const parent = e.target;
   setTimeout(() => parent.removeChild(div), 1000);
