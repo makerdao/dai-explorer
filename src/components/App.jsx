@@ -1923,7 +1923,11 @@ class App extends Component {
         }
         break;
       case 'give':
-        this.executeMethodCupValue(method, cup, value, false);
+        if (web3.isAddress(value)) {
+          this.executeMethodCupValue(method, cup, value, false);
+        } else {
+          error = 'Not a valid address.';
+        }
         break;
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {

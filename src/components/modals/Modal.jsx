@@ -346,7 +346,8 @@ class Modal extends Component {
         }
         break;
       case 'give':
-        text = `Please set the new address to be owner of CDP ${modal.cup}`;
+        text = `Please set the new address to be owner of CDP ${modal.cup}.`;
+        text += '<br /><span style="color:red">Be careful: CDP can not be recovered if it is transferred to a not desired address.</span>';
         renderForm = 'renderInputTextForm';
         this.submitEnabled = true;
         break;
