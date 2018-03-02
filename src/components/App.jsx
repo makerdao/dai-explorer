@@ -640,7 +640,7 @@ class App extends Component {
           this.tubObj.LogNote({ sig: this.methodSig('give(bytes32,address)'), bar: toBytes32(onConditions.lad) }, { fromBlock }).get((e, r) => {
             if (!e) {
               for (let i = 0; i < r.length; i++) {
-                promises.push(this.getCup(parseInt(r[i].args.foo, 16), Object.assign(onConditions, offConditions)));
+                promises.push(this.getCup(parseInt(r[i].args.foo, 16)));
               }
               resolve();
             } else {

@@ -30,9 +30,10 @@ class GeneralInfo extends Component {
                 <strong>Account:</strong> { this.props.account
                                             ? etherscanAddress(this.props.network, this.props.account, this.props.account)
                                             : <span style={{ 'color': 'red' }}>
-                                                { web3.currentProvider.constructor.name === 'MetamaskInpageProvider'
-                                                ? 'METAMASK ACCOUNT LOCKED'
-                                                : 'NO ACCOUNT FOUND - READ ONLY MODE'
+                                                {
+                                                  web3.currentProvider.isMetaMask || web3.currentProvider.constructor.name === 'MetamaskInpageProvider'
+                                                  ? 'METAMASK ACCOUNT LOCKED'
+                                                  : 'NO ACCOUNT FOUND - READ ONLY MODE'
                                                 }
                                               </span> }
               </div>
