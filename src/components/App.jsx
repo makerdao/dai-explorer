@@ -2198,7 +2198,11 @@ class App extends Component {
         `${this.methodSig('approve(address,address,bool)')}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(this[`${dst}Obj`].address, false)}${toBytes32(val ? web3.toBigNumber(2).pow(256).minus(1).valueOf() : 0, false)}`,
         log);
     } else {
-      this[`${token}Obj`].approve(this[`${dst}Obj`].address, val ? -1 : 0, (e, tx) => log(e, tx));
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this[`${token}Obj`].address, this[`${token}Obj`].approve.getData(this[`${dst}Obj`].address, val ? -1 : 0), 0, log);
+      } else {
+        this[`${token}Obj`].approve(this[`${dst}Obj`].address, val ? -1 : 0, (e, tx) => log(e, tx));
+      }
     }
   }
 
