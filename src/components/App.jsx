@@ -20,6 +20,9 @@ import ReactNotify from '../notify';
 import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 import logo from '../makerdao.svg';
 import './App.css';
+import Transport from "@ledgerhq/hw-transport-u2f";
+import Eth from "@ledgerhq/hw-app-eth";
+import Tx from 'ethereumjs-tx';
 
 const settings = require('../settings');
 
@@ -253,15 +256,22 @@ class App extends Component {
   }
 
   checkAccounts = (checkAccountChange = true) => {
-    web3.eth.getAccounts((error, accounts) => {
+    web3.eth.getAccounts(async (error, accounts) => {
       if (!error) {
-        const networkState = { ...this.state.network };
-        networkState.accounts = accounts;
-        const oldDefaultAccount = networkState.defaultAccount;
-        networkState.defaultAccount = accounts[0];
-        web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({ network: networkState }, () => {
-          if (checkAccountChange && oldDefaultAccount !== networkState.defaultAccount) {
+        const ledgerWallet = (await this.initLedger()).toLowerCase();
+        let oldDefaultAccount = '';
+        this.setState(prevState => {
+          const network = {...prevState.network};
+          const profile = {...prevState.profile};
+          network.accounts = accounts;
+          oldDefaultAccount = network.defaultAccount;
+          network.defaultAccount = ledgerWallet ? ledgerWallet : accounts[0];
+          profile.activeProfile = network.defaultAccount;
+          network.isLedger = ledgerWallet !== '';
+          web3.eth.defaultAccount = network.defaultAccount;
+          return {network, profile}
+        }, () => {
+          if (checkAccountChange && oldDefaultAccount !== this.state.network.defaultAccount) {
             this.initContracts(this.state.system.top.address);
           }
         });
@@ -273,7 +283,18 @@ class App extends Component {
     setTimeout(this.init, 500);
   }
 
-  init = () => {
+  initLedger = () => {
+    return new Promise((resolve, reject) => {
+      Transport.create().then(transport => {
+        window.ethLedger = this.ethLedger = new Eth(transport);
+        this.ethLedger.getAddress("44'/60'/0'/0").then(r => {
+          resolve(r.address);
+        });
+      });
+    });
+  }
+
+  init = async () => {
     initWeb3(web3);
 
     this.checkNetwork();
@@ -1550,6 +1571,81 @@ class App extends Component {
   }
   //
 
+  // Auxiliars for building raw txs
+  getTransactionCount = address => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getTransactionCount(address, 'pending', (e, r) => {
+        if (!e) {
+          resolve(r);
+        } else {
+          reject(e);
+        }
+      })
+    });
+  }
+
+  getGasPrice = () => {
+    return new Promise((resolve, reject) => {
+      web3.eth.getGasPrice((e, r) => {
+        if (!e) {
+          resolve(r.toNumber());
+        } else {
+          reject(e);
+        }
+      })
+    });
+  }
+
+  estimateGas = (to, data, value, from) => {
+    return new Promise((resolve, reject) => {
+      web3.eth.estimateGas(
+        {to, data, value, from},
+        (e, r) => {
+          if (!e) {
+            resolve(parseInt(r, 10));
+          } else {
+            reject(e);
+          }
+        }
+      );
+    });
+  }
+
+  getNetwork = () => {
+    return new Promise((resolve, reject) => {
+      web3.version.getNetwork((e, r) => {
+          if (!e) {
+            resolve(parseInt(r, 10));
+          } else {
+            reject(e);
+          }
+        }
+      );
+    });
+  }
+  //
+
+  // Ledger
+  signTransactionLedger = async (to, data, value, log) => {
+    const tx = new Tx({
+      nonce: web3.toHex(await this.getTransactionCount(this.state.network.defaultAccount)),
+      gasPrice: web3.toHex(await this.getGasPrice()),
+      gasLimit: parseInt(await this.estimateGas(to, data, value, this.state.network.defaultAccount) * 1.5, 10),
+      to,
+      value: web3.toHex(value),
+      data,
+      v: await this.getNetwork()
+    });
+    window.tx = tx;
+    this.ethLedger.signTransaction("44'/60'/0'/0", tx.serialize().toString('hex')).then(sig => {
+      tx.v = "0x" + sig['v'];
+      tx.r = "0x" + sig['r'];
+      tx.s = "0x" + sig['s'];
+      web3.eth.sendRawTransaction("0x" + tx.serialize().toString('hex'), log);
+    });
+  }
+  //
+
   // Actions
   executeMethod = (object, method, callbacks = []) => {
     const id = Math.random();
@@ -1568,7 +1664,11 @@ class App extends Component {
                             `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.system[object].address, false)}`,
                             log);
     } else {
-      this[`${object}Obj`][method]({}, log);
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this[`${object}Obj`].address, this[`${object}Obj`][method].getData(), 0, log);
+      } else {
+        this[`${object}Obj`][method]({}, log);
+      }
     }
   }
 
@@ -1590,7 +1690,11 @@ class App extends Component {
                             `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
                             log);
     } else {
-      this.tubObj[method](toBytes32(cup), {}, log);
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this.tubObj.address, this.tubObj[method].getData(toBytes32(cup)), 0, log);
+      } else {
+        this.tubObj[method](toBytes32(cup), {}, log);
+      }
     }
   }
 
@@ -1611,7 +1715,11 @@ class App extends Component {
                             `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.system[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
                             log);
     } else {
-      this[`${object}Obj`][method](web3.toWei(value), {}, log);
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this[`${object}Obj`].address, this[`${object}Obj`][method].getData(web3.toWei(value)), 0, log);
+      } else {
+        this[`${object}Obj`][method](web3.toWei(value), {}, log);
+      }
     }
   }
 
@@ -1633,7 +1741,11 @@ class App extends Component {
                             `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
                             log);
     } else {
-      this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, log);
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this.tubObj.address, this.tubObj[method].getData(toBytes32(cup), toWei ? web3.toWei(value) : value), 0, log);
+      } else {
+        this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, log);
+      }
     }
   }
 
@@ -1703,7 +1815,11 @@ class App extends Component {
             this.logTransactionRejected(id, title);
           }
         }
-        this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
+        if (this.state.network.isLedger) {
+          this.signTransactionLedger(this[`${token}Obj`].address, this[`${token}Obj`].approve.getData(this.state.system[dst].address, -1), 0, log);
+        } else {
+          this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
+        }
       }
     }, () => {});
   }
@@ -2000,7 +2116,11 @@ class App extends Component {
                             `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
                             log);
     } else {
-      this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, log);
+      if (this.state.network.isLedger) {
+        this.signTransactionLedger(this[`${token}Obj`].address, this[`${token}Obj`].transfer.getData(to, web3.toWei(amount)), 0, log);
+      } else {
+        this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, log);
+      }
     }
   }
 
@@ -2022,7 +2142,11 @@ class App extends Component {
           `${this.methodSig(`deposit(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
-        this.gemObj.deposit({ value: web3.toWei(amount) }, log);
+        if (this.state.network.isLedger) {
+          this.signTransactionLedger(this.gemObj.address, this.gemObj.deposit.getData(), web3.toWei(amount), log);
+        } else {
+          this.gemObj.deposit({ value: web3.toWei(amount) }, log);
+        }
       }
     } else if (operation === 'unwrap') {
       if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
@@ -2030,7 +2154,11 @@ class App extends Component {
           `${this.methodSig(`withdraw(address,uint256)`)}${addressToBytes32(this.gemObj.address, false)}${toBytes32(web3.toWei(amount), false)}`,
           log);
       } else {
-        this.gemObj.withdraw(web3.toWei(amount), {}, log);
+        if (this.state.network.isLedger) {
+          this.signTransactionLedger(this.gemObj.address, this.gemObj.withdraw.getData(web3.toWei(amount)), 0, log);
+        } else {
+          this.gemObj.withdraw(web3.toWei(amount), {}, log);
+        }
       }
     }
   }
