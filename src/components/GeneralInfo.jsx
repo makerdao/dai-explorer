@@ -36,6 +36,14 @@ class GeneralInfo extends Component {
                                                   : 'NO ACCOUNT FOUND - READ ONLY MODE'
                                                 }
                                               </span> }
+                &nbsp;-&nbsp;
+                {
+                  this.props.isLedger
+                  ?
+                    <a href="#action" onClick={ e => {e.preventDefault(); this.props.stopLedger()} }>Stop using Ledger</a>
+                  :
+                    <a href="#action" onClick={ e => {e.preventDefault(); this.props.loadLedger()} }>Load Ledger Wallet</a>
+                }
               </div>
               {
                 settings.chain[this.props.network].proxyFactory

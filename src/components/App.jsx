@@ -258,7 +258,7 @@ class App extends Component {
   checkAccounts = (checkAccountChange = true) => {
     web3.eth.getAccounts(async (error, accounts) => {
       if (!error) {
-        const ledgerWallet = (await this.initLedger()).toLowerCase();
+        const ledgerWallet = this.state.network.isLedger ? (await this.initLedger()).toLowerCase() : '';
         let oldDefaultAccount = '';
         this.setState(prevState => {
           const network = {...prevState.network};
@@ -281,6 +281,35 @@ class App extends Component {
 
   componentDidMount = () => {
     setTimeout(this.init, 500);
+  }
+
+  loadLedger = async () => {
+    const ledgerWallet = (await this.initLedger()).toLowerCase();
+    if (ledgerWallet) {
+      this.setState(prevState => {
+        const network = {...prevState.network};
+        const profile = {...prevState.profile};
+        network.defaultAccount = ledgerWallet;
+        profile.activeProfile = ledgerWallet;
+        network.isLedger = true;
+        return {network, profile}
+      }, () => {
+        this.initContracts(this.state.system.top.address);
+      });
+    }
+  }
+
+  stopLedger = async () => {
+    this.setState(prevState => {
+      const network = {...prevState.network};
+      const profile = {...prevState.profile};
+      network.defaultAccount = network.accounts[0];
+      profile.activeProfile = network.accounts[0];
+      network.isLedger = false;
+      return {network, profile}
+    }, () => {
+      this.initContracts(this.state.system.top.address);
+    });
   }
 
   initLedger = () => {
@@ -2373,8 +2402,8 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo dai={ this.state.system.dai.address } top={ this.state.system.top.address } tub={ this.state.system.tub.address } tap={ this.state.system.tap.address } vox={ this.state.system.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
-                  initContracts={this.initContracts} />
+                <GeneralInfo dai={ this.state.system.dai.address } top={ this.state.system.top.address } tub={ this.state.system.tub.address } tap={ this.state.system.tap.address } vox={ this.state.system.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy } isLedger={ this.state.network.isLedger }
+                  initContracts={ this.initContracts } loadLedger={ this.loadLedger } stopLedger={ this.stopLedger } />
               </div>
             </div>
             <div className="row">
