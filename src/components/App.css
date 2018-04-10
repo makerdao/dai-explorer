@@ -317,6 +317,7 @@ p.error {
   word-break: break-word;
   overflow-y: scroll;
   width: 100%;
+  min-height: auto;
 }
 
 #termsWrapper .content table {
