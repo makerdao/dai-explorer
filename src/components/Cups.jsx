@@ -152,7 +152,7 @@ const Cups = (props) => {
                             <td>
                               { props.system.tub.off === false && props.system.tub.cups[key].liq_price && props.system.tub.cups[key].liq_price.gt(0) ? printNumber(props.system.tub.cups[key].liq_price) : '-' }
                             </td>
-                            <td className={ `text-center ${ props.system.tub.off === false ? (props.system.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.system.tub.cups[key].safe ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
+                            <td className={ `text-center ${ props.system.tub.off === false ? (props.system.tub.cups[key].lad !== '0x0000000000000000000000000000000000000000' ? (props.system.tub.cups[key].safe && (props.system.tub.cups[key].art.eq(0) || props.system.tub.cups[key].ratio.gte(2)) ? 'success-color' : 'error-color') : 'warning-color') : '' }` }>
                               {
                                 props.system.tub.off === false
                                 ?
@@ -166,7 +166,11 @@ const Cups = (props) => {
                                     :
                                       props.system.tub.cups[key].safe
                                       ?
-                                        'Safe'
+                                        props.system.tub.cups[key].art.eq(0) || props.system.tub.cups[key].ratio.gte(2)
+                                        ?
+                                          'Safe'
+                                        :
+                                          'Risk'
                                       :
                                         'Unsafe'
                                 :
