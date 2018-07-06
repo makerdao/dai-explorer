@@ -191,6 +191,7 @@ class App extends Component {
         web3.eth.getBlock('latest', (e, res) => {
           if (typeof(res) === 'undefined') {
             console.debug('YIKES! getBlock returned undefined!');
+            return;
           }
           if (res.number >= this.state.network.latestBlock) {
             this.setState(prevState => {
