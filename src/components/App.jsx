@@ -64,7 +64,7 @@ class App extends Component {
       modal: {
         show: false
       },
-      params: ''
+      hash: ''
     }
   }
 
@@ -193,10 +193,12 @@ class App extends Component {
             console.debug('YIKES! getBlock returned undefined!');
           }
           if (res.number >= this.state.network.latestBlock) {
-            const networkState = { ...this.state.network };
-            networkState.latestBlock = res.number;
-            networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
-            this.setState({ network: networkState });
+            this.setState(prevState => {
+              const networkState = { ...prevState.network };
+              networkState.latestBlock = res.number;
+              networkState.outOfSync = e != null || ((new Date().getTime() / 1000) - res.timestamp) > 600;
+              return { network: networkState };
+            });
           } else {
             // XXX MetaMask frequently returns old blocks
             // https://github.com/MetaMask/metamask-plugin/issues/504
@@ -230,11 +232,13 @@ class App extends Component {
             }
           });
         } else {
-          const networkState = { ...this.state.network };
-          networkState.isConnected = isConnected;
-          networkState.network = false;
-          networkState.latestBlock = 0;
-          this.setState({ network: networkState });
+          this.setState(prevState => {
+            const networkState = { ...prevState.network };
+            networkState.isConnected = isConnected;
+            networkState.network = false;
+            networkState.latestBlock = 0;
+            return { network: networkState };
+          });
         }
       }
     });
@@ -242,11 +246,13 @@ class App extends Component {
 
   initNetwork = newNetwork => {
     //checkAccounts();
-    const networkState = { ...this.state.network };
-    networkState.network = newNetwork;
-    networkState.isConnected = true;
-    networkState.latestBlock = 0;
-    this.setState({ network: networkState }, () => {
+    this.setState(prevState => {
+      const networkState = { ...prevState.network };
+      networkState.network = newNetwork;
+      networkState.isConnected = true;
+      networkState.latestBlock = 0;
+      return { network: networkState };
+    }, () => {
       const addrs = settings.chain[this.state.network.network];
       this.initContracts(addrs.top);
     });
@@ -255,13 +261,16 @@ class App extends Component {
   checkAccounts = (checkAccountChange = true) => {
     web3.eth.getAccounts((error, accounts) => {
       if (!error) {
-        const networkState = { ...this.state.network };
-        networkState.accounts = accounts;
-        const oldDefaultAccount = networkState.defaultAccount;
-        networkState.defaultAccount = accounts[0];
-        web3.eth.defaultAccount = networkState.defaultAccount;
-        this.setState({ network: networkState }, () => {
-          if (checkAccountChange && oldDefaultAccount !== networkState.defaultAccount) {
+        let oldDefaultAccount = null;
+        this.setState(prevState => {
+          const networkState = { ...prevState.network };
+          networkState.accounts = accounts;
+          oldDefaultAccount = networkState.defaultAccount;
+          networkState.defaultAccount = accounts[0];
+          web3.eth.defaultAccount = networkState.defaultAccount;
+          return { network: networkState };
+        }, () => {
+          if (checkAccountChange && oldDefaultAccount !== this.state.network.defaultAccount) {
             this.initContracts(this.state.system.top.address);
           }
         });
@@ -270,7 +279,19 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    setTimeout(this.init, 500);
+    this.getHash();
+    // window.onhashchange = () => {
+    //   this.getHash();
+    // }
+    setTimeout(() => {
+      if (this.state.hash.indexOf('imToken') !== -1 && !window.imToken) {
+        window.addEventListener('sdkReady', () => {
+          this.init();
+        });
+      } else {
+        this.init();
+      }
+    }, 500);
   }
 
   init = () => {
@@ -278,12 +299,6 @@ class App extends Component {
 
     this.checkNetwork();
     this.checkAccounts(false);
-
-    this.setHashParams();
-    window.onhashchange = () => {
-      this.setHashParams();
-      this.initContracts(this.state.system.top.address);
-    }
 
     if (localStorage.getItem('termsModal')) {
       const termsModal = JSON.parse(localStorage.getItem('termsModal'));
@@ -294,9 +309,9 @@ class App extends Component {
     this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
-  setHashParams = () => {
-    const params = window.location.hash.replace(/^#\/?|\/$/g, '').split('/');
-    this.setState({ params });
+  getHash = () => {
+    const hash = window.location.hash.replace(/^#\/?|\/$/g, '').split('/')[0];
+    this.setState({ hash });
   }
 
   loadObject = (abi, address) => {
@@ -315,7 +330,7 @@ class App extends Component {
     if (typeof this.timeVariablesInterval !== 'undefined') clearInterval(this.timeVariablesInterval);
     if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
-    this.setState((prevState, props) => {
+    this.setState(() => {
       return { system: {...initialState}.system };
     }, () => {
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
@@ -2342,9 +2357,7 @@ class App extends Component {
   }
 
   render() {
-    return (
-      this.state.network.isConnected ? this.renderMain() : <NoConnection />
-    );
+    return this.state.network.isConnected ? this.renderMain() : <NoConnection />;
   }
 }
 

@@ -5,8 +5,8 @@ const NoConnection = () => {
     <div className="row">
       <div className="col-md-12">
         <div className="callout callout-warning">
-          <h4>No connection to Ethereum</h4>
-          <p>Please use Parity, Metamask or a local node at <strong>http://localhost:8545</strong></p>
+          <h4>Connecting to Ethereum</h4>
+          <p>Waiting for node connection...</p>
         </div>
       </div>
     </div>
