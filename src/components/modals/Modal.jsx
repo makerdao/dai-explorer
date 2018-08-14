@@ -26,7 +26,7 @@ class Modal extends Component {
     let value = web3.toBigNumber(0);
     switch(this.props.modal.method) {
       case 'join':
-        value = wdiv(this.props.system.gem.myBalance, wmul(this.props.system.tub.per, this.props.system.tub.gap));
+        value = wdiv(this.props.system.gem.myBalance, wmul(this.props.system.tub.per, this.props.system.tub.gap)).round(0);
         break;
       case 'exit':
       case 'lock':
@@ -323,21 +323,44 @@ class Modal extends Component {
             error = `Debt in CDP ${cup} is lower than this amount of DAI.`;
             this.submitEnabled = false;
           } else {
-            const futureGovFee = web3.fromWei(wdiv(this.props.system.tub.fee, this.props.system.tub.tax)).pow(180).round(0); // 3 minutes of future fee
-            const govDebt = wmul(
-                              wmul(
+            const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
+            const futureRap = wmul(
                                 wmul(
-                                  valueWei,
-                                  wdiv(
-                                    this.props.rap(this.props.system.tub.cups[cup]),
-                                    this.props.tab(this.props.system.tub.cups[cup])
-                                  )
+                                  this.props.system.tub.cups[cup].ire,
+                                  this.props.system.tub.rhi
                                 ),
-                                this.props.system.pep.val
-                              ),
-                              futureGovFee
-                            );
-            if (govDebt.gt(this.props.system.gov.myBalance)) {
+                                web3.toWei(
+                                  web3.fromWei(
+                                    wmul(
+                                      this.props.system.tub.tax,
+                                      this.props.system.tub.fee
+                                    )
+                                  ).pow(age)
+                                )
+                              ).minus(
+                                wmul(
+                                  wmul(
+                                    this.props.system.tub.cups[cup].art,
+                                    this.props.system.tub.chi
+                                  ),
+                                  web3.toWei(
+                                    web3.fromWei(
+                                      this.props.system.tub.tax
+                                    ).pow(age)
+                                  )
+                                )
+                              ).round(0);
+            const futureGovDebt = wdiv(
+                                    wmul(
+                                      valueWei,
+                                      wdiv(
+                                        futureRap,
+                                        this.props.tab(this.props.system.tub.cups[cup])
+                                      )
+                                    ),
+                                    this.props.system.pep.val
+                                  ).round(0);
+          if (futureGovDebt.gt(this.props.system.gov.myBalance)) {
               error = `Not enough balance of MKR to wipe this amount.`;
               this.submitEnabled = false;
             }

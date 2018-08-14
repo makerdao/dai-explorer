@@ -1765,9 +1765,38 @@ class App extends Component {
         if (this.state.system.dai.myBalance.lt(debt)) {
           error = `Not enough balance of DAI to shut CDP ${cup}.`;
         } else {
-          const futureGovFee = web3.fromWei(wdiv(this.state.system.tub.fee, this.state.system.tub.tax)).pow(180).round(0); // 3 minutes of future fee
-          const govDebt = wmul(wdiv(this.rap(this.state.system.tub.cups[cup]), this.state.system.pep.val), futureGovFee);
-          if (govDebt.gt(this.state.system.gov.myBalance)) {
+          const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
+          const futureRap = wmul(
+                              wmul(
+                                this.state.system.tub.cups[cup].ire,
+                                this.state.system.tub.rhi
+                              ),
+                              web3.toWei(
+                                web3.fromWei(
+                                  wmul(
+                                    this.state.system.tub.tax,
+                                    this.state.system.tub.fee
+                                  )
+                                ).pow(age)
+                              )
+                            ).minus(
+                              wmul(
+                                wmul(
+                                  this.state.system.tub.cups[cup].art,
+                                  this.state.system.tub.chi
+                                ),
+                                web3.toWei(
+                                  web3.fromWei(
+                                    this.state.system.tub.tax
+                                  ).pow(age)
+                                )
+                              )
+                            ).round(0);
+          const futureGovDebt = wdiv(
+                                  futureRap,
+                                  this.state.system.pep.val
+                                ).round(0);
+          if (futureGovDebt.gt(this.state.system.gov.myBalance)) {
             error = `Not enough balance of MKR to shut CDP ${cup}.`;
           } else {
             if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
