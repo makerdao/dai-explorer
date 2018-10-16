@@ -295,19 +295,24 @@ class App extends Component {
     }, 500);
   }
 
-  init = () => {
-    initWeb3(web3);
+  init = async () => {
+    try {
+      await initWeb3(web3);
 
-    this.checkNetwork();
-    this.checkAccounts(false);
+      this.checkNetwork();
+      this.checkAccounts(false);
 
-    if (localStorage.getItem('termsModal')) {
-      const termsModal = JSON.parse(localStorage.getItem('termsModal'));
-      this.setState({ termsModal });
+      if (localStorage.getItem('termsModal')) {
+        const termsModal = JSON.parse(localStorage.getItem('termsModal'));
+        this.setState({ termsModal });
+      }
+
+      this.checkAccountsInterval = setInterval(this.checkAccounts, 3000);
+      this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
+    } catch(e) {
+      alert(`${e}. Trying again...`);
+      this.init();
     }
-
-    this.checkAccountsInterval = setInterval(this.checkAccounts, 10000);
-    this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
   }
 
   getHash = () => {

@@ -6,7 +6,15 @@ const NoConnection = () => {
       <div className="col-md-12">
         <div className="callout callout-warning">
           <h4>Connecting to Ethereum</h4>
-          <p>Waiting for node connection...</p>
+          <p>
+            {
+              typeof window.ethereum !== "undefined"
+              ?
+                "Waiting for user approval..."
+              :
+                "Waiting for node connection..."
+            }
+          </p>
         </div>
       </div>
     </div>
