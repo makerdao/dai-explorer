@@ -679,14 +679,20 @@ class App extends Component {
   getCupsFromService = conditions => {
     let conditionsText = "";
     if (typeof conditions.lad !== "undefined") {
-      conditionsText += `lad: "${web3.toChecksumAddress(conditions.lad)}", `;
+      conditionsText += `lad: { equalTo: "${web3.toChecksumAddress(conditions.lad)}" }, `;
     }
     if (typeof conditions.closed !== "undefined") {
-      conditionsText += `deleted: ${conditions.closed}, `;
+      conditionsText += `deleted: { equalTo: ${conditions.closed} }, `;
+    }
+    if (typeof conditions.safe !== "undefined" && !conditions.safe) {
+      conditionsText += `ratio: { lessThan: "150" }, `;
+    }
+    if (typeof conditions["ink.gt"] !== "undefined" ) {
+      conditionsText += `ink: { greaterThan: "${conditions["ink.gt"]}" }, `;
     }
     conditionsText = conditionsText === "" ? conditionsText : conditionsText.substr(0, conditionsText.length - 2);
     return new Promise((resolve, reject) => {
-      this.getFromGraphQLService(`{ allCups( condition: { ${conditionsText} }, orderBy: ID_ASC ) { nodes { id, block } } }`)
+      this.getFromGraphQLService(`{ allCups( filter: { ${conditionsText} }, orderBy: ID_ASC ) { nodes { id, block } } }`)
       .then(r => resolve(r.data.allCups.nodes), e => reject(e))
     });
   }
@@ -869,14 +875,14 @@ class App extends Component {
   getCupsListConditions = () => {
     const conditions = { on: {}, off: {} };
     switch (this.state.system.tub.cupsList) {
-      // case 'open':
-      //   conditions.off.closed = false;
-      //   conditions.off['ink.gt'] = 0;
-      //   break;
-      // case 'unsafe':
-      //   conditions.off.closed = false;
-      //   conditions.off.safe = false;
-      //   break;
+      case 'open':
+        conditions.off.closed = false;
+        conditions.off['ink.gt'] = 0;
+        break;
+      case 'unsafe':
+        conditions.off.closed = false;
+        conditions.off.safe = false;
+        break;
       case 'closed':
         conditions.off.closed = true;
         break;
