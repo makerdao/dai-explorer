@@ -19,6 +19,7 @@
       "top": "0x5f00393547561da3030ebf30e52f5dc0d5d3362c",
       "faucet": "",
       "fromBlock": 5216602,
+      "graphQLService": "https://sai-kovan.makerfoundation.com/v1",
       "service": "",
       "chart": false,
       "proxyFactory": "",
@@ -32,7 +33,8 @@
       "top": "0x9b0ccf7c8994e19f39b2b4cf708e0a7df65fa8a3",
       "faucet": "",
       "fromBlock": 4752013,
-      "service": "https://dai-service.makerdao.com/",
+      "graphQLService": "https://sai-mainnet.makerfoundation.com/v1",
+      "service": "",
       "chart": false,
       "proxyFactory": "",
       "proxyContracts": {

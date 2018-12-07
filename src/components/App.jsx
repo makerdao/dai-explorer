@@ -620,22 +620,75 @@ class App extends Component {
     }
   }
 
+  getFromGraphQLService = query => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", settings.chain[this.state.network.network].graphQLService, true);
+      xhr.setRequestHeader("Content-type", "application/graphql");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          reject(xhr.status);
+        }
+      }
+      // xhr.send();
+      xhr.send(`query ${query}`);
+    });
+  }
+
   getCups = (limit, skip = 0) => {
     const conditions = this.getCupsListConditions();
     const me = this;
-    if (settings.chain[this.state.network.network].service) {
-      Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
+    if (settings.chain[this.state.network.network].graphQLService) {
+      // Promise.resolve(this.getFromService('cups', Object.assign(conditions.on, conditions.off), { cupi: 'asc' })).then(response => {
+      Promise.resolve(this.getCupsFromService(Object.assign(conditions.on, conditions.off))).then(response => {
         const promises = [];
-        response.results.forEach(v => {
-          promises.push(me.getCup(v.cupi));
+        // let fromBlock = 0;
+        for (let i = skip; i < Math.min(skip + limit, response.length); i++) {
+          promises.push(me.getCup(response[i].id));
+        }
+        Promise.all(promises).then(cups => {
+          const cupsToShow = {};
+          cups.forEach(cup => cupsToShow[cup.id] = cup);
+          this.setState(prevState => {
+            const system = {...prevState.system};
+            const tub = {...system.tub};
+            tub.cupsLoading = false;
+            tub.cupsCount = response.length;
+            tub.cups = cupsToShow;
+            // tub.ownCup = ownCup;
+            system.tub = tub;
+            return { system };
+          });
         });
-        me.getCupsFromChain(this.state.system.tub.cupsList, conditions.on, conditions.off, response.lastBlockNumber, limit, skip, promises);
+        // response.forEach(v => {
+        //   fromBlock = v.block > fromBlock ? v.block : fromBlock;
+        //   promises.push(me.getCup(v.id));
+        // });
+        // me.getCupsFromChain(this.state.system.tub.cupsList, conditions.on, conditions.off, fromBlock, limit, skip, promises);
       }).catch(error => {
         me.getCupsFromChain(this.state.system.tub.cupsList, conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
       });
     } else {
       this.getCupsFromChain(this.state.system.tub.cupsList, conditions.on, conditions.off, settings.chain[this.state.network.network].fromBlock, limit, skip);
     }
+  }
+
+  getCupsFromService = conditions => {
+    let conditionsText = "";
+    if (typeof conditions.lad !== "undefined") {
+      conditionsText += `lad: "${web3.toChecksumAddress(conditions.lad)}", `;
+    }
+    if (typeof conditions.closed !== "undefined") {
+      conditionsText += `deleted: ${conditions.closed}, `;
+    }
+    conditionsText = conditionsText === "" ? conditionsText : conditionsText.substr(0, conditionsText.length - 2);
+    return new Promise((resolve, reject) => {
+      this.getFromGraphQLService(`{ allCups( condition: { ${conditionsText} }, orderBy: ID_ASC ) { nodes { id, block } } }`)
+      .then(r => resolve(r.data.allCups.nodes), e => reject(e))
+    });
   }
 
   getCupsFromChain = (cupsList, onConditions, offConditions, fromBlock, limit, skip, promises = []) => {
@@ -691,7 +744,13 @@ class App extends Component {
             }
             ownCup = ownCup || cups[i].lad === this.state.profile.activeProfile;
           }
-          const keys = Object.keys(cupsFiltered).sort((a, b) => a - b);
+          const keys = Object.keys(cupsFiltered).sort(
+                                                      (a, b) => {
+                                                                  if ( a > b ) return 1;
+                                                                  if ( a < b ) return -1;
+                                                                  return 0;
+                                                                }
+                                                      );
           for (let i = skip; i < Math.min(skip + limit, keys.length); i++) {
             cupsToShow[keys[i]] = cupsFiltered[keys[i]];
           }
@@ -810,14 +869,14 @@ class App extends Component {
   getCupsListConditions = () => {
     const conditions = { on: {}, off: {} };
     switch (this.state.system.tub.cupsList) {
-      case 'open':
-        conditions.off.closed = false;
-        conditions.off['ink.gt'] = 0;
-        break;
-      case 'unsafe':
-        conditions.off.closed = false;
-        conditions.off.safe = false;
-        break;
+      // case 'open':
+      //   conditions.off.closed = false;
+      //   conditions.off['ink.gt'] = 0;
+      //   break;
+      // case 'unsafe':
+      //   conditions.off.closed = false;
+      //   conditions.off.safe = false;
+      //   break;
       case 'closed':
         conditions.off.closed = true;
         break;
