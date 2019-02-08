@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactModal from 'react-modal';
-import web3 from  '../../web3';
+import web3 from '../../web3';
 import { wmul, wdiv } from '../../helpers';
 
 class Modal extends Component {
@@ -24,7 +24,7 @@ class Modal extends Component {
   setMax = (e) => {
     e.preventDefault();
     let value = web3.toBigNumber(0);
-    switch(this.props.modal.method) {
+    switch (this.props.modal.method) {
       case 'join':
         value = wdiv(this.props.system.gem.myBalance, wmul(this.props.system.tub.per, this.props.system.tub.gap)).round(0);
         break;
@@ -64,7 +64,7 @@ class Modal extends Component {
     return (
       <form>
         <p id="warningMessage" className="error">
-          { this.props.modal.error }
+          {this.props.modal.error}
         </p>
         <div className="yesno">
           <button type="submit" onClick={(e) => this.updateValue(e)}>Yes</button>
@@ -85,14 +85,14 @@ class Modal extends Component {
   renderInputForm = (type, method) => {
     return (
       <form ref={(input) => this.updateValueForm = input} onSubmit={(e) => this.updateValue(e)}>
-        <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={ (e) => { this.cond(e.target.value) } } />
+        <input ref={(input) => this.updateVal = input} type={type} id="inputValue" required step="0.000000000000000001" onChange={(e) => { this.cond(e.target.value) }} />
         {
           type === 'number' && method !== 'draw' && (method !== 'free' || this.props.system.tub.cups[this.props.modal.cup].art.eq(0))
-          ? <span>&nbsp;<a href="#action" onClick={ this.setMax }>Set max</a></span>
-          : ''
+            ? <span>&nbsp;<a href="#action" onClick={this.setMax}>Set max</a></span>
+            : ''
         }
         <p id="warningMessage" className="error">
-          { this.props.modal.error }
+          {this.props.modal.error}
         </p>
         <br />
         <input type="submit" />
@@ -104,7 +104,7 @@ class Modal extends Component {
     const modal = this.props.modal;
     const style = {
       overlay: {
-        backgroundColor : 'rgba(0, 0, 0, 0.5)'
+        backgroundColor: 'rgba(0, 0, 0, 0.5)'
       },
       content: {
         border: 1,
@@ -127,24 +127,16 @@ class Modal extends Component {
     let text = '';
     let renderForm = '';
     this.cond = () => { return false };
-    switch(modal.method) {
+    switch (modal.method) {
       case 'proxy':
         text = '';
         text = '[ADD EXPLANATION WHAT A PROFILE IS].<br />' +
-        'Are you sure you want to create a Profile?';
+          'Are you sure you want to create a Profile?';
         renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
       case 'open':
         text = 'Are you sure you want to open a new CDP?';
-        renderForm = 'renderYesNoForm';
-        this.submitEnabled = true;
-        break;
-      case 'shut':
-        text = `Are you sure you want to close CDP ${modal.cup}?.`;
-        if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in DAI and/or MKR to complete this transaction.';;
-        }
         renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
@@ -325,42 +317,42 @@ class Modal extends Component {
           } else {
             const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
             const futureRap = wmul(
-                                wmul(
-                                  this.props.system.tub.cups[cup].ire,
-                                  this.props.system.tub.rhi
-                                ),
-                                web3.toWei(
-                                  web3.fromWei(
-                                    wmul(
-                                      this.props.system.tub.tax,
-                                      this.props.system.tub.fee
-                                    )
-                                  ).pow(age)
-                                )
-                              ).minus(
-                                wmul(
-                                  wmul(
-                                    this.props.system.tub.cups[cup].art,
-                                    this.props.system.tub.chi
-                                  ),
-                                  web3.toWei(
-                                    web3.fromWei(
-                                      this.props.system.tub.tax
-                                    ).pow(age)
-                                  )
-                                )
-                              ).round(0);
+              wmul(
+                this.props.system.tub.cups[cup].ire,
+                this.props.system.tub.rhi
+              ),
+              web3.toWei(
+                web3.fromWei(
+                  wmul(
+                    this.props.system.tub.tax,
+                    this.props.system.tub.fee
+                  )
+                ).pow(age)
+              )
+            ).minus(
+              wmul(
+                wmul(
+                  this.props.system.tub.cups[cup].art,
+                  this.props.system.tub.chi
+                ),
+                web3.toWei(
+                  web3.fromWei(
+                    this.props.system.tub.tax
+                  ).pow(age)
+                )
+              )
+            ).round(0);
             const futureGovDebt = wdiv(
-                                    wmul(
-                                      valueWei,
-                                      wdiv(
-                                        futureRap,
-                                        this.props.tab(this.props.system.tub.cups[cup])
-                                      )
-                                    ),
-                                    this.props.system.pep.val
-                                  ).round(0);
-          if (futureGovDebt.gt(this.props.system.gov.myBalance)) {
+              wmul(
+                valueWei,
+                wdiv(
+                  futureRap,
+                  this.props.tab(this.props.system.tub.cups[cup])
+                )
+              ),
+              this.props.system.pep.val
+            ).round(0);
+            if (futureGovDebt.gt(this.props.system.gov.myBalance)) {
               error = `Not enough balance of MKR to wipe this amount.`;
               this.submitEnabled = false;
             }
@@ -429,13 +421,13 @@ class Modal extends Component {
 
     return (
       <ReactModal
-          isOpen={ modal.show }
-          contentLabel="Action Modal"
-          style={ style } >
-        <a href="#action" className="close" onClick={ this.props.handleCloseModal }>X</a>
+        isOpen={modal.show}
+        contentLabel="Action Modal"
+        style={style} >
+        <a href="#action" className="close" onClick={this.props.handleCloseModal}>X</a>
         <div>
-          <p dangerouslySetInnerHTML={{__html: text}} />
-          { renderForm ? this[renderForm](modal.method) : '' }
+          <p dangerouslySetInnerHTML={{ __html: text }} />
+          {renderForm ? this[renderForm](modal.method) : ''}
         </div>
       </ReactModal>
     )

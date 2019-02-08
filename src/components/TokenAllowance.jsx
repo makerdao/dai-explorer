@@ -19,15 +19,15 @@ class TokenAllowance extends Component {
 
   onOff = (token, dstAux = null) => {
     const check = token === 'all'
-                  ? this.props.system.gem.tubApproved && this.props.system.gem.tapApproved && this.props.system.skr.tubApproved && this.props.system.skr.tapApproved && this.props.system.dai.tubApproved && this.props.system.dai.tapApproved
-                  : this.props.system[token][`${dstAux}Approved`]
+      ? this.props.system.gem.tubApproved && this.props.system.gem.tapApproved && this.props.system.skr.tubApproved && this.props.system.skr.tapApproved && this.props.system.dai.tubApproved && this.props.system.dai.tapApproved
+      : this.props.system[token][`${dstAux}Approved`]
     const dst = token === 'all' ? 'all' : dstAux;
     return (
       <div className="onoffswitch">
-        <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id={`myonoffswitchp${token}${dst}`} checked={ check } data-token={ token } data-dst={ dst } data-val={ !check } onChange={ this.change } />
+        <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id={`myonoffswitchp${token}${dst}`} checked={check} data-token={token} data-dst={dst} data-val={!check} onChange={this.change} />
         <label className="onoffswitch-label" htmlFor={`myonoffswitchp${token}${dst}`}>
-            <span className="onoffswitch-inner"></span>
-            <span className="onoffswitch-switch"></span>
+          <span className="onoffswitch-inner"></span>
+          <span className="onoffswitch-switch"></span>
         </label>
       </div>
     )
@@ -45,19 +45,19 @@ class TokenAllowance extends Component {
               <div className="allowance">
                 {
                   this.props.mode === 'proxy'
-                  ?
+                    ?
                     <div>
                       <span><strong>All</strong></span>
                       <span>&nbsp;</span>
                       <span>
                         {
-                          this.props.system.skr.tubApproved === -1 || this.props.system.skr.tapApproved === -1 || this.props.system.gov.tubApproved === -1 || this.props.system.dai.tubApproved === -1 || this.props.system.dai.tapApproved === -1
-                          ? 'Loading...'
-                          : this.onOff('all')
+                          this.props.system.skr.tubApproved === -1 || this.props.system.skr.tapApproved === -1 || this.props.system.gov.tubApproved === -1 || this.props.system.dai.tubApproved === -1 || this.props.system.dai.tapApproved === -1
+                            ? 'Loading...'
+                            : this.onOff('all')
                         }
                       </span>
                     </div>
-                  : ''
+                    : ''
                 }
                 <div>
                   <span>WETH</span>
@@ -65,8 +65,8 @@ class TokenAllowance extends Component {
                   <span>
                     {
                       this.props.system.gem.tubApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('gem', 'tub')
+                        ? 'Loading...'
+                        : this.onOff('gem', 'tub')
                     }
                   </span>
                 </div>
@@ -76,8 +76,8 @@ class TokenAllowance extends Component {
                   <span>
                     {
                       this.props.system.gem.tapApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('gem', 'tap')
+                        ? 'Loading...'
+                        : this.onOff('gem', 'tap')
                     }
                   </span>
                 </div>
@@ -87,8 +87,8 @@ class TokenAllowance extends Component {
                   <span>
                     {
                       this.props.system.skr.tubApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('skr', 'tub')
+                        ? 'Loading...'
+                        : this.onOff('skr', 'tub')
                     }
                   </span>
                 </div>
@@ -98,30 +98,8 @@ class TokenAllowance extends Component {
                   <span>
                     {
                       this.props.system.skr.tapApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('skr', 'tap')
-                    }
-                  </span>
-                </div>
-                <div>
-                  <span>MKR</span>
-                  <span>Wipe/Shut</span>
-                  <span>
-                    {
-                      this.props.system.gov.tubApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('gov', 'tub')
-                    }
-                  </span>
-                </div>
-                <div>
-                  <span>DAI</span>
-                  <span>Wipe/Shut</span>
-                  <span>
-                    {
-                      this.props.system.dai.tubApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('dai', 'tub')
+                        ? 'Loading...'
+                        : this.onOff('skr', 'tap')
                     }
                   </span>
                 </div>
@@ -131,8 +109,8 @@ class TokenAllowance extends Component {
                   <span>
                     {
                       this.props.system.dai.tapApproved === -1
-                      ? 'Loading...'
-                      : this.onOff('dai', 'tap')
+                        ? 'Loading...'
+                        : this.onOff('dai', 'tap')
                     }
                   </span>
                 </div>

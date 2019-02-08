@@ -15,7 +15,7 @@ import Wrap from './Wrap';
 import Transfer from './Transfer';
 import FeedValue from './FeedValue';
 import ResourceButtons from './ResourceButtons';
-import web3, { initWeb3 } from  '../web3';
+import web3, { initWeb3 } from '../web3';
 import ReactNotify from '../notify';
 import { WAD, toBytes32, addressToBytes32, fromRaytoWad, wmul, wdiv, etherscanTx } from '../helpers';
 import logo from '../makerdao.svg';
@@ -189,7 +189,7 @@ class App extends Component {
       // Check if we are synced
       if (isConnected) {
         web3.eth.getBlock('latest', (e, res) => {
-          if (typeof(res) === 'undefined') {
+          if (typeof (res) === 'undefined') {
             console.debug('YIKES! getBlock returned undefined!');
             return;
           }
@@ -309,7 +309,7 @@ class App extends Component {
 
       this.checkAccountsInterval = setInterval(this.checkAccounts, 3000);
       this.checkNetworkInterval = setInterval(this.checkNetwork, 3000);
-    } catch(e) {
+    } catch (e) {
       alert(`${e}. Trying again...`);
       this.init();
     }
@@ -337,7 +337,7 @@ class App extends Component {
     if (typeof this.pendingTxInterval !== 'undefined') clearInterval(this.pendingTxInterval);
     const initialState = this.getInitialState();
     this.setState(() => {
-      return { system: {...initialState}.system };
+      return { system: { ...initialState }.system };
     }, () => {
       window.topObj = this.topObj = this.loadObject(top.abi, topAddress);
       const addrs = settings.chain[this.state.network.network];
@@ -402,14 +402,14 @@ class App extends Component {
 
   loadEraRho = () => {
     const promises = [
-                      this.getParameterFromTub('rho'),
-                      this.getParameterFromVox('era')
-                      ];
+      this.getParameterFromTub('rho'),
+      this.getParameterFromVox('era')
+    ];
     Promise.all(promises).then(r => {
       if (r[0] === true && r[1] === true && this.state.system.tub.tax.gte(0) && this.state.system.sin.tubBalance.gte(0)) {
         this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const sin = {...system.sin};
+          const system = { ...prevState.system };
+          const sin = { ...system.sin };
           sin.issuerFee = system.sin.tubBalance.times(web3.fromWei(system.tub.tax).pow(system.vox.era.minus(system.tub.rho))).minus(system.sin.tubBalance).round(0);
           system.sin = sin;
           return { system };
@@ -540,8 +540,8 @@ class App extends Component {
       this.tubObj.vox.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const vox = {...system.vox};
+            const system = { ...prevState.system };
+            const vox = { ...system.vox };
             vox.address = r;
             system.vox = vox;
             return { system };
@@ -562,8 +562,8 @@ class App extends Component {
       this.tubObj.pit.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const pit = {...system.pit};
+            const system = { ...prevState.system };
+            const pit = { ...system.pit };
             pit.address = r;
             system.pit = pit;
             return { system };
@@ -582,8 +582,8 @@ class App extends Component {
     this.tubObj[token.replace('dai', 'sai')].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const tok = {...system[token]};
+          const system = { ...prevState.system };
+          const tok = { ...system[token] };
           tok.address = r;
           system[token] = tok;
           return { system };
@@ -653,8 +653,8 @@ class App extends Component {
           const cupsToShow = {};
           cups.forEach(cup => cupsToShow[cup.id] = cup);
           this.setState(prevState => {
-            const system = {...prevState.system};
-            const tub = {...system.tub};
+            const system = { ...prevState.system };
+            const tub = { ...system.tub };
             tub.cupsLoading = false;
             tub.cupsCount = response.length;
             tub.cups = cupsToShow;
@@ -687,13 +687,13 @@ class App extends Component {
     if (typeof conditions.safe !== "undefined" && !conditions.safe) {
       conditionsText += `ratio: { lessThan: "150" }, `;
     }
-    if (typeof conditions["ink.gt"] !== "undefined" ) {
+    if (typeof conditions["ink.gt"] !== "undefined") {
       conditionsText += `ink: { greaterThan: "${conditions["ink.gt"]}" }, `;
     }
     conditionsText = conditionsText === "" ? conditionsText : conditionsText.substr(0, conditionsText.length - 2);
     return new Promise((resolve, reject) => {
       this.getFromGraphQLService(`{ allCups( filter: { ${conditionsText} }, orderBy: ID_ASC ) { nodes { id, block } } }`)
-      .then(r => resolve(r.data.allCups.nodes), e => reject(e))
+        .then(r => resolve(r.data.allCups.nodes), e => reject(e))
     });
   }
 
@@ -739,31 +739,31 @@ class App extends Component {
           let ownCup = this.state.system.tub.ownCup;
           for (let i = 0; i < cups.length; i++) {
             if ((typeof conditions.lad === 'undefined' || conditions.lad === cups[i].lad) &&
-                (typeof conditions.closed === 'undefined' ||
-                  (conditions.closed && cups[i].lad === '0x0000000000000000000000000000000000000000') ||
-                  (!conditions.closed && cups[i].lad !== '0x0000000000000000000000000000000000000000' && cups[i].ink.gt(0))) &&
-                (typeof conditions.safe === 'undefined' ||
-                  (conditions.safe && cups[i].safe) ||
-                  (!conditions.safe && !cups[i].safe))
-                ) {
-                cupsFiltered[cups[i].id] = cups[i];
+              (typeof conditions.closed === 'undefined' ||
+                (conditions.closed && cups[i].lad === '0x0000000000000000000000000000000000000000') ||
+                (!conditions.closed && cups[i].lad !== '0x0000000000000000000000000000000000000000' && cups[i].ink.gt(0))) &&
+              (typeof conditions.safe === 'undefined' ||
+                (conditions.safe && cups[i].safe) ||
+                (!conditions.safe && !cups[i].safe))
+            ) {
+              cupsFiltered[cups[i].id] = cups[i];
             }
             ownCup = ownCup || cups[i].lad === this.state.profile.activeProfile;
           }
           const keys = Object.keys(cupsFiltered).sort(
-                                                      (a, b) => {
-                                                                  if ( a > b ) return 1;
-                                                                  if ( a < b ) return -1;
-                                                                  return 0;
-                                                                }
-                                                      );
+            (a, b) => {
+              if (a > b) return 1;
+              if (a < b) return -1;
+              return 0;
+            }
+          );
           for (let i = skip; i < Math.min(skip + limit, keys.length); i++) {
             cupsToShow[keys[i]] = cupsFiltered[keys[i]];
           }
           if (cupsList === this.state.system.tub.cupsList && this.state.system.tub.cupsLoading) {
             this.setState((prevState, props) => {
-              const system = {...prevState.system};
-              const tub = {...system.tub};
+              const system = { ...prevState.system };
+              const tub = { ...system.tub };
               tub.cupsLoading = false;
               tub.cupsCount = keys.length;
               tub.cups = cupsToShow;
@@ -829,10 +829,10 @@ class App extends Component {
   reloadCupData = id => {
     Promise.resolve(this.getCup(id).then(cup => {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const tub = {...system.tub};
-        const cups = {...tub.cups};
-        cups[id] = {...cup};
+        const system = { ...prevState.system };
+        const tub = { ...system.tub };
+        const cups = { ...tub.cups };
+        cups[id] = { ...cup };
         tub.cups = cups;
         system.tub = tub;
         return { system };
@@ -903,7 +903,6 @@ class App extends Component {
       'draw(bytes32,uint256)',
       'wipe(bytes32,uint256)',
       'bite(bytes32)',
-      'shut(bytes32)',
       'give(bytes32,address)',
     ].map(v => this.methodSig(v));
 
@@ -913,9 +912,9 @@ class App extends Component {
         if (cupSignatures.indexOf(r.args.sig) !== -1 && typeof this.state.system.tub.cups[r.args.foo] !== 'undefined') {
           this.reloadCupData(parseInt(r.args.foo, 16));
         } else if (r.args.sig === this.methodSig('mold(bytes32,uint256)')) {
-          const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1;
-          const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0,3)) !== -1 ? this.calculateSafetyAndDeficit: () => {};
-          this.getParameterFromTub(web3.toAscii(r.args.foo).substring(0,3), ray, callback);
+          const ray = ['axe', 'mat', 'tax', 'fee'].indexOf(web3.toAscii(r.args.foo).substring(0, 3)) !== -1;
+          const callback = ['mat'].indexOf(web3.toAscii(r.args.foo).substring(0, 3)) !== -1 ? this.calculateSafetyAndDeficit : () => { };
+          this.getParameterFromTub(web3.toAscii(r.args.foo).substring(0, 3), ray, callback);
         } else if (r.args.sig === this.methodSig('cage(uint256,uint256)')) {
           this.getParameterFromTub('off');
           this.getParameterFromTub('fit');
@@ -924,12 +923,11 @@ class App extends Component {
           this.getParameterFromTub('out');
         }
         if (r.args.sig === this.methodSig('drip()') ||
-            r.args.sig === this.methodSig('chi()') ||
-            r.args.sig === this.methodSig('rhi()') ||
-            r.args.sig === this.methodSig('draw(bytes32,uint256)') ||
-            r.args.sig === this.methodSig('wipe(bytes32,uint256)') ||
-            r.args.sig === this.methodSig('shut(bytes32)') ||
-            (r.args.sig === this.methodSig('mold(bytes32,uint256)') && web3.toAscii(r.args.foo).substring(0,3) === 'tax')) {
+          r.args.sig === this.methodSig('chi()') ||
+          r.args.sig === this.methodSig('rhi()') ||
+          r.args.sig === this.methodSig('draw(bytes32,uint256)') ||
+          r.args.sig === this.methodSig('wipe(bytes32,uint256)') ||
+          (r.args.sig === this.methodSig('mold(bytes32,uint256)') && web3.toAscii(r.args.foo).substring(0, 3) === 'tax')) {
           this.getParameterFromTub('chi', true);
           this.getParameterFromTub('rhi', true);
           this.loadEraRho();
@@ -964,8 +962,8 @@ class App extends Component {
     this.tubObj[obj].call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const feed = {...system[obj]};
+          const system = { ...prevState.system };
+          const feed = { ...system[obj] };
           feed.address = r;
           system[obj] = feed;
           return { system };
@@ -1021,21 +1019,21 @@ class App extends Component {
   getApproval = (token, dst) => {
     Promise.resolve(this.allowance(token, dst)).then(r => {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const tok = {...system[token]};
+        const system = { ...prevState.system };
+        const tok = { ...system[token] };
         tok[`${dst}Approved`] = r.eq(web3.toBigNumber(2).pow(256).minus(1));
         system[token] = tok;
         return { system };
       });
-    }, () => {});
+    }, () => { });
   }
 
   getTotalSupply = name => {
     this[`${name}Obj`].totalSupply.call((e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const tok = {...system[name]};
+          const system = { ...prevState.system };
+          const tok = { ...system[name] };
           tok.totalSupply = r;
           system[name] = tok;
           return { system };
@@ -1052,8 +1050,8 @@ class App extends Component {
     this[`${name}Obj`].balanceOf.call(address, (e, r) => {
       if (!e) {
         this.setState((prevState, props) => {
-          const system = {...prevState.system};
-          const tok = {...system[name]};
+          const system = { ...prevState.system };
+          const tok = { ...system[name] };
           tok[field] = r;
           system[name] = tok;
           return { system };
@@ -1098,8 +1096,8 @@ class App extends Component {
   calculateSafetyAndDeficit = () => {
     if (this.state.system.tub.mat.gte(0) && this.state.system.skr.tubBalance.gte(0) && this.state.system.tub.tag.gte(0) && this.state.system.sin.totalSupply.gte(0)) {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const tub = {...system.tub};
+        const system = { ...prevState.system };
+        const tub = { ...system.tub };
 
         const pro = wmul(system.skr.tubBalance, system.tub.tag);
         const con = system.sin.totalSupply;
@@ -1119,8 +1117,8 @@ class App extends Component {
       this.tubObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const tub = {...system.tub};
+            const system = { ...prevState.system };
+            const tub = { ...system.tub };
             tub[field] = ray ? fromRaytoWad(value) : value;
             system.tub = tub;
             return { system };
@@ -1133,9 +1131,9 @@ class App extends Component {
             Promise.all(promises).then(r => {
               if (r.length > 0) {
                 this.setState((prevState, props) => {
-                  const system = {...prevState.system};
-                  const tub = {...system.tub};
-                  const cups = {...tub.cups}
+                  const system = { ...prevState.system };
+                  const tub = { ...system.tub };
+                  const cups = { ...tub.cups }
                   for (let i = 0; i < r.length; i++) {
                     if (typeof cups[r[i].id] !== 'undefined') {
                       cups[r[i].id].pro = r[i].pro;
@@ -1172,8 +1170,8 @@ class App extends Component {
       this.tapObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const tap = {...system.tap};
+            const system = { ...prevState.system };
+            const tap = { ...system.tap };
             tap[field] = ray ? fromRaytoWad(value) : value;
             system.tap = tap;
             return { system };
@@ -1193,8 +1191,8 @@ class App extends Component {
       this.voxObj[field].call((e, value) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const vox = {...system.vox};
+            const system = { ...prevState.system };
+            const vox = { ...system.vox };
             vox[field] = ray ? fromRaytoWad(value) : value;
             system.vox = vox;
             return { system };
@@ -1214,8 +1212,8 @@ class App extends Component {
       this[`${obj}Obj`].peek.call((e, r) => {
         if (!e) {
           this.setState((prevState, props) => {
-            const system = {...prevState.system};
-            const feed = {...system[obj]};
+            const system = { ...prevState.system };
+            const feed = { ...system[obj] };
             feed.val = web3.toBigNumber(r[1] ? parseInt(r[0], 16) : -2);
             system[obj] = feed;
             return { system };
@@ -1235,21 +1233,21 @@ class App extends Component {
 
   getBoomBustValues = () => {
     if (this.state.system.dai.tapBalance.gte(0)
-        //&& this.state.system.sin.issuerFee.gte(0)
-        && this.state.system.sin.tapBalance.gte(0)
-        && this.state.system.vox.par.gte(0)
-        && this.state.system.tub.tag.gte(0)
-        && this.state.system.tap.gap.gte(0)
-        && this.state.system.pip.val.gte(0)
-        && this.state.system.skr.tapBalance.gte(0)
-        && this.state.system.sin.tubBalance.gte(0)
-        && this.state.system.tub.tax.gte(0)
-        && this.state.system.skr.tapBalance.gte(0)
-        && this.state.system.skr.totalSupply.gte(0)
-        && this.state.system.gem.tubBalance.gte(0)) {
+      //&& this.state.system.sin.issuerFee.gte(0)
+      && this.state.system.sin.tapBalance.gte(0)
+      && this.state.system.vox.par.gte(0)
+      && this.state.system.tub.tag.gte(0)
+      && this.state.system.tap.gap.gte(0)
+      && this.state.system.pip.val.gte(0)
+      && this.state.system.skr.tapBalance.gte(0)
+      && this.state.system.sin.tubBalance.gte(0)
+      && this.state.system.tub.tax.gte(0)
+      && this.state.system.skr.tapBalance.gte(0)
+      && this.state.system.skr.totalSupply.gte(0)
+      && this.state.system.gem.tubBalance.gte(0)) {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const tub = {...system.tub};
+        const system = { ...prevState.system };
+        const tub = { ...system.tub };
 
         // const dif = system.dai.tapBalance.add(system.sin.issuerFee).minus(system.sin.tapBalance); bust & boom don't execute drip anymore so we do not need to do the estimation
         const dif = system.dai.tapBalance.minus(system.sin.tapBalance);
@@ -1258,7 +1256,7 @@ class App extends Component {
 
         // if higher or equal, it means vox.par is static or increases over the time
         // if lower, it means it decreases over the time, so we calculate a future par (in 10 minutes) to reduce risk of tx failures
-        const futurePar = system.vox.way.gte(WAD) ? system.vox.par : system.vox.par.times(web3.fromWei(system.vox.way).pow(10*60));
+        const futurePar = system.vox.way.gte(WAD) ? system.vox.par : system.vox.par.times(web3.fromWei(system.vox.way).pow(10 * 60));
 
         if (dif.gt(0)) {
           // We can boom
@@ -1295,17 +1293,17 @@ class App extends Component {
   parseCandleData = data => {
     const dataParsed = [];
     data.forEach(value => {
-      const timestamp = (new Date(value.timestamp * 1000)).setHours(0,0,0);
+      const timestamp = (new Date(value.timestamp * 1000)).setHours(0, 0, 0);
       const index = dataParsed.length - 1;
       const noWei = value.value / 10 ** 18;
       if (dataParsed.length === 0 || timestamp !== dataParsed[index].date.getTime()) {
         dataParsed.push({
-                          date: new Date(timestamp),
-                          open: noWei,
-                          high: noWei,
-                          low: noWei,
-                          close: noWei,
-                        });
+          date: new Date(timestamp),
+          open: noWei,
+          high: noWei,
+          low: noWei,
+          close: noWei,
+        });
       } else {
         dataParsed[index].high = dataParsed[index].high > noWei ? dataParsed[index].high : noWei;
         dataParsed[index].low = dataParsed[index].low < noWei ? dataParsed[index].low : noWei;
@@ -1319,8 +1317,8 @@ class App extends Component {
   setChartState = (key, value) => {
     return new Promise((resolve, reject) => {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
-        const chartData = {...system.chartData};
+        const system = { ...prevState.system };
+        const chartData = { ...system.chartData };
         chartData[key] = value;
         system.chartData = chartData;
         return { system };
@@ -1444,7 +1442,7 @@ class App extends Component {
   getChartData = () => {
     const timestamps = [];
     for (let i = 0; i <= 30; i++) {
-      timestamps[i] = parseInt(((new Date()).setHours(0,0,0) - i*24*60*60*1000) / 1000, 10);
+      timestamps[i] = parseInt(((new Date()).setHours(0, 0, 0) - i * 24 * 60 * 60 * 1000) / 1000, 10);
     }
     const promises = [];
     // ETH/USD
@@ -1475,13 +1473,13 @@ class App extends Component {
   getStats = () => {
     Promise.resolve(this.getFromService('cupStats')).then(response => {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
+        const system = { ...prevState.system };
         system.stats = { error: false, results: response.results };
         return { system };
       });
     }).catch(error => {
       this.setState((prevState, props) => {
-        const system = {...prevState.system};
+        const system = { ...prevState.system };
         system.stats = { error: true };
         return { system };
       });
@@ -1520,7 +1518,7 @@ class App extends Component {
 
   handleOpenTermsModal = e => {
     e.preventDefault();
-    const termsModal = {...this.state.termsModal};
+    const termsModal = { ...this.state.termsModal };
     termsModal[e.target.getAttribute('data-modal')] = true;
     this.setState({ termsModal: termsModal });
   }
@@ -1547,7 +1545,7 @@ class App extends Component {
     const me = this;
     this.setState({ cupHistoryModal: { show: true, id } }, () => {
       if (settings.chain[this.state.network.network].service) {
-        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp:'asc' })).then(response => {
+        Promise.resolve(this.getFromService('cupHistoryActions', { cupi: id }, { timestamp: 'asc' })).then(response => {
           me.setState({ cupHistoryModal: { show: true, error: false, id, actions: response.results } });
         }).catch(error => {
           me.setState({ cupHistoryModal: { show: true, error: true } });
@@ -1579,7 +1577,7 @@ class App extends Component {
           if (!e && r !== null) {
             if (r.logs.length === 0) {
               this.logTransactionFailed(tx);
-            } else if (r.blockNumber)  {
+            } else if (r.blockNumber) {
               this.logTransactionConfirmed(tx);
             }
           }
@@ -1601,7 +1599,7 @@ class App extends Component {
     this.setState({ transactions });
     console.log(msgTemp.replace('TX', tx));
     this.refs.notificator.hideNotification(id);
-    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), false);
+    this.refs.notificator.info(tx, title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), false);
   }
 
   logTransactionConfirmed = tx => {
@@ -1612,7 +1610,7 @@ class App extends Component {
       this.setState({ transactions }, () => {
         console.log(msgTemp.replace('TX', tx));
         this.refs.notificator.hideNotification(tx);
-        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0,10)}...`), tx), 4000);
+        this.refs.notificator.success(tx, transactions[tx].title, etherscanTx(this.state.network.network, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), tx), 4000);
         if (typeof transactions[tx].callbacks !== 'undefined' && transactions[tx].callbacks.length > 0) {
           transactions[tx].callbacks.forEach(callback => this.executeCallback(callback));
         }
@@ -1626,7 +1624,7 @@ class App extends Component {
     if (transactions[tx]) {
       transactions[tx].pending = false;
       this.setState({ transactions });
-      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0,10)}...`), 4000);
+      this.refs.notificator.error(tx, transactions[tx].title, msgTemp.replace('TX', `${tx.substring(0, 10)}...`), 4000);
     }
   }
 
@@ -1651,8 +1649,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.system[object].address, false)}`,
-                            log);
+        `${this.methodSig(`${method}(address)`)}${addressToBytes32(this.state.system[object].address, false)}`,
+        log);
     } else {
       this[`${object}Obj`][method]({}, log);
     }
@@ -1673,8 +1671,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
-                            log);
+        `${this.methodSig(`${method}(address,bytes32)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}`,
+        log);
     } else {
       this.tubObj[method](toBytes32(cup), {}, log);
     }
@@ -1694,8 +1692,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.system[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
-                            log);
+        `${this.methodSig(`${method}(address,uint256)`)}${addressToBytes32(this.state.system[object].address, false)}${toBytes32(web3.toWei(value), false)}`,
+        log);
     } else {
       this[`${object}Obj`][method](web3.toWei(value), {}, log);
     }
@@ -1716,8 +1714,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.basicActions,
-                            `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
-                            log);
+        `${this.methodSig(`${method}(address,bytes32,uint256)`)}${addressToBytes32(this.tubObj.address, false)}${toBytes32(cup, false)}${toBytes32(toWei ? web3.toWei(value) : value, false)}`,
+        log);
     } else {
       this.tubObj[method](toBytes32(cup), toWei ? web3.toWei(value) : value, {}, log);
     }
@@ -1771,11 +1769,9 @@ class App extends Component {
             tap: 'Boom'
           },
           dai: {
-            tub: 'Wipe/Shut',
             tap: 'Bust/Cash'
           },
           gov: {
-            tub: 'Wipe/Shut'
           }
         }
         const id = Math.random();
@@ -1791,14 +1787,14 @@ class App extends Component {
         }
         this[`${token}Obj`].approve(this.state.system[dst].address, -1, {}, log);
       }
-    }, () => {});
+    }, () => { });
   }
 
   updateValue = (value, token) => {
     const method = this.state.modal.method;
     const cup = this.state.modal.cup;
     let error = false;
-    switch(method) {
+    switch (method) {
       case 'proxy':
         const id = Math.random();
         const title = 'PROXY: create new profile';
@@ -1822,80 +1818,12 @@ class App extends Component {
             this.logTransactionRejected(id, title);
           }
         });
-      break;
+        break;
       case 'open':
         this.executeMethod('tub', method, [['showNewCup']]);
         break;
       case 'drip':
         this.executeMethod('tub', method);
-        break;
-      case 'shut':
-        // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.system.tub.cups[cup]).times(web3.fromWei(this.state.system.tub.tax).pow(120));
-        if (this.state.system.dai.myBalance.lt(debt)) {
-          error = `Not enough balance of DAI to shut CDP ${cup}.`;
-        } else {
-          const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
-          const futureRap = wmul(
-                              wmul(
-                                this.state.system.tub.cups[cup].ire,
-                                this.state.system.tub.rhi
-                              ),
-                              web3.toWei(
-                                web3.fromWei(
-                                  wmul(
-                                    this.state.system.tub.tax,
-                                    this.state.system.tub.fee
-                                  )
-                                ).pow(age)
-                              )
-                            ).minus(
-                              wmul(
-                                wmul(
-                                  this.state.system.tub.cups[cup].art,
-                                  this.state.system.tub.chi
-                                ),
-                                web3.toWei(
-                                  web3.fromWei(
-                                    this.state.system.tub.tax
-                                  ).pow(age)
-                                )
-                              )
-                            ).round(0);
-          const futureGovDebt = wdiv(
-                                  futureRap,
-                                  this.state.system.pep.val
-                                ).round(0);
-          if (futureGovDebt.gt(this.state.system.gov.myBalance)) {
-            error = `Not enough balance of MKR to shut CDP ${cup}.`;
-          } else {
-            if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-              this.executeMethodCup(method, cup, [
-                                                   ['setUpToken', 'sai'],
-                                                   ['setUpToken', 'sin'],
-                                                   ['setUpToken', 'gov'],
-                                                   ['setUpToken', 'skr']
-                                                 ]);
-            } else {
-              this.checkAllowance('dai', 'tub', [
-                                                  ['getApproval', 'dai', 'tub'],
-                                                  ['checkAllowance', 'gov', 'tub',
-                                                    [
-                                                      ['getApproval', 'gov', 'tub'],
-                                                      ['executeMethodCup', method, cup,
-                                                        [
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'sin'],
-                                                          ['setUpToken', 'gov'],
-                                                          ['setUpToken', 'skr']
-                                                        ]
-                                                      ]
-                                                    ]
-                                                  ]
-                                                ]);
-            }
-          }
-        }
         break;
       case 'bite':
         this.executeMethodCup(method, cup);
@@ -1903,138 +1831,138 @@ class App extends Component {
       case 'join':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value, [
-                                                          ['setUpToken', 'gem'],
-                                                          ['setUpToken', 'skr']
-                                                        ]);
+            ['setUpToken', 'gem'],
+            ['setUpToken', 'skr']
+          ]);
         } else {
           // const valAllowanceJoin = web3.fromWei(web3.toBigNumber(value).times(this.state.system.tub.per).round().add(1).valueOf());
           this.checkAllowance('gem', 'tub', [
-                                              ['getApproval', 'gem', 'tub'],
-                                              ['executeMethodValue', 'tub', method, value,
-                                                [
-                                                  ['setUpToken', 'gem'],
-                                                  ['setUpToken', 'skr']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'gem', 'tub'],
+            ['executeMethodValue', 'tub', method, value,
+              [
+                ['setUpToken', 'gem'],
+                ['setUpToken', 'skr']
+              ]
+            ]
+          ]);
         }
         break;
       case 'exit':
         value = this.state.system.tub.off === true ? web3.fromWei(this.state.system.skr.myBalance) : value;
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tub', method, value, [
-                                                          ['setUpToken', 'gem'],
-                                                          ['setUpToken', 'skr']
-                                                        ]);
+            ['setUpToken', 'gem'],
+            ['setUpToken', 'skr']
+          ]);
         } else {
           this.checkAllowance('skr', 'tub', [
-                                              ['getApproval', 'skr', 'tub'],
-                                              ['executeMethodValue', 'tub', method, value,
-                                                [
-                                                  ['setUpToken', 'gem'],
-                                                  ['setUpToken', 'skr']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'skr', 'tub'],
+            ['executeMethodValue', 'tub', method, value,
+              [
+                ['setUpToken', 'gem'],
+                ['setUpToken', 'skr']
+              ]
+            ]
+          ]);
         }
         break;
       case 'boom':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value, [
-                                                          ['setUpToken', 'skr'],
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'sin']
-                                                        ]);
+            ['setUpToken', 'skr'],
+            ['setUpToken', 'sai'],
+            ['setUpToken', 'sin']
+          ]);
         } else {
           this.checkAllowance('skr', 'tap', [
-                                              ['getApproval', 'skr', 'tap'],
-                                              ['executeMethodValue', 'tap', method, value,
-                                                [
-                                                  ['setUpToken', 'skr'],
-                                                  ['setUpToken', 'sai'],
-                                                  ['setUpToken', 'sin']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'skr', 'tap'],
+            ['executeMethodValue', 'tap', method, value,
+              [
+                ['setUpToken', 'skr'],
+                ['setUpToken', 'sai'],
+                ['setUpToken', 'sin']
+              ]
+            ]
+          ]);
         }
         break;
       case 'bust':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value, [
-                                                          ['setUpToken', 'skr'],
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'sin']
-                                                        ]);
+            ['setUpToken', 'skr'],
+            ['setUpToken', 'sai'],
+            ['setUpToken', 'sin']
+          ]);
         } else {
           // const valueDAI = wmul(web3.toBigNumber(value), this.state.system.tub.avail_bust_ratio).ceil();
           this.checkAllowance('dai', 'tap', [
-                                              ['getApproval', 'dai', 'tap'],
-                                              ['executeMethodValue', 'tap', method, value,
-                                                [
-                                                  ['setUpToken', 'skr'],
-                                                  ['setUpToken', 'sai'],
-                                                  ['setUpToken', 'sin']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'dai', 'tap'],
+            ['executeMethodValue', 'tap', method, value,
+              [
+                ['setUpToken', 'skr'],
+                ['setUpToken', 'sai'],
+                ['setUpToken', 'sin']
+              ]
+            ]
+          ]);
         }
         break;
       case 'lock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodCupValue(method, cup, value, true, [
-                                                                 ['setUpToken', 'skr']
-                                                               ]);
+            ['setUpToken', 'skr']
+          ]);
         } else {
           this.checkAllowance('skr', 'tub', [
-                                              ['getApproval', 'skr', 'tub'],
-                                              ['executeMethodCupValue', method, cup, value, true,
-                                                [
-                                                  ['setUpToken', 'skr']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'skr', 'tub'],
+            ['executeMethodCupValue', method, cup, value, true,
+              [
+                ['setUpToken', 'skr']
+              ]
+            ]
+          ]);
         }
         break;
       case 'free':
         if (this.state.system.tub.off) {
           this.executeMethodCupValue(method, cup, web3.fromWei(this.state.system.tub.cups[cup].avail_skr), true, [
-                                                                                                                   ['setUpToken', 'skr']
-                                                                                                                 ]);
+            ['setUpToken', 'skr']
+          ]);
         } else {
           this.executeMethodCupValue(method, cup, value, true, [
-                                                                 ['setUpToken', 'skr']
-                                                               ]);
+            ['setUpToken', 'skr']
+          ]);
         }
         break;
       case 'draw':
         this.executeMethodCupValue(method, cup, value, true, [
-                                                               ['setUpToken', 'sai'],
-                                                               ['setUpToken', 'sin']
-                                                             ]);
+          ['setUpToken', 'sai'],
+          ['setUpToken', 'sin']
+        ]);
         break;
       case 'wipe':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodCupValue(method, cup, value, true, [
-                                                                 ['setUpToken', 'sai'],
-                                                                 ['setUpToken', 'sin'],
-                                                                 ['setUpToken', 'gov']
-                                                               ]);
+            ['setUpToken', 'sai'],
+            ['setUpToken', 'sin'],
+            ['setUpToken', 'gov']
+          ]);
         } else {
           this.checkAllowance('dai', 'tub', [
-                                              ['getApproval', 'dai', 'tub'],
-                                              ['checkAllowance', 'gov', 'tub',
-                                                [
-                                                  ['getApproval', 'gov', 'tub'],
-                                                  ['executeMethodCupValue', method, cup, value, true,
-                                                    [
-                                                      ['setUpToken', 'sai'],
-                                                      ['setUpToken', 'sin'],
-                                                      ['setUpToken', 'gov']
-                                                    ]
-                                                  ]
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'dai', 'tub'],
+            ['checkAllowance', 'gov', 'tub',
+              [
+                ['getApproval', 'gov', 'tub'],
+                ['executeMethodCupValue', method, cup, value, true,
+                  [
+                    ['setUpToken', 'sai'],
+                    ['setUpToken', 'sin'],
+                    ['setUpToken', 'gov']
+                  ]
+                ]
+              ]
+            ]
+          ]);
         }
         break;
       case 'give':
@@ -2047,37 +1975,37 @@ class App extends Component {
       case 'cash':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value, [
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'gem']
-                                                        ]);
+            ['setUpToken', 'sai'],
+            ['setUpToken', 'gem']
+          ]);
         } else {
           this.checkAllowance('dai', 'tap', [
-                                              ['getApproval', 'dai', 'tap'],
-                                              ['executeMethodValue', 'tap', method, value,
-                                                [
-                                                  ['setUpToken', 'sai'],
-                                                  ['setUpToken', 'gem']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'dai', 'tap'],
+            ['executeMethodValue', 'tap', method, value,
+              [
+                ['setUpToken', 'sai'],
+                ['setUpToken', 'gem']
+              ]
+            ]
+          ]);
         }
         break;
       case 'mock':
         if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
           this.executeMethodValue('tap', method, value, [
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'gem']
-                                                        ]);
+            ['setUpToken', 'sai'],
+            ['setUpToken', 'gem']
+          ]);
         } else {
           this.checkAllowance('gem', 'tap', [
-                                              ['getApproval', 'gem', 'tap'],
-                                              ['executeMethodValue', 'tap', method, value,
-                                                [
-                                                  ['setUpToken', 'sai'],
-                                                  ['setUpToken', 'gem']
-                                                ]
-                                              ]
-                                            ]);
+            ['getApproval', 'gem', 'tap'],
+            ['executeMethodValue', 'tap', method, value,
+              [
+                ['setUpToken', 'sai'],
+                ['setUpToken', 'gem']
+              ]
+            ]
+          ]);
         }
         break;
       case 'vent':
@@ -2112,8 +2040,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.tokenActions,
-                            `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
-                            log);
+        `${this.methodSig(`transfer(address,address,uint256)`)}${addressToBytes32(this[`${token}Obj`].address, false)}${addressToBytes32(to, false)}${toBytes32(web3.toWei(amount), false)}`,
+        log);
     } else {
       this[`${token}Obj`].transfer(to, web3.toWei(amount), {}, log);
     }
@@ -2162,15 +2090,13 @@ class App extends Component {
         tap: 'Boom'
       },
       dai: {
-        tub: 'Wipe/Shut',
         tap: 'Bust/Cash'
       },
       gov: {
-        tub: 'Wipe/Shut'
       }
     }
     const id = Math.random();
-    const title = `${tokenName}: ${val ? 'approve': 'deny'} ${action[token][dst]}`;
+    const title = `${tokenName}: ${val ? 'approve' : 'deny'} ${action[token][dst]}`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -2191,7 +2117,7 @@ class App extends Component {
 
   approveAll = val => {
     const id = Math.random();
-    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
+    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve' : 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -2203,8 +2129,8 @@ class App extends Component {
     }
     if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
       this.proxyObj.execute['address,bytes'](settings.chain[this.state.network.network].proxyContracts.customActions,
-                            `${this.methodSig('approveAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
-                            log);
+        `${this.methodSig('approveAll(address,address,bool)')}${addressToBytes32(this.tubObj.address, false)}${addressToBytes32(this.tapObj.address, false)}${toBytes32(val, false)}`,
+        log);
     }
   }
   //
@@ -2226,8 +2152,8 @@ class App extends Component {
 
   setNewCupsTab = (cupsList) => {
     this.setState((prevState, props) => {
-      const system = {...prevState.system};
-      const tub = {...system.tub};
+      const system = { ...prevState.system };
+      const tub = { ...system.tub };
       tub.cups = {};
       tub.cupsLoading = true;
       tub.cupsPage = 1;
@@ -2255,8 +2181,8 @@ class App extends Component {
     const page = parseInt(e.target.getAttribute('data-page'), 10);
 
     this.setState((prevState, props) => {
-      const system = {...prevState.system};
-      const tub = {...system.tub};
+      const system = { ...prevState.system };
+      const tub = { ...system.tub };
       tub.cups = {};
       tub.cupsLoading = true;
       tub.cupsPage = page;
@@ -2314,8 +2240,8 @@ class App extends Component {
       exit: {
         display: 'Convert PETH to WETH',
         active: this.state.network.defaultAccount && this.state.system.skr.myBalance.gt(0)
-                    && (this.state.system.tub.off === false ||
-                       (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
+          && (this.state.system.tub.off === false ||
+            (this.state.system.tub.off === true && this.state.system.tub.out === true && this.state.system.sin.tubBalance.eq(0) && this.state.system.skr.tapBalance.eq(0))),
       },
     };
 
@@ -2329,26 +2255,26 @@ class App extends Component {
         display: 'Convert WETH to DAI',
         active: this.state.system.tub.off === true && this.state.system.gem.myBalance.gt(0),
         helper: 'Exchange your ETH for DAI at the cage price (enabled upon cage)'
-     }
+      }
     };
 
     return (
       <div className="content-wrapper">
         <section className="content-header">
           <h1>
-            <a href="/" className="logo"><img src={ logo } alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
+            <a href="/" className="logo"><img src={logo} alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
           </h1>
           {
             settings.chain[this.state.network.network].proxyFactory
-            ?
+              ?
               <div className="onoffswitch mode-box">
-                <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={ this.state.profile.mode === 'proxy' } onChange={ this.changeMode } />
+                <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitchpMode" checked={this.state.profile.mode === 'proxy'} onChange={this.changeMode} />
                 <label className="onoffswitch-label" htmlFor="myonoffswitchpMode">
-                    <span className="onoffswitch-inner"></span>
-                    <span className="onoffswitch-switch"></span>
+                  <span className="onoffswitch-inner"></span>
+                  <span className="onoffswitch-switch"></span>
                 </label>
               </div>
-            :
+              :
               ''
           }
         </section>
@@ -2356,46 +2282,46 @@ class App extends Component {
           <div>
             <div className="row">
               <div className="col-md-12">
-                <GeneralInfo dai={ this.state.system.dai.address } top={ this.state.system.top.address } tub={ this.state.system.tub.address } tap={ this.state.system.tap.address } vox={ this.state.system.vox.address } network={ this.state.network.network } account={ this.state.network.defaultAccount } proxy={ this.state.profile.proxy }
+                <GeneralInfo dai={this.state.system.dai.address} top={this.state.system.top.address} tub={this.state.system.tub.address} tap={this.state.system.tap.address} vox={this.state.system.vox.address} network={this.state.network.network} account={this.state.network.defaultAccount} proxy={this.state.profile.proxy}
                   initContracts={this.initContracts} />
               </div>
             </div>
             <div className="row">
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.system.tub.off } />
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.system.tub.off } />
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' actions={ skrActions } handleOpenModal={ this.handleOpenModal } />
-              <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='dai' color='bg-green' actions={ daiActions } handleOpenModal={ this.handleOpenModal } />
+              <Token system={this.state.system} network={this.state.network.network} account={this.state.network.defaultAccount} token='gem' color='' off={this.state.system.tub.off} />
+              <Token system={this.state.system} network={this.state.network.network} account={this.state.network.defaultAccount} token='gov' color='' off={this.state.system.tub.off} />
+              <Token system={this.state.system} network={this.state.network.network} account={this.state.network.defaultAccount} token='skr' color='bg-aqua' actions={skrActions} handleOpenModal={this.handleOpenModal} />
+              <Token system={this.state.system} network={this.state.network.network} account={this.state.network.defaultAccount} token='dai' color='bg-green' actions={daiActions} handleOpenModal={this.handleOpenModal} />
               {/* <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='sin' color='bg-red' /> */}
             </div>
             <div className="row">
               <div className="col-md-9">
                 {
                   settings.chain[this.state.network.network].service && settings.chain[this.state.network.network].chart
-                  ? <PriceChart chartData={ this.state.system.chartData } />
-                  : ''
+                    ? <PriceChart chartData={this.state.system.chartData} />
+                    : ''
                 }
-                <SystemStatus system={ this.state.system } actions={ bustBoomActions } handleOpenModal={ this.handleOpenModal } service={ settings.chain[this.state.network.network].service } stats={ this.state.system.stats } />
+                <SystemStatus system={this.state.system} actions={bustBoomActions} handleOpenModal={this.handleOpenModal} service={settings.chain[this.state.network.network].service} stats={this.state.system.stats} />
                 {
                   web3.isAddress(this.state.network.defaultAccount)
-                  ?
+                    ?
                     <div className="row">
                       <div className="col-md-6">
-                        <Wrap wrapUnwrap={ this.wrapUnwrap } accountBalance={ this.state.profile.accountBalance } system={ this.state.system } />
+                        <Wrap wrapUnwrap={this.wrapUnwrap} accountBalance={this.state.profile.accountBalance} system={this.state.system} />
                       </div>
                       <div className="col-md-6">
-                        <Transfer transferToken={ this.transferToken } system={ this.state.system } profile={ this.state.profile } network={ this.state.network.network } account={ this.state.network.defaultAccount } />
+                        <Transfer transferToken={this.transferToken} system={this.state.system} profile={this.state.profile} network={this.state.network.network} account={this.state.network.defaultAccount} />
                       </div>
                     </div>
-                  :
+                    :
                     ''
                 }
-                <Cups system={ this.state.system } network={ this.state.network.network } profile={ this.state.profile.activeProfile } handleOpenModal={ this.handleOpenModal } handleOpenCupHistoryModal={ this.handleOpenCupHistoryModal } listCups={ this.listCups } moveCupsPage={ this.moveCupsPage } tab={ this.tab } rap={ this.rap } />
+                <Cups system={this.state.system} network={this.state.network.network} profile={this.state.profile.activeProfile} handleOpenModal={this.handleOpenModal} handleOpenCupHistoryModal={this.handleOpenCupHistoryModal} listCups={this.listCups} moveCupsPage={this.moveCupsPage} tab={this.tab} rap={this.rap} />
                 <div className="row">
                   <div className="col-md-12">
                     {
                       openAction.active
-                      ? <a className="buttonAction openAction" title={ openAction.helper } href="#action" data-method="open" onClick={ this.handleOpenModal } ><span data-method="open">{ openAction.display }</span></a>
-                      : <span className="buttonAction openAction" title={ openAction.helper }><span>{ openAction.display }</span></span>
+                        ? <a className="buttonAction openAction" title={openAction.helper} href="#action" data-method="open" onClick={this.handleOpenModal} ><span data-method="open">{openAction.display}</span></a>
+                        : <span className="buttonAction openAction" title={openAction.helper}><span>{openAction.display}</span></span>
                     }
                   </div>
                 </div>
@@ -2427,17 +2353,17 @@ class App extends Component {
                 </a>
                 {
                   this.state.network.defaultAccount &&
-                  <TokenAllowance system={ this.state.system } mode={ this.state.profile.mode } approve={ this.approve } approveAll={ this.approveAll } />
+                  <TokenAllowance system={this.state.system} mode={this.state.profile.mode} approve={this.approve} approveAll={this.approveAll} />
                 }
                 {
                   this.state.system.pip.address && this.state.network.network !== 'private' &&
-                  <FeedValue address={ this.state.system.pip.address } val={ this.state.system.pip.val } currency="ETH" />
+                  <FeedValue address={this.state.system.pip.address} val={this.state.system.pip.val} currency="ETH" />
                 }
                 {
                   this.state.system.pep.address && this.state.network.network !== 'private' &&
-                  <FeedValue address={ this.state.system.pep.address } val={ this.state.system.pep.val } currency="MKR" />
+                  <FeedValue address={this.state.system.pep.address} val={this.state.system.pep.val} currency="MKR" />
                 }
-                <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
+                <ResourceButtons handleOpenVideoModal={this.handleOpenVideoModal} handleOpenTerminologyModal={this.handleOpenTerminologyModal} />
                 <div>
                   <a href="#action" onClick={this.handleOpenTermsModal} data-modal="announcement">Dai Public Announcement</a><br />
                   <a href="#action" onClick={this.handleOpenTermsModal} data-modal="terms">Dai Terms of Service</a>
@@ -2445,12 +2371,12 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <TermsModal modal={ this.state.termsModal } markAsAccepted={ this.markAsAccepted } />
-          <VideoModal modal={ this.state.videoModal } termsModal={ this.state.termsModal } handleCloseVideoModal={ this.handleCloseVideoModal } />
-          <TerminologyModal modal={ this.state.terminologyModal } handleCloseTerminologyModal={ this.handleCloseTerminologyModal } />
-          <CupHistoryModal modal={ this.state.cupHistoryModal } handleCloseCupHistoryModal={ this.handleCloseCupHistoryModal } network={ this.state.network.network } />
-          <Modal system={ this.state.system } modal={ this.state.modal } updateValue={ this.updateValue } handleCloseModal={ this.handleCloseModal } tab={ this.tab } rap={ this.rap } proxyEnabled={ this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy) } />
-          <ReactNotify ref='notificator'/>
+          <TermsModal modal={this.state.termsModal} markAsAccepted={this.markAsAccepted} />
+          <VideoModal modal={this.state.videoModal} termsModal={this.state.termsModal} handleCloseVideoModal={this.handleCloseVideoModal} />
+          <TerminologyModal modal={this.state.terminologyModal} handleCloseTerminologyModal={this.handleCloseTerminologyModal} />
+          <CupHistoryModal modal={this.state.cupHistoryModal} handleCloseCupHistoryModal={this.handleCloseCupHistoryModal} network={this.state.network.network} />
+          <Modal system={this.state.system} modal={this.state.modal} updateValue={this.updateValue} handleCloseModal={this.handleCloseModal} tab={this.tab} rap={this.rap} proxyEnabled={this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)} />
+          <ReactNotify ref='notificator' />
         </section>
       </div>
     );
