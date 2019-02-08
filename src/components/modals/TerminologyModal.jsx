@@ -74,7 +74,6 @@ const TerminologyModal = (props) => {
             <strong>DAI/USD:</strong> Target price for 1 DAI in USD<br />
             <strong>PETH:</strong> The token used as collateral in CDPs which represents a claim on the ETH collateral pool of the Dai Stablecoin System<br />
             <strong>PETH/ETH:</strong> Amount of collateral pool ETH claimed by 1 PETH<br />
-            <strong>Shut:</strong> Close a CDP - Wipe all debt, Free all collateral, and delete the CDP<br />
             <strong>Spread (boom/bust):</strong> Discount/premium relative to Dai target price at which the system buys/sells collateral PETH for DAI. When negative, collateral is being sold at a discount (under ‘bust’) and bought at a premium (under ‘boom’)<br />
             <strong>Spread (join/exit):</strong> Discount/premium for converting between ETH and PETH via join and exit; the profits are accrued to the PETH collateral pool<br />
             <strong>Status:</strong> Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed<br />

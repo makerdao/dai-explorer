@@ -140,14 +140,6 @@ class Modal extends Component {
         renderForm = 'renderYesNoForm';
         this.submitEnabled = true;
         break;
-      case 'shut':
-        text = `Are you sure you want to close CDP ${modal.cup}?.`;
-        if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in DAI and/or MKR to complete this transaction.';;
-        }
-        renderForm = 'renderYesNoForm';
-        this.submitEnabled = true;
-        break;
       case 'bite':
         text = `Are you sure you want to bite CDP ${modal.cup}?`;
         renderForm = 'renderYesNoForm';
