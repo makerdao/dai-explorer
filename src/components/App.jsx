@@ -2355,7 +2355,7 @@ class App extends Component {
                     </div>
                   </div>
                 </div> */}
-                <a className="resource buy-dai" href="https://oasisdex.com/#trade/W-ETH/DAI" target="_blank" rel="noopener noreferrer" >
+                <a className="resource buy-dai" href="https://eth2dai.com/exchange/WETH/DAI" target="_blank" rel="noopener noreferrer" >
                   <span>Buy DAI</span>
                 </a>
                 {
