@@ -2261,6 +2261,9 @@ class App extends Component {
     return (
       <div className="content-wrapper">
         <section className="content-header">
+          <div className="alert alert-warning" role="alert">
+            <strong>Warning!</strong>  This version of the Dai Credit System is currently in Beta. There may be errors or usability issues which could lead to the loss of funds. You should only use this page if you are familiar with the Dai Credit System. A more user friendly version can be found at <a href="https://cdp.makerdao.com">https://cdp.makerdao.com</a>
+          </div>
           <h1>
             <a href="/" className="logo"><img src={logo} alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
           </h1>
