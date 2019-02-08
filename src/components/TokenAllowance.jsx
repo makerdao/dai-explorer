@@ -104,6 +104,30 @@ class TokenAllowance extends Component {
                   </span>
                 </div>
                 <div>
+                  <span>MKR</span>
+                  <span>Wipe/Shut</span>
+                  <span>
+                    {
+                      this.props.system.gov.tubApproved === -1
+                        ? 'Loading...'
+                        : this.onOff('gov', 'tub')
+                    }
+                  </span>
+                </div>
+                <div>
+                  <span>DAI</span>
+                  <span>Wipe/Shut</span>
+                  <span>
+                    {
+                      this.props.system.dai.tubApproved === -1
+                        ? 'Loading...'
+                        : this.onOff('dai', 'tub')
+                          ? 'Loading...'
+                          : this.onOff('skr', 'tap')
+                    }
+                  </span>
+                </div>
+                <div>
                   <span>DAI</span>
                   <span>Bust/Cash</span>
                   <span>
