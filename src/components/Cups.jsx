@@ -22,10 +22,6 @@ const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenM
             active: account && cup.lad === account && off === false && cup.art.gt(0),
             helper: 'Use Dai to cancel CDP debt'
           },
-    shut: {
-            active: feedValue.gt(0) && account && off === false && cup.lad === account,
-            helper: 'Close a CDP - Wipe all debt, Free all collateral, and delete the CDP'
-          },
     give: {
             active: feedValue.gt(0) && account && off === false && cup.lad === account,
             helper: 'Transfer CDP ownership'

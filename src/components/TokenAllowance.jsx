@@ -105,7 +105,7 @@ class TokenAllowance extends Component {
                 </div>
                 <div>
                   <span>MKR</span>
-                  <span>Wipe/Shut</span>
+                  <span>Wipe</span>
                   <span>
                     {
                       this.props.system.gov.tubApproved === -1
@@ -116,7 +116,7 @@ class TokenAllowance extends Component {
                 </div>
                 <div>
                   <span>DAI</span>
-                  <span>Wipe/Shut</span>
+                  <span>Wipe</span>
                   <span>
                     {
                       this.props.system.dai.tubApproved === -1

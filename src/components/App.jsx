@@ -903,7 +903,6 @@ class App extends Component {
       'draw(bytes32,uint256)',
       'wipe(bytes32,uint256)',
       'bite(bytes32)',
-      'shut(bytes32)',
       'give(bytes32,address)',
     ].map(v => this.methodSig(v));
 
@@ -928,7 +927,6 @@ class App extends Component {
             r.args.sig === this.methodSig('rhi()') ||
             r.args.sig === this.methodSig('draw(bytes32,uint256)') ||
             r.args.sig === this.methodSig('wipe(bytes32,uint256)') ||
-            r.args.sig === this.methodSig('shut(bytes32)') ||
             (r.args.sig === this.methodSig('mold(bytes32,uint256)') && web3.toAscii(r.args.foo).substring(0,3) === 'tax')) {
           this.getParameterFromTub('chi', true);
           this.getParameterFromTub('rhi', true);
@@ -1771,11 +1769,11 @@ class App extends Component {
             tap: 'Boom'
           },
           dai: {
-            tub: 'Wipe/Shut',
+            tub: 'Wipe',
             tap: 'Bust/Cash'
           },
           gov: {
-            tub: 'Wipe/Shut'
+            tub: 'Wipe'
           }
         }
         const id = Math.random();
@@ -1828,74 +1826,6 @@ class App extends Component {
         break;
       case 'drip':
         this.executeMethod('tub', method);
-        break;
-      case 'shut':
-        // We calculate debt with some margin before shutting cup (to avoid failures)
-        const debt = this.tab(this.state.system.tub.cups[cup]).times(web3.fromWei(this.state.system.tub.tax).pow(120));
-        if (this.state.system.dai.myBalance.lt(debt)) {
-          error = `Not enough balance of DAI to shut CDP ${cup}.`;
-        } else {
-          const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
-          const futureRap = wmul(
-                              wmul(
-                                this.state.system.tub.cups[cup].ire,
-                                this.state.system.tub.rhi
-                              ),
-                              web3.toWei(
-                                web3.fromWei(
-                                  wmul(
-                                    this.state.system.tub.tax,
-                                    this.state.system.tub.fee
-                                  )
-                                ).pow(age)
-                              )
-                            ).minus(
-                              wmul(
-                                wmul(
-                                  this.state.system.tub.cups[cup].art,
-                                  this.state.system.tub.chi
-                                ),
-                                web3.toWei(
-                                  web3.fromWei(
-                                    this.state.system.tub.tax
-                                  ).pow(age)
-                                )
-                              )
-                            ).round(0);
-          const futureGovDebt = wdiv(
-                                  futureRap,
-                                  this.state.system.pep.val
-                                ).round(0);
-          if (futureGovDebt.gt(this.state.system.gov.myBalance)) {
-            error = `Not enough balance of MKR to shut CDP ${cup}.`;
-          } else {
-            if (this.state.profile.mode === 'proxy' && web3.isAddress(this.state.profile.proxy)) {
-              this.executeMethodCup(method, cup, [
-                                                   ['setUpToken', 'sai'],
-                                                   ['setUpToken', 'sin'],
-                                                   ['setUpToken', 'gov'],
-                                                   ['setUpToken', 'skr']
-                                                 ]);
-            } else {
-              this.checkAllowance('dai', 'tub', [
-                                                  ['getApproval', 'dai', 'tub'],
-                                                  ['checkAllowance', 'gov', 'tub',
-                                                    [
-                                                      ['getApproval', 'gov', 'tub'],
-                                                      ['executeMethodCup', method, cup,
-                                                        [
-                                                          ['setUpToken', 'sai'],
-                                                          ['setUpToken', 'sin'],
-                                                          ['setUpToken', 'gov'],
-                                                          ['setUpToken', 'skr']
-                                                        ]
-                                                      ]
-                                                    ]
-                                                  ]
-                                                ]);
-            }
-          }
-        }
         break;
       case 'bite':
         this.executeMethodCup(method, cup);
@@ -2162,11 +2092,11 @@ class App extends Component {
         tap: 'Boom'
       },
       dai: {
-        tub: 'Wipe/Shut',
+        tub: 'Wipe',
         tap: 'Bust/Cash'
       },
       gov: {
-        tub: 'Wipe/Shut'
+        tub: 'Wipe'
       }
     }
     const id = Math.random();
