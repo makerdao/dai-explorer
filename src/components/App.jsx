@@ -2121,7 +2121,7 @@ class App extends Component {
 
   approveAll = val => {
     const id = Math.random();
-    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
+    const title = `WETH/MKR/PETH/SAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -2227,11 +2227,11 @@ class App extends Component {
 
     const bustBoomActions = {
       bust: {
-        display: 'Buy PETH with DAI',
+        display: 'Buy PETH with SAI',
         active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
       },
       boom: {
-        display: 'Buy Dai with PETH',
+        display: 'Buy Sai with PETH',
         active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
       },
     }
@@ -2251,14 +2251,14 @@ class App extends Component {
 
     const daiActions = {
       cash: {
-        display: 'Convert DAI to WETH',
+        display: 'Convert SAI to WETH',
         active: this.state.system.tub.off === true && this.state.system.dai.myBalance.gt(0),
-        helper: 'Exchange your DAI for ETH at the cage price (enabled upon cage)'
+        helper: 'Exchange your SAI for ETH at the cage price (enabled upon cage)'
       },
       mock: {
-        display: 'Convert WETH to DAI',
+        display: 'Convert WETH to SAI',
         active: this.state.system.tub.off === true && this.state.system.gem.myBalance.gt(0),
-        helper: 'Exchange your ETH for DAI at the cage price (enabled upon cage)'
+        helper: 'Exchange your ETH for SAI at the cage price (enabled upon cage)'
      }
     };
 
@@ -2272,7 +2272,7 @@ class App extends Component {
             <strong>Warning!</strong> This version of the Dai Credit System is currently in Beta. There may be errors or usability issues which could lead to the loss of funds. You should only use this page if you are familiar with the Dai Credit System. A more user friendly version can be found at <a href="https://cdp.makerdao.com">https://cdp.makerdao.com</a>
           </div>
           <h1>
-            <a href="/" className="logo"><img src={ logo } alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
+            <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
           </h1>
           {
             settings.chain[this.state.network.network].proxyFactory

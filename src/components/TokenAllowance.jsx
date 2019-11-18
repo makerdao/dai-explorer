@@ -115,7 +115,7 @@ class TokenAllowance extends Component {
                   </span>
                 </div>
                 <div>
-                  <span>DAI</span>
+                  <span>SAI</span>
                   <span>Wipe</span>
                   <span>
                     {
@@ -126,7 +126,7 @@ class TokenAllowance extends Component {
                   </span>
                 </div>
                 <div>
-                  <span>DAI</span>
+                  <span>SAI</span>
                   <span>Bust/Cash</span>
                   <span>
                     {

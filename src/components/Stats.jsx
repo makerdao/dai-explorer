@@ -90,7 +90,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Tot DAI Drawn</strong>
+                <strong>Tot SAI Drawn</strong>
                 <span>
                   {
                     props.stats.results
@@ -102,7 +102,7 @@ const Stats = (props) => {
                 </span>
               </div>
               <div>
-                <strong>Tot DAI Wiped</strong>
+                <strong>Tot SAI Wiped</strong>
                 <span>
                   {
                     props.stats.results

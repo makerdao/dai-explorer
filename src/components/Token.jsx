@@ -15,11 +15,11 @@ const Token = (props) => {
   const tubBalanceDesc = props.token === 'gem' ? 'Amount of ETH in the PETH collateral pool' : 'Amount of PETH locked as collateral in CDPs';
   const tapBalanceLabel = props.token === 'gem' ? 'Redeemable' : (props.token === 'skr' ? 'Pending Sale' : (props.token === 'dai' ? 'Pending Sale' : 'Tap Balance'));
   const tapBalanceDesc = props.token === 'gem'
-                          ? 'Amount of ETH available to cash for DAI'
+                          ? 'Amount of ETH available to cash for SAI'
                           : (props.token === 'skr'
                             ? 'Amount of PETH collateral pending liquidation via bust'
                             : (props.token === 'dai'
-                              ? 'Amount of surplus DAI pending sale via boom'
+                              ? 'Amount of surplus SAI pending sale via boom'
                               : ''));
   return (
     <div className="col-md-6 col-sm-6 col-xs-12">

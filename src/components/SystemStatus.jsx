@@ -66,7 +66,7 @@ class SystemStatus extends Component {
                   </span>
                 </div>
                 <div>
-                  <strong title="Percentage number of maximum DAI already issued">Debt Ceiling Ratio</strong>
+                  <strong title="Percentage number of maximum SAI already issued">Debt Ceiling Ratio</strong>
                   {
                     this.props.system.dai.totalSupply.gte(0) && this.props.system.tub.cap.gte(0)
                     ?
@@ -98,7 +98,7 @@ class SystemStatus extends Component {
                           this.props.system.tub.avail_bust_skr.gte(0) && this.props.system.tub.avail_bust_dai.gte(0)
                           ?
                             <span>
-                              Sell { printNumber(this.props.system.tub.avail_bust_dai) } DAI<br />
+                              Sell { printNumber(this.props.system.tub.avail_bust_dai) } SAI<br />
                               Buy { printNumber(this.props.system.tub.avail_bust_skr) } PETH
                             </span>
                           :
@@ -119,7 +119,7 @@ class SystemStatus extends Component {
                           ?
                             <span>
                               Sell { printNumber(this.props.system.tub.avail_boom_skr) } PETH<br />
-                              Buy { printNumber(this.props.system.tub.avail_boom_dai) } DAI
+                              Buy { printNumber(this.props.system.tub.avail_boom_dai) } SAI
                             </span>
                           :
                             'Loading...'
@@ -168,7 +168,7 @@ class SystemStatus extends Component {
                   }
                 </div>
                 <div>
-                  <strong title="Target price for 1 DAI in USD">DAI/USD</strong>
+                  <strong title="Target price for 1 DAI in USD">SAI/USD</strong>
                   {
                     this.props.system.vox.par.gte(0)
                     ?
