@@ -1758,7 +1758,7 @@ class App extends Component {
       if (r.gte(valueObj)) {
         callbacks.forEach(callback => this.executeCallback(callback));
       } else {
-        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
+        const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').replace('dai', 'sai').toUpperCase();
         const action = {
           gem: {
             tub: 'Join',
@@ -2028,7 +2028,7 @@ class App extends Component {
   }
 
   transferToken = (token, to, amount) => {
-    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').replace('dai', 'sai').toUpperCase();
     const id = Math.random();
     const title = `${tokenName}: transfer ${to} ${amount}`;
     this.logRequestTransaction(id, title);
@@ -2081,7 +2081,7 @@ class App extends Component {
   }
 
   approve = (token, dst, val) => {
-    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').toUpperCase();
+    const tokenName = token.replace('gem', 'weth').replace('gov', 'mkr').replace('skr', 'peth').replace('dai', 'sai').toUpperCase();
     const action = {
       gem: {
         tub: 'Join',
@@ -2121,7 +2121,7 @@ class App extends Component {
 
   approveAll = val => {
     const id = Math.random();
-    const title = `WETH/MKR/PETH/DAI: ${val ? 'approve': 'deny'} all`;
+    const title = `WETH/MKR/PETH/SAI: ${val ? 'approve': 'deny'} all`;
     this.logRequestTransaction(id, title);
     const log = (e, tx) => {
       if (!e) {
@@ -2227,11 +2227,11 @@ class App extends Component {
 
     const bustBoomActions = {
       bust: {
-        display: 'Buy PETH with DAI',
+        display: 'Buy PETH with SAI',
         active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_bust_dai && this.state.system.tub.avail_bust_dai.gt(0),
       },
       boom: {
-        display: 'Buy Dai with PETH',
+        display: 'Buy Sai with PETH',
         active: this.state.network.defaultAccount && this.state.system.tub.off === false && this.state.system.tub.avail_boom_dai && this.state.system.tub.avail_boom_dai.gt(0),
       },
     }
@@ -2251,14 +2251,14 @@ class App extends Component {
 
     const daiActions = {
       cash: {
-        display: 'Convert DAI to WETH',
+        display: 'Convert SAI to WETH',
         active: this.state.system.tub.off === true && this.state.system.dai.myBalance.gt(0),
-        helper: 'Exchange your DAI for ETH at the cage price (enabled upon cage)'
+        helper: 'Exchange your SAI for ETH at the cage price (enabled upon cage)'
       },
       mock: {
-        display: 'Convert WETH to DAI',
+        display: 'Convert WETH to SAI',
         active: this.state.system.tub.off === true && this.state.system.gem.myBalance.gt(0),
-        helper: 'Exchange your ETH for DAI at the cage price (enabled upon cage)'
+        helper: 'Exchange your ETH for SAI at the cage price (enabled upon cage)'
      }
     };
 
@@ -2266,13 +2266,13 @@ class App extends Component {
       <div className="content-wrapper">
         <section className="content-header">
           <div className="alert alert-info" role="alert">
-            Multi Collateral Dai (MCD) is launching November 18th. From then, you will have the option to upgrade any Single Collateral Dai CDPs you have open. Check back here from November 18th for more details.
+            Multi Collateral Dai (MCD) is launching November 18th 2019. From then, you will have the option to upgrade any Single Collateral Dai CDPs you have open. Check back here from November 18th 2019 for more details.
           </div>
           <div className="alert alert-warning" role="alert">
-            <strong>Warning!</strong> This version of the Dai Credit System is currently in Beta. There may be errors or usability issues which could lead to the loss of funds. You should only use this page if you are familiar with the Dai Credit System. A more user friendly version can be found at <a href="https://cdp.makerdao.com">https://cdp.makerdao.com</a>
+            <strong>Warning!</strong> This version of the Sai Credit System is currently in Beta. There may be errors or usability issues which could lead to the loss of funds. You should only use this page if you are familiar with the Sai Credit System. A more user friendly version can be found at <a href="https://cdp.makerdao.com">https://cdp.makerdao.com</a>
           </div>
           <h1>
-            <a href="/" className="logo"><img src={ logo } alt="Maker Dai Explorer" width="50" /> - DAI Explorer</a>
+            <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
           </h1>
           {
             settings.chain[this.state.network.network].proxyFactory
@@ -2359,7 +2359,7 @@ class App extends Component {
                   </div>
                 </div> */}
                 <a className="resource buy-dai" href="https://eth2dai.com/exchange/WETH/DAI" target="_blank" rel="noopener noreferrer" >
-                  <span>Buy DAI</span>
+                  <span>Buy SAI</span>
                 </a>
                 {
                   this.state.network.defaultAccount &&
@@ -2375,8 +2375,8 @@ class App extends Component {
                 }
                 <ResourceButtons handleOpenVideoModal={ this.handleOpenVideoModal } handleOpenTerminologyModal={ this.handleOpenTerminologyModal } />
                 <div>
-                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="announcement">Dai Public Announcement</a><br />
-                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="terms">Dai Terms of Service</a>
+                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="announcement">Sai Public Announcement</a><br />
+                  <a href="#action" onClick={this.handleOpenTermsModal} data-modal="terms">Sai Terms of Service</a>
                 </div>
               </div>
             </div>

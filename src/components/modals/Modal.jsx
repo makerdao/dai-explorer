@@ -190,7 +190,7 @@ class Modal extends Component {
         }
         break;
       case 'boom':
-        text = 'Please set amount of PETH you want to transfer to get DAI.';
+        text = 'Please set amount of PETH you want to transfer to get SAI.';
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in PETH to complete this transaction.';
         }
@@ -210,9 +210,9 @@ class Modal extends Component {
         }
         break;
       case 'bust':
-        text = 'Please set amount of PETH you want to get in exchange of DAI.';
+        text = 'Please set amount of PETH you want to get in exchange of SAI.';
         if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
@@ -221,10 +221,10 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.tub.avail_bust_dai.lt(valueDAIWei)) {
-            error = 'Not enough DAI in the system to bust this amount of PETH.';
+            error = 'Not enough SAI in the system to bust this amount of PETH.';
             this.submitEnabled = false;
           } else if (this.props.system.dai.myBalance.lt(valueDAIWei)) {
-            error = 'Not enough balance of DAI to bust this amount of PETH.';
+            error = 'Not enough balance of SAI to bust this amount of PETH.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
@@ -278,7 +278,7 @@ class Modal extends Component {
         }
         break;
       case 'draw':
-        text = `Please set amount of DAI you want to mint from your locked collateral (PETH) in CDP ${modal.cup}`;
+        text = `Please set amount of SAI you want to mint from your locked collateral (PETH) in CDP ${modal.cup}`;
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
           const valueWei = web3.toBigNumber(web3.toWei(value));
@@ -286,10 +286,10 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.sin.totalSupply.add(valueWei).gt(this.props.system.tub.cap)) {
-            error = 'This amount of DAI exceeds the system debt ceiling.';
+            error = 'This amount of SAI exceeds the system debt ceiling.';
             this.submitEnabled = false;
           } else if (this.props.system.tub.cups[cup].avail_dai.lt(valueWei)) {
-            error = 'This amount of DAI exceeds the maximum available to draw.';
+            error = 'This amount of SAI exceeds the maximum available to draw.';
             this.submitEnabled = false;
           } else if (valueWei.gt(this.props.system.tub.cups[cup].avail_dai.times(0.9))) {
             error = 'This amount puts your CDP in risk to be liquidated';
@@ -298,9 +298,9 @@ class Modal extends Component {
         }
         break;
       case 'wipe':
-        text = `Please set amount of DAI you want to burn to recover your collateral (PETH) from CDP ${modal.cup}.`;
+        text = `Please set amount of SAI you want to burn to recover your collateral (PETH) from CDP ${modal.cup}.`;
         if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in DAI and/or MKR to complete this transaction.';
+          text += '<br />You might be requested for signing up to three transactions if there is not enough allowance in SAI and/or MKR to complete this transaction.';
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
@@ -309,10 +309,10 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.dai.myBalance.lt(valueWei)) {
-            error = 'Not enough balance of DAI to wipe this amount.';
+            error = 'Not enough balance of SAI to wipe this amount.';
             this.submitEnabled = false;
           } else if (this.props.tab(this.props.system.tub.cups[cup]).lt(valueWei)) {
-            error = `Debt in CDP ${cup} is lower than this amount of DAI.`;
+            error = `Debt in CDP ${cup} is lower than this amount of SAI.`;
             this.submitEnabled = false;
           } else {
             const age = 1200; // We calculate what will be the fee in 20 minutes (due mining time)
@@ -367,9 +367,9 @@ class Modal extends Component {
         this.submitEnabled = true;
         break;
       case 'cash':
-        text = `Please set amount of DAI you want to cash`;
+        text = `Please set amount of SAI you want to cash`;
         if (!this.props.proxyEnabled) {
-          text += '<br />You might be requested for signing two transactions if there is not enough allowance in DAI to complete this transaction.';
+          text += '<br />You might be requested for signing two transactions if there is not enough allowance in SAI to complete this transaction.';
         }
         renderForm = 'renderInputNumberForm';
         this.cond = (value) => {
@@ -377,14 +377,14 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (this.props.system.dai.myBalance.lt(valueWei)) {
-            error = 'Not enough balance to cash this amount of DAI.';
+            error = 'Not enough balance to cash this amount of SAI.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;
         }
         break;
       case 'mock':
-        text = `Please set amount of DAI you mock to cash`;
+        text = `Please set amount of SAI you mock to cash`;
         if (!this.props.proxyEnabled) {
           text += '<br />You might be requested for signing two transactions if there is not enough allowance in WETH to complete this transaction.';
         }
@@ -394,7 +394,7 @@ class Modal extends Component {
           let error = '';
           this.submitEnabled = true;
           if (wdiv(this.props.system.gem.myBalance, this.props.system.tap.fix).lt(valueWei)) {
-            error = 'Not enough balance of WETH to mock this amount of DAI.';
+            error = 'Not enough balance of WETH to mock this amount of SAI.';
             this.submitEnabled = false;
           }
           document.getElementById('warningMessage').innerHTML = error;

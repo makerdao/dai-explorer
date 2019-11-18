@@ -95,7 +95,7 @@ class CupHistoryModal extends Component {
                                 :
                                   ['draw', 'wipe'].indexOf(this.props.modal.actions[key].action) !== -1
                                   ?
-                                    ' DAI'
+                                    ' SAI'
                                   :
                                     ''
                               }

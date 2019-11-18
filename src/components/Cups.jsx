@@ -16,11 +16,11 @@ const renderCupActions = (feedValue, account, off, lock, cupId, cup, handleOpenM
           },
     draw: {
             active: feedValue.gt(0) && account && off === false && cup.lad === account && cup.ink.gt(0) && cup.safe,
-            helper: 'Create Dai against a CDP'
+            helper: 'Create Sai against a CDP'
           },
     wipe: {
             active: account && cup.lad === account && off === false && cup.art.gt(0),
-            helper: 'Use Dai to cancel CDP debt'
+            helper: 'Use Sai to cancel CDP debt'
           },
     give: {
             active: feedValue.gt(0) && account && off === false && cup.lad === account,
@@ -66,12 +66,12 @@ const Cups = (props) => {
                 <thead>
                   <tr>
                     <th className="text-right">CDP Id</th>
-                    <th className="text-right" title="Amount of outstanding DAI debt in a CDP">Stability Debt (DAI)</th>
+                    <th className="text-right" title="Amount of outstanding SAI debt in a CDP">Stability Debt (SAI)</th>
                     <th className="text-right" title="">Governance Debt (MKR)</th>
                     <th className="text-right" title="Amount of PETH collateral in a CDP">Locked (PETH)</th>
                     <th className="text-right" title="Ratio of collateral PETH to total outstanding PETH">% Tot (PETH)</th>
                     <th className="text-right" title="Collateral ratio of the CDP">% Ratio</th>
-                    <th className="text-right" title="Maximum DAI that can currently be drawn from a CDP">Avail. DAI (to draw)</th>
+                    <th className="text-right" title="Maximum SAI that can currently be drawn from a CDP">Avail. SAI (to draw)</th>
                     <th className="text-right" title="Maximum PETH that can currently be released from a CDP">Avail. PETH (to free)</th>
                     <th className="text-right" title="ETH price at which a CDP will become unsafe and at risk of liquidation">Liquidation Price</th>
                     <th className="text-right" title="Whether the CDP is safe, unsafe (vulnerable to liquidation), or closed">Status</th>
