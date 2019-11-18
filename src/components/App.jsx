@@ -2266,10 +2266,7 @@ class App extends Component {
       <div className="content-wrapper">
         <section className="content-header">
           <div className="alert alert-info" role="alert">
-            Multi Collateral Dai (MCD) is launching November 18th 2019. From then, you will have the option to upgrade any Single Collateral Dai CDPs you have open. Check back here from November 18th 2019 for more details.
-          </div>
-          <div className="alert alert-warning" role="alert">
-            <strong>Warning!</strong> This version of the Sai Credit System is currently in Beta. There may be errors or usability issues which could lead to the loss of funds. You should only use this page if you are familiar with the Sai Credit System. A more user friendly version can be found at <a href="https://cdp.makerdao.com">https://cdp.makerdao.com</a>
+            Multi-Collateral Dai launched on November 18th 2019 allowing you to open new Maker Vaults with multiple collateral types. If you have any existing CDPs, head to <a href="https://migrate.makerdao.com">migrate.makerdao.com to</a> upgrade them. You can access the new MCD system at <a href="https://oasis.app">Oasis.app</a>, where you will also find your migrated CDPs.
           </div>
           <h1>
             <a href="/" className="logo"><img src={ logo } alt="Maker Sai Explorer" width="50" /> - SAI Explorer</a>
