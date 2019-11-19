@@ -11,9 +11,9 @@ class TermsText extends Component {
           1. Acceptance of Terms
         </h4>
         <p>
-          The Dai System and Software is an autonomous system of smart contracts on the Ethereum Blockchain (the “Open Source Software”), that permits, among other things, the generation of Dai. Dai is a cryptocurrency intended to maintain low volatility that is available at dai.makerdao.com and via other tools (the “Site”) — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, the Open Source Software, or other services offered from time to time are referred to here as the “Service.” Note however, that while the Open Source Software is intended to maintain low volatility for Dai, the Open Source Software is an experimental prototype and its use involves a high degree of risk. There are numerous ways the Open Source Software and Service could fail in an unexpected way, resulting in the total and absolute loss of all of your funds.  
+          The Sai System and Software is an autonomous system of smart contracts on the Ethereum Blockchain (the “Open Source Software”), that permits, among other things, the generation of Sai. Sai is a cryptocurrency intended to maintain low volatility that is available at dai.makerdao.com and via other tools (the “Site”) — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, the Open Source Software, or other services offered from time to time are referred to here as the “Service.” Note however, that while the Open Source Software is intended to maintain low volatility for Sai, the Open Source Software is an experimental prototype and its use involves a high degree of risk. There are numerous ways the Open Source Software and Service could fail in an unexpected way, resulting in the total and absolute loss of all of your funds.
         </p>
-        <p>  
+        <p>
           Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Service, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms and (2) any additional terms, rules and conditions of participation issued from time to time. If you do not agree to the Terms, then you may not access or use the Content or Service.
         </p>
         <h4>
@@ -29,7 +29,7 @@ class TermsText extends Component {
           You hereby represent and warrant that you are fully able and competent to enter into the terms, conditions, obligations, affirmations, representations and warranties set forth in these Terms and to abide by and comply with these Terms.
         </p>
         <p>
-          The Dai System and Software is global and by accessing the Content or Service, you are representing and warranting that, you are of the legal age of majority in your jurisdiction as is required to access such Service and Content and enter into arrangements as provided by the Service. You further represent that you are otherwise legally permitted to use the service in your jurisdiction including owning cryptographic tokens of value, and interacting with the Service or Content in any way. You further represent you are responsible for ensuring compliance with the laws of your jurisdiction and acknowledge that MakerDAO or any of the MakerDAO Volunteers (as defined below) is not liable for your compliance with such laws. Finally, you represent and warrant that you will not use the Service for any illegal activity.
+          The Sai System and Software is global and by accessing the Content or Service, you are representing and warranting that, you are of the legal age of majority in your jurisdiction as is required to access such Service and Content and enter into arrangements as provided by the Service. You further represent that you are otherwise legally permitted to use the service in your jurisdiction including owning cryptographic tokens of value, and interacting with the Service or Content in any way. You further represent you are responsible for ensuring compliance with the laws of your jurisdiction and acknowledge that MakerDAO or any of the MakerDAO Volunteers (as defined below) is not liable for your compliance with such laws. Finally, you represent and warrant that you will not use the Service for any illegal activity.
         </p>
         <h4>
           4. Representations, Warranties, and Risks
@@ -38,10 +38,10 @@ class TermsText extends Component {
           4.1. No Representation or Warranty.
         </h5>
         <p>
-          You expressly understand and agree that your use of the Service is at your sole risk. 
+          You expressly understand and agree that your use of the Service is at your sole risk.
         </p>
         <p>
-          (A) ALL PERSONS, ENTITIES, AGENTS, AND VOLUNTEERS INVOLVED WITH THE CREATION OF THE DAI SYSTEM AND SOFTWARE (“MAKERDAO VOLUNTEERS”) MAKE AND EXPRESSLY DISCLAIM ALL REPRESENTATIONS AND WARRANTIES, EXPRESS, IMPLIED OR STATUTORY; AND (B) WITH RESPECT TO THE DAI SYSTEM AND SOFTWARE AND DAI TOKENS, MAKERDAO VOLUNTEERS AND ALL RELATED ENTITIES AND AGENTS SPECIFICALLY DO NOT REPRESENT AND WARRANT AND EXPRESSLY DISCLAIM ANY REPRESENTATION OR WARRANTY, EXPRESS, IMPLIED OR STATUTORY, INCLUDING WITHOUT LIMITATION, ANY REPRESENTATIONS OR WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, USAGE, SECURITY, SUITABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE, OR AS TO THE WORKMANSHIP OR TECHNICAL CODING THEREOF, OR THE ABSENCE OF ANY DEFECTS THEREIN, WHETHER LATENT OR PATENT. THE MAKERDAO VOLUNTEERS OR ANY RELATED ENTITIES OR AGENTS DO NOT REPRESENT OR WARRANT THAT THE SERVICE AND ANY RELATED INFORMATION ARE ACCURATE, COMPLETE, RELIABLE, CURRENT OR ERROR-FREE.
+          (A) ALL PERSONS, ENTITIES, AGENTS, AND VOLUNTEERS INVOLVED WITH THE CREATION OF THE SAI SYSTEM AND SOFTWARE (“MAKERDAO VOLUNTEERS”) MAKE AND EXPRESSLY DISCLAIM ALL REPRESENTATIONS AND WARRANTIES, EXPRESS, IMPLIED OR STATUTORY; AND (B) WITH RESPECT TO THE SAI SYSTEM AND SOFTWARE AND SAI TOKENS, MAKERDAO VOLUNTEERS AND ALL RELATED ENTITIES AND AGENTS SPECIFICALLY DO NOT REPRESENT AND WARRANT AND EXPRESSLY DISCLAIM ANY REPRESENTATION OR WARRANTY, EXPRESS, IMPLIED OR STATUTORY, INCLUDING WITHOUT LIMITATION, ANY REPRESENTATIONS OR WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, USAGE, SECURITY, SUITABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE, OR AS TO THE WORKMANSHIP OR TECHNICAL CODING THEREOF, OR THE ABSENCE OF ANY DEFECTS THEREIN, WHETHER LATENT OR PATENT. THE MAKERDAO VOLUNTEERS OR ANY RELATED ENTITIES OR AGENTS DO NOT REPRESENT OR WARRANT THAT THE SERVICE AND ANY RELATED INFORMATION ARE ACCURATE, COMPLETE, RELIABLE, CURRENT OR ERROR-FREE.
         </p>
         <h5>
           4.2. Disclaimer of Fiduciary Duties
@@ -56,13 +56,13 @@ class TermsText extends Component {
           By utilizing the Service or interacting with the Content in any way, you represent that you understand the inherent risks associated with cryptographic systems; and warrant that you have an understanding of the usage and intricacies of native cryptographic tokens, like Ether (ETH) and Bitcoin (BTC), smart contract based tokens such as those that follow the Ethereum Token Standard (<a href="https://github.com/ethereum/EIPs/issues/20" target="_blank" rel="noopener noreferrer">https://github.com/ethereum/EIPs/issues/20</a>), and blockchain-based software systems.
         </p>
         <p>
-          Neither of the MakerDAO Volunteers own or control any of the underlying software through which blockchain networks are formed. In general, the underlying software for blockchain networks tends to be open source such that anyone can use, copy, modify, and distribute it. By using the Service, you acknowledge and agree (i) that MakerDAO Volunteers or related entities are not responsible for operation of the underlying software and networks that there exists no guarantee of functionality, security, or availability of such software and networks; and (ii) that the underlying protocols are subject to sudden changes in operating rules (known as “Forks”), and that such Forks may materially affect the Dai System and Software. It might be discretionarily decided not to support (or cease supporting) the Forked network entirely. You acknowledge and agree that MakerDAO volunteers assume absolutely no responsibility whatsoever in respect of any underlying software protocols, whether Forked or not.
+          Neither of the MakerDAO Volunteers own or control any of the underlying software through which blockchain networks are formed. In general, the underlying software for blockchain networks tends to be open source such that anyone can use, copy, modify, and distribute it. By using the Service, you acknowledge and agree (i) that MakerDAO Volunteers or related entities are not responsible for operation of the underlying software and networks that there exists no guarantee of functionality, security, or availability of such software and networks; and (ii) that the underlying protocols are subject to sudden changes in operating rules (known as “Forks”), and that such Forks may materially affect the Sai System and Software. It might be discretionarily decided not to support (or cease supporting) the Forked network entirely. You acknowledge and agree that MakerDAO volunteers assume absolutely no responsibility whatsoever in respect of any underlying software protocols, whether Forked or not.
         </p>
         <h5>
           4.4 Risk of Regulatory Actions in One or More Jurisdictions
         </h5>
         <p>
-          The Dai System and Software, MakerDAO and ETH could be impacted by one or more regulatory inquiries or regulatory action, which could impede or limit the ability of MakerDAO Volunteers to continue to develop, or which could impede or limit your ability to access or use the Service or Ethereum blockchain, including access to your funds.
+          The Sai System and Software, MakerDAO and ETH could be impacted by one or more regulatory inquiries or regulatory action, which could impede or limit the ability of MakerDAO Volunteers to continue to develop, or which could impede or limit your ability to access or use the Service or Ethereum blockchain, including access to your funds.
         </p>
         <h5>
           4.5 Risk of Weaknesses or Exploits in the Field of Cryptography
@@ -80,19 +80,19 @@ class TermsText extends Component {
           4.7 Application Security
         </h5>
         <p>
-          You acknowledge that the Dai System and Software is subject to flaws and acknowledge that you are solely responsible for evaluating any code provided by the Services or Content. This warning and others later provided by MakerDAO Volunteers in no way evidence or represent an on-going duty to alert you to all of the potential risks of utilizing the Service or Content.
+          You acknowledge that the Sai System and Software is subject to flaws and acknowledge that you are solely responsible for evaluating any code provided by the Services or Content. This warning and others later provided by MakerDAO Volunteers in no way evidence or represent an on-going duty to alert you to all of the potential risks of utilizing the Service or Content.
         </p>
         <h5>
           4.8 Website Accuracy
         </h5>
         <p>
-          Although it is intended to provide accurate and timely information on the Site and other tools making up the Dai System and Software, the Site (including, without limitation, the Content) or relevant tools may not always be entirely accurate, complete or current and may also include technical inaccuracies or typographical errors. In an effort to continue to provide you with as complete and accurate information as possible, information may be changed or updated from time to time without notice, including without limitation information regarding our policies. Accordingly, you should verify all information before relying on it, and all decisions based on information contained on the Site or relevant tools are your sole responsibility and MakerDAO volunteers shall have no liability for such decisions. Links to third-party materials (including without limitation websites) may be provided as a convenience but are not controlled by any entity. You acknowledge and agree that we are not responsible for any aspect of the information, content, or services contained in any third-party materials or on any third party sites accessible or linked to the Site or available via other relevant tools.
+          Although it is intended to provide accurate and timely information on the Site and other tools making up the Sai System and Software, the Site (including, without limitation, the Content) or relevant tools may not always be entirely accurate, complete or current and may also include technical inaccuracies or typographical errors. In an effort to continue to provide you with as complete and accurate information as possible, information may be changed or updated from time to time without notice, including without limitation information regarding our policies. Accordingly, you should verify all information before relying on it, and all decisions based on information contained on the Site or relevant tools are your sole responsibility and MakerDAO volunteers shall have no liability for such decisions. Links to third-party materials (including without limitation websites) may be provided as a convenience but are not controlled by any entity. You acknowledge and agree that we are not responsible for any aspect of the information, content, or services contained in any third-party materials or on any third party sites accessible or linked to the Site or available via other relevant tools.
         </p>
         <h5>
           4.9 Technical Knowledge
         </h5>
         <p>
-          Any use or interaction with the Dai System and Software requires a comprehensive understanding of applied cryptography and computer science in order to appreciate inherent risks, including those listed above. You represent and warrant that you possess relevant knowledge and skills.
+          Any use or interaction with the Sai System and Software requires a comprehensive understanding of applied cryptography and computer science in order to appreciate inherent risks, including those listed above. You represent and warrant that you possess relevant knowledge and skills.
         </p>
         <h4>
           5. Indemnity
@@ -125,7 +125,7 @@ class TermsText extends Component {
           9. Termination and Suspension
         </h4>
         <p>
-          MakerDAO may terminate or suspend all or part of the Service and your Dai System and Software access immediately, without prior notice or liability, if you breach any of the terms or conditions of the Terms. Upon termination of your access, your right to use the Service will immediately cease.
+          MakerDAO may terminate or suspend all or part of the Service and your Sai System and Software access immediately, without prior notice or liability, if you breach any of the terms or conditions of the Terms. Upon termination of your access, your right to use the Service will immediately cease.
         </p>
         <p>
           The following provisions of the Terms survive any termination of these Terms: INDEMNITY; WARRANTY DISCLAIMERS; LIMITATION ON LIABILITY; OUR PROPRIETARY RIGHTS; LINKS; TERMINATION; NO THIRD-PARTY BENEFICIARIES; BINDING ARBITRATION AND CLASS ACTION WAIVER; GENERAL INFORMATION.
@@ -159,7 +159,7 @@ class TermsText extends Component {
         <p>
           The parties agree shall use their best efforts to engage directly to settle any dispute, claim, question, or disagreement and engage in good faith negotiations which shall be a condition to either party initiating a arbitration.
         </p>
-        <h5>        
+        <h5>
           12.2 Binding Arbitration
         </h5>
         <p>
@@ -219,7 +219,7 @@ class TermsText extends Component {
         <ul>
           <li><strong>Unlawful Activity:</strong> Activity which would violate, or assist in violation of, any law, statute, ordinance, or regulation, sanctions programs administered in any relevant country, including but not limited to the U.S. Department of Treasury's Office of Foreign Assets Control ("OFAC"), or which would involve proceeds of any unlawful activity; publish, distribute or disseminate any unlawful material or information</li>
           <li><strong>Abuse Other Users:</strong> Interfere with another individual's or entity's access to or use of any Services; defame, abuse, extort, harass, stalk, threaten or otherwise violate or infringe the legal rights (such as, but not limited to, rights of privacy, publicity and intellectual property) of others; incite, threaten, facilitate, promote, or encourage hate, racial intolerance, or violent acts against others; harvest or otherwise collect information from the Site about others, including without limitation email addresses, without proper consent</li>
-          <li><strong>Fraud:</strong> Activity which operates to defraud MakerDAO, Dai System and Software users, or any other person; provide any false, inaccurate, or misleading information.</li>
+          <li><strong>Fraud:</strong> Activity which operates to defraud MakerDAO, Sai System and Software users, or any other person; provide any false, inaccurate, or misleading information.</li>
           <li><strong>Intellectual Property Infringement:</strong> Engage in transactions involving items that infringe or violate any copyright, trademark, right of publicity or privacy or any other proprietary right under the law, including but not limited to sales, distribution, or access to counterfeit music, movies, software, or other licensed materials without the appropriate authorization from the rights holder; use of MakerDAO intellectual property, name, or logo, including use of MakerDAO trade or service marks, without express consent from MakerDAO or in a manner that otherwise harms MakerDAO; any action that implies an untrue endorsement by or affiliation with MakerDAO.</li>
         </ul>
       </div>

@@ -41,8 +41,8 @@ const TerminologyModal = (props) => {
             <strong>Avail. Dai (to draw):</strong> Maximum Dai that can currently be drawn from a CDP<br />
             <strong>Avail. PETH (to free):</strong> Maximum PETH that can currently be released from a CDP<br />
             <strong>Bite:</strong> Initiate liquidation of an undercollateralized CDP<br />
-            <strong>Boom:</strong> Buy DAI with PETH<br />
-            <strong>Bust:</strong> Buy PETH with DAI<br />
+            <strong>Boom:</strong> Buy SAI with PETH<br />
+            <strong>Bust:</strong> Buy PETH with SAI<br />
             <strong>CDP Fee:</strong> CDP interest rate<br />
             <strong>Collateral Auction:</strong> The auction selling collateral in a liquidated CDP. It is designed to prioritize covering the debt owed by the CDP, then to give the owner the best price possible for their collateral refund<br />
             <strong>Collateralized Debt Position (CDP):</strong> A smart contract whose users receive an asset (Dai), which effectively operates as a debt instrument with an interest rate. The CDP user has posted collateral in excess of the value of the loan in order to guarantee their debt position<br />

@@ -76,7 +76,7 @@ class TermsModal extends Component {
           contentLabel="Action Modal"
           style={ style } >
         <div id="termsWrapper">
-          <h2>{ this.props.modal.announcement ? 'Dai Public Announcement' : 'Dai Terms of Service' }</h2>
+          <h2>{ this.props.modal.announcement ? 'Sai Public Announcement' : 'Sai Terms of Service' }</h2>
           <div className="content" ref="termsContent">
             { this.props.modal.announcement ? <AnnouncementText /> : <TermsText /> }
             <p>&nbsp;</p>
