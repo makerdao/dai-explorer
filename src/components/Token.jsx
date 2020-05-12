@@ -23,7 +23,7 @@ const Token = (props) => {
                               : ''));
   return (
     <div className="col-md-6 col-sm-6 col-xs-12">
-      <div className={ props.token === 'skr' || props.token === 'dai' ? 'info-box big' : 'info-box' }>
+      <div className={ props.token === 'skr' || props.token === 'dai' ? 'info-box big' : 'info-box' } style={{minHeight: 95}} >
         <span className={`info-box-icon ${props.color}`}>
           { etherscanToken(props.network, name, token.address) }
         </span>
