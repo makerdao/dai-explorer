@@ -2294,6 +2294,21 @@ class App extends Component {
               </div>
             </div>
             <div className="row">
+              <div className="col-md-12">
+                <div className="box">
+                  <div className="box-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <h1>Single Collateral Dai (SCD) was shutdown at 16:00 UTC on Tuesday, May 12, 2020.</h1>
+                        <p>From now on, we recommend to redeem Sai and CDPs from the official <a href="https://migrate.makerdao.com" target="_blank" rel="noopener noreferrer">MakerDAO Migration Portal</a>.</p>
+                        <p>For more information please visit our <a href="https://forum.makerdao.com" target="_blank" rel="noopener noreferrer">Forum</a> or our <a href="https://chat.makerdao.com" target="_blank" rel="noopener noreferrer">Chat</a>.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="row">
               <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gem' color='' off={ this.state.system.tub.off } />
               <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='gov' color='' off={ this.state.system.tub.off } />
               <Token system={ this.state.system } network={ this.state.network.network } account={ this.state.network.defaultAccount } token='skr' color='bg-aqua' actions={ skrActions } handleOpenModal={ this.handleOpenModal } />
