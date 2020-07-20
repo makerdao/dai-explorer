@@ -60,7 +60,7 @@ gulp.task('generate', (cb) => {
 
 // gh-pages
 gulp.task('deploy-gh-pages', function () {
-  require('fs').writeFileSync('./build/CNAME', 'dai.makerdao.com');
+  require('fs').writeFileSync('./build/CNAME', 'sai.makerdao.com');
   return gulp.src('./build/**/*')
     .pipe(ghPages())
 })
